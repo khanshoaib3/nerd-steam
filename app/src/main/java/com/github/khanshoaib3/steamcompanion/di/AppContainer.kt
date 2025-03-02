@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.di
 
 import android.content.Context
+import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.ScraperSteamChartsRepository
 
@@ -16,6 +17,10 @@ interface AppContainer {
  */
 class AppDataContainer(private val context: Context) : AppContainer {
     override val steamChartsRepository: SteamChartsRepository by lazy {
-        ScraperSteamChartsRepository()
+        ScraperSteamChartsRepository(
+            trendingGameDao = MainDatabase.getDatabase(context).trendingGameDao(),
+            topGameDao = MainDatabase.getDatabase(context).topGameDao(),
+            topRecordDao = MainDatabase.getDatabase(context).topRecordDao()
+        )
     }
 }

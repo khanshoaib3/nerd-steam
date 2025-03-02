@@ -1,0 +1,38 @@
+package com.github.khanshoaib3.steamcompanion.data.local.steamcharts
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface TopRecordDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(topRecord: TopRecord)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMany(topRecordsList: List<TopRecord>)
+
+    @Update
+    suspend fun update(topRecord: TopRecord)
+
+    @Delete
+    suspend fun delete(topRecord: TopRecord)
+
+    @Query("DELETE from top_records")
+    suspend fun deleteAll()
+
+    @Query("SELECT * from top_records WHERE id = :id")
+    fun getOne(id: Int): Flow<TopRecord>
+
+    @Query("SELECT * from top_records")
+    fun getAll(): Flow<List<TopRecord>>
+
+    @Query("SELECT COUNT(*) from top_records")
+    suspend fun getCount(): Int
+}

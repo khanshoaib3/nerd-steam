@@ -27,11 +27,11 @@ data class SteamChartsScrapedData(
     var topRecords: List<List<String>> = emptyList(),
 )
 
-class SteamChartsScraper(private val URL: String = "https://steamcharts.com/") {
+class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") {
     fun scrape(): SteamChartsScrapedData {
         val extracted = skrape(HttpFetcher) {
             request {
-                url = URL
+                url = _url
             }
             extractIt<SteamChartsScrapedData> {
                 it.httpStatusCode = status { code }
@@ -117,6 +117,7 @@ class SteamChartsScraper(private val URL: String = "https://steamcharts.com/") {
             }
         }
 
+        // TODO Add exception handling
         Log.d(TAG, extracted.trendingGames.toString())
         Log.d(TAG, extracted.topGames.toString())
         Log.d(TAG, extracted.topRecords.toString())
@@ -148,7 +149,8 @@ fun SteamChartsScrapedData.parseAndGetTopGamesList(): List<TopGame> =
 
 
 
-fun SteamChartsScrapedData.parseAndGetTopRecords(): List<TopRecord> {
+fun SteamChartsScrapedData.parseAndGetTopRecordsList(): List<TopRecord> {
+    // To convert the date-time from UTC to `Jan 2018` like format
     val formatter = LocalDate.Format {
         monthName(MonthNames.ENGLISH_ABBREVIATED); char(' '); year()
     }
@@ -158,7 +160,7 @@ fun SteamChartsScrapedData.parseAndGetTopRecords(): List<TopRecord> {
             appId = it[0].substring(it[0].lastIndexOf("/") + 1).toInt(),
             name = it[1],
             peakPlayers = it[2].toInt(),
-            time = formatter.format(LocalDate.parse(it[3].substring(0, it[3].indexOf("T"))))
+            month = formatter.format(LocalDate.parse(it[3].substring(0, it[3].indexOf("T")))) // Remove the time as it's unnecessary
         )
     }
 }
