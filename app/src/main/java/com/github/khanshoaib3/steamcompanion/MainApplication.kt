@@ -9,6 +9,6 @@ class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppDataContainer(this)
+        this.container = AppDataContainer(this)
     }
 }

@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.data.model
+package com.github.khanshoaib3.steamcompanion.data.model.steamcharts
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

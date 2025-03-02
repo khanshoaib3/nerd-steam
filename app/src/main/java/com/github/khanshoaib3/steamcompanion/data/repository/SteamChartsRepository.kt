@@ -1,7 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.data.repository
 
 import android.util.Log
-import com.github.khanshoaib3.steamcompanion.data.model.TrendingGame
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsScraper
 import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTopGamesList
 import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTopRecords
@@ -9,7 +9,7 @@ import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTrendingGam
 
 private const val TAG = "FeedGamesRepository"
 
-interface FeedGamesRepository {
+interface SteamChartsRepository {
     suspend fun fetchAndStoreData()
 
     suspend fun getAllTrendingGames(): List<TrendingGame>
@@ -19,7 +19,7 @@ interface FeedGamesRepository {
     suspend fun getAllTopRecords(): List<String>
 }
 
-class ScraperFeedGamesRepository : FeedGamesRepository {
+class ScraperSteamChartsRepository : SteamChartsRepository {
     override suspend fun fetchAndStoreData() {
         val rawData = SteamChartsScraper().scrape()
         Log.d(TAG, rawData.parseAndGetTrendingGamesList().toString())

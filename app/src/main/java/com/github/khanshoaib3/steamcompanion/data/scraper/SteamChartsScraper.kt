@@ -1,9 +1,9 @@
 package com.github.khanshoaib3.steamcompanion.data.scraper
 
 import android.util.Log
-import com.github.khanshoaib3.steamcompanion.data.model.TopGame
-import com.github.khanshoaib3.steamcompanion.data.model.TopRecord
-import com.github.khanshoaib3.steamcompanion.data.model.TrendingGame
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt
