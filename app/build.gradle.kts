@@ -54,9 +54,12 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     // Scrapeit
     implementation(libs.skrapeit)
+    // Datetime
+    implementation(libs.kotlinx.datetime)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

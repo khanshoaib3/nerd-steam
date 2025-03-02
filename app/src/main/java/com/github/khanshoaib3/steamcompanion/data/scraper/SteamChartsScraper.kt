@@ -1,6 +1,9 @@
 package com.github.khanshoaib3.steamcompanion.data.scraper
 
 import android.util.Log
+import com.github.khanshoaib3.steamcompanion.data.model.TopGame
+import com.github.khanshoaib3.steamcompanion.data.model.TopRecord
+import com.github.khanshoaib3.steamcompanion.data.model.TrendingGame
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt
@@ -10,6 +13,11 @@ import it.skrape.selects.html5.table
 import it.skrape.selects.html5.tbody
 import it.skrape.selects.html5.td
 import it.skrape.selects.html5.tr
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
+
+private const val TAG = "SteamChartsScraper"
 
 data class SteamChartsScrapedData(
     var httpStatusCode: Int = 0,
@@ -19,11 +27,11 @@ data class SteamChartsScrapedData(
     var topRecords: List<List<String>> = emptyList(),
 )
 
-class SteamChartsScraper {
-    fun scrape() : SteamChartsScrapedData {
+class SteamChartsScraper(private val URL: String = "https://steamcharts.com/") {
+    fun scrape(): SteamChartsScrapedData {
         val extracted = skrape(HttpFetcher) {
             request {
-                url = "https://steamcharts.com/"
+                url = URL
             }
             extractIt<SteamChartsScrapedData> {
                 it.httpStatusCode = status { code }
@@ -42,18 +50,13 @@ class SteamChartsScraper {
                                         forEach { row ->
                                             trendingGames.add(
                                                 listOf(
-                                                    row.td { findByIndex(0) { a { findFirst { attribute("href") } } } },
-                                                    row.td { findByIndex(0) { text } },
-                                                    row.td { findByIndex(1) { text } },
-                                                    row.td { findByIndex(3) { text } },
+                                                    row.td { findByIndex(0) { a { findFirst { attribute("href") } } } }, // AppID
+                                                    row.td { findByIndex(0) { text } }, // Name
+                                                    row.td { findByIndex(1) { text } }, // Gain/24 hours Change
+                                                    row.td { findByIndex(3) { text } }, // Current Players
+                                                    // TODO Try to add the graph
                                                 )
                                             )
-
-//                                            Log.d("SCRAPER", row.td { findByIndex(0) { a { findFirst { attribute("href") } } } })
-//                                            Log.d("SCRAPER", row.td { findByIndex(0) { text } })
-//                                            Log.d("SCRAPER", row.td { findByIndex(1) { text } })
-//                                            Log.d("SCRAPER", row.td { findByIndex(3) { text } })
-//                                            Log.d( "SCRAPER", row.td { findByIndex(2) { "svg" { findFirst { text } } } })
                                         }
                                     }
                                 }
@@ -70,11 +73,11 @@ class SteamChartsScraper {
                                         forEach { row ->
                                             topGames.add(
                                                 listOf(
-                                                    row.td { findByIndex(1) { a { findFirst { attribute("href") } } } },
-                                                    row.td { findByIndex(1) { text } },
-                                                    row.td { findByIndex(2) { text } },
-                                                    row.td { findByIndex(4) { text } },
-                                                    row.td { findByIndex(5) { text } },
+                                                    row.td { findByIndex(1) { a { findFirst { attribute("href") } } } }, // AppID
+                                                    row.td { findByIndex(1) { text } }, // Name
+                                                    row.td { findByIndex(2) { text } }, // Current Players
+                                                    row.td { findByIndex(4) { text } }, // Peak Players
+                                                    row.td { findByIndex(5) { text } }, // Hours Played
                                                 )
                                             )
                                         }
@@ -93,10 +96,11 @@ class SteamChartsScraper {
                                         forEach { row ->
                                             topRecords.add(
                                                 listOf(
-                                                    row.td { findByIndex(0) { a { findFirst { attribute("href") } } } },
-                                                    row.td { findByIndex(0) { text } },
-                                                    row.td { findByIndex(1) { text } },
-                                                    row.td { findByIndex(2) { text } },
+                                                    row.td { findByIndex(0) { a { findFirst { attribute("href") } } } }, // AppID
+                                                    row.td { findByIndex(0) { text } }, // Name
+                                                    row.td { findByIndex(1) { text } }, // Peak Players
+                                                    row.td { findByIndex(2) { text } }, // Time
+                                                    // TODO Try to add the graph
                                                 )
                                             )
                                         }
@@ -112,19 +116,49 @@ class SteamChartsScraper {
                 }
             }
         }
-//        td {
-//            findAll {
-//                Log.d("SCRAPER", findByIndex(0) { text })
-//                Log.d("SCRAPER", findByIndex(1) { text })
-//                Log.d("SCRAPER", findByIndex(3) { text })
-//                Log.d( "SCRAPER", findByIndex(2) { "path" { findFirst { attribute("d") } } })
-//            }
-//        }
 
-        Log.d("SCRAPER", extracted.trendingGames.toString())
-        Log.d("SCRAPER", extracted.topGames.toString())
-        Log.d("SCRAPER", extracted.topRecords.toString())
+        Log.d(TAG, extracted.trendingGames.toString())
+        Log.d(TAG, extracted.topGames.toString())
+        Log.d(TAG, extracted.topRecords.toString())
 
         return extracted
+    }
+}
+
+fun SteamChartsScrapedData.parseAndGetTrendingGamesList(): List<TrendingGame> =
+    trendingGames.map {
+        TrendingGame(
+            appId = it[0].substring(it[0].lastIndexOf("/") + 1).toInt(),
+            name = it[1],
+            gain = it[2],
+            currentPlayers = it[3].toInt()
+        )
+    }
+
+fun SteamChartsScrapedData.parseAndGetTopGamesList(): List<TopGame> =
+    topGames.map {
+        TopGame(
+            appId = it[0].substring(it[0].lastIndexOf("/") + 1).toInt(),
+            name = it[1],
+            currentPlayers = it[2].toInt(),
+            peakPlayers = it[3].toInt(),
+            hours = it[4]
+        )
+    }
+
+
+
+fun SteamChartsScrapedData.parseAndGetTopRecords(): List<TopRecord> {
+    val formatter = LocalDate.Format {
+        monthName(MonthNames.ENGLISH_ABBREVIATED); char(' '); year()
+    }
+
+    return topRecords.map {
+        TopRecord(
+            appId = it[0].substring(it[0].lastIndexOf("/") + 1).toInt(),
+            name = it[1],
+            peakPlayers = it[2].toInt(),
+            time = formatter.format(LocalDate.parse(it[3].substring(0, it[3].indexOf("T"))))
+        )
     }
 }

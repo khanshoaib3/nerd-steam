@@ -4,10 +4,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class TrendingGame(
-    @PrimaryKey(autoGenerate = false)
+data class TopGame(
+    @PrimaryKey
     val appId: Int,
     val name: String,
-    val gain: String,
     val currentPlayers: Int,
+    val peakPlayers: Int,
+    val hours: String,
 )
