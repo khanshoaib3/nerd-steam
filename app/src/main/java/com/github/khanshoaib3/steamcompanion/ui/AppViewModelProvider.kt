@@ -11,7 +11,10 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            HomeViewModel(mainApplication().container.steamChartsRepository)
+            HomeViewModel(
+                steamChartsRepository = mainApplication().container.steamChartsRepository,
+                localDataStoreRepository = mainApplication().container.localDataStoreRepository
+            )
         }
     }
 }

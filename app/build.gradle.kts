@@ -55,11 +55,12 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-
-    // Scrapeit
+    // Scrape-it
     implementation(libs.skrapeit)
     // Datetime
     implementation(libs.kotlinx.datetime)
+    // Preferences Datastore
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
