@@ -21,11 +21,11 @@ private const val TAG = "SteamChartsRepository"
 interface SteamChartsRepository {
     suspend fun fetchAndStoreData()
 
-    suspend fun getAllTrendingGames(): Flow<List<TrendingGame>>
+    fun getAllTrendingGames(): Flow<List<TrendingGame>>
 
-    suspend fun getAllTopGames(): Flow<List<TopGame>>
+    fun getAllTopGames(): Flow<List<TopGame>>
 
-    suspend fun getAllTopRecords(): Flow<List<TopRecord>>
+    fun getAllTopRecords(): Flow<List<TopRecord>>
 }
 
 
@@ -47,7 +47,7 @@ class ScraperSteamChartsRepository(
                 && currentDateTime.dayOfYear <= oldDateTime.dayOfYear
                 && currentDateTime.year <= oldDateTime.year
             ) {
-                Log.d(TAG, "Records already present")
+                Log.d(TAG, "Records already present, with timestamp $steamChartsFetchTime")
                 return
             }
 
@@ -67,15 +67,15 @@ class ScraperSteamChartsRepository(
         Log.d(TAG, "Added records to the tables. with timestamp $timeStamp")
     }
 
-    override suspend fun getAllTrendingGames(): Flow<List<TrendingGame>> {
+    override fun getAllTrendingGames(): Flow<List<TrendingGame>> {
         return trendingGameDao.getAll()
     }
 
-    override suspend fun getAllTopGames(): Flow<List<TopGame>> {
+    override fun getAllTopGames(): Flow<List<TopGame>> {
         return topGameDao.getAll()
     }
 
-    override suspend fun getAllTopRecords(): Flow<List<TopRecord>> {
+    override fun getAllTopRecords(): Flow<List<TopRecord>> {
         return topRecordDao.getAll()
     }
 }

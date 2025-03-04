@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     // Preferences Datastore
     implementation(libs.androidx.datastore.preferences)
+    // Google Fonts
+    implementation(libs.androidx.ui.text.google.fonts)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
