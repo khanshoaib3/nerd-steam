@@ -218,7 +218,9 @@ val surfaceContainerDarkHighContrast = Color(0xFF2E3036)
 val surfaceContainerHighDarkHighContrast = Color(0xFF393B41)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF45474C)
 
-
+// Custom Colors
+val steamChartsChangePositive = Color(0xFF439B1D)
+val steamChartsChangeNegative = Color(0xFF8C381C)
 
 
 

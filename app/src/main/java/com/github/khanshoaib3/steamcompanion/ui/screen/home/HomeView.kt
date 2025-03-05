@@ -1,19 +1,18 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
-import com.github.khanshoaib3.steamcompanion.R;
+import android.icu.text.NumberFormat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,8 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -33,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.AppViewModelProvider
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
@@ -43,17 +41,7 @@ fun HomeView(
 ) {
     val homeUiState by homeViewModel.homeUiState.collectAsState()
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-        Card {
-            Column {
-                homeUiState.trendingGames.forEach { item ->
-                    GameEntry(
-                        url = "https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg",
-                        name = item.name,
-                        players = item.currentPlayers
-                    )
-                }
-            }
-        }
+        TrendingGamesRow(homeUiState.trendingGames)
         Spacer(Modifier.height(8.dp))
         Card {
             Column {
@@ -106,28 +94,8 @@ fun GameEntry(url: String, name: String, players: Int, modifier: Modifier = Modi
                     .clip(RoundedCornerShape(4.dp))
             )
             Text(name, modifier = Modifier.weight(2f))
-            Text(players.toString(), modifier = Modifier.weight(1f))
+            Text(NumberFormat.getNumberInstance().format(players), modifier = Modifier.weight(1f))
             Spacer(modifier.height(2.dp))
         }
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(showBackground = true)
-@Composable
-private fun GameEntryPreview() {
-    SteamCompanionTheme {
-        GameEntry(
-            url = "https://cdn.cloudflare.steamstatic.com/steam/apps/12150/library_600x900.jpg",
-            name = "Max Payne 2: The Fall of Max Payne",
-            players = 91851
-        )
-    }
-}
-
-@Composable
-private fun HomeViewPreview() {
-    SteamCompanionTheme {
-        HomeView()
     }
 }
