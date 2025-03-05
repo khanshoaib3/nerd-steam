@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
 import android.content.res.Configuration
 import android.icu.text.NumberFormat
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,14 +46,12 @@ fun TrendingGamesRow(trendingGames: List<TrendingGame>, modifier: Modifier = Mod
         imageWidth = 150.toDp()
         imageHeight = 225.toDp()
     }
-    HeaderRow(imageWidth)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        HeaderRow(imageWidth)
+        HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
         trendingGames.forEach { item ->
             TrendingGameCapsule(
-                url = "https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg",
-                name = item.name,
-                gain = item.gain,
-                players = item.currentPlayers,
+                trendingGame = item,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight
             )
@@ -61,10 +61,7 @@ fun TrendingGamesRow(trendingGames: List<TrendingGame>, modifier: Modifier = Mod
 
 @Composable
 fun TrendingGameCapsule(
-    url: String,
-    name: String,
-    gain: String,
-    players: Int,
+    trendingGame: TrendingGame,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -77,9 +74,9 @@ fun TrendingGameCapsule(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context = LocalContext.current)
-                .data(url)
+                .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${trendingGame.appId}/library_600x900.jpg")
                 .build(),
-            contentDescription = name,
+            contentDescription = trendingGame.name,
             placeholder = painterResource(R.drawable.preview_image_300x450),
             modifier = Modifier
                 .size(width = imageWidth, height = imageHeight)
@@ -87,21 +84,21 @@ fun TrendingGameCapsule(
         )
         Spacer(Modifier.width(4.dp))
         Text(
-            name,
+            trendingGame.name,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(2f)
         )
         Text(
-            gain,
+            trendingGame.gain,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = if (gain.first() == '+') steamChartsChangePositive else steamChartsChangeNegative,
+            color = if (trendingGame.gain.first() == '+') steamChartsChangePositive else steamChartsChangeNegative,
             modifier = Modifier.weight(1f)
         )
         Text(
-            NumberFormat.getNumberInstance().format(players),
+            NumberFormat.getNumberInstance().format(trendingGame.currentPlayers),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -166,10 +163,12 @@ private fun TrendingGameCapsulePreview() {
     }
     SteamCompanionTheme {
         TrendingGameCapsule(
-            url = "https://cdn.cloudflare.steamstatic.com/steam/apps/12150/library_600x900.jpg",
-            name = "Max Payne 2: The Fall of Max Payne",
-            gain = "+300%",
-            players = 31,
+            trendingGame = TrendingGame(
+                appId = 12150,
+                name = "Max Payne 2: The Fall of Max Payne",
+                gain = "+300%",
+                currentPlayers = 31,
+            ),
             imageWidth = imageWidth,
             imageHeight = imageHeight
         )
