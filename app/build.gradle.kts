@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     // Google Fonts
     implementation(libs.androidx.ui.text.google.fonts)
+    // Material Icons
+    implementation(libs.material.icons.extended)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

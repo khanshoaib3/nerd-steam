@@ -7,16 +7,23 @@ import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class HomeUiState(
+data class HomeDataState(
     val trendingGames: List<TrendingGame>,
     val topGames: List<TopGame>,
     val topRecords: List<TopRecord>,
+)
+
+data class HomeViewState(
+    val isTrendingGamesExpanded: Boolean = true,
+    val isTopGamesExpanded: Boolean = true,
+    val isTopRecordsExpanded: Boolean = true,
 )
 
 class HomeViewModel(
@@ -29,21 +36,32 @@ class HomeViewModel(
         }
     }
 
-    val homeUiState: StateFlow<HomeUiState> =
-        combine(
-            steamChartsRepository.getAllTrendingGames(),
-            steamChartsRepository.getAllTopGames(),
-            steamChartsRepository.getAllTopRecords()
-        ) { trendingGames, topGames, topRecords ->
-            HomeUiState(
-                trendingGames = trendingGames,
-                topGames = topGames,
-                topRecords = topRecords
-            )
-        }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000L),
-                initialValue = HomeUiState(listOf(), listOf(), listOf())
-            )
+    val homeDataState: StateFlow<HomeDataState> = combine(
+        steamChartsRepository.getAllTrendingGames(),
+        steamChartsRepository.getAllTopGames(),
+        steamChartsRepository.getAllTopRecords()
+    ) { trendingGames, topGames, topRecords ->
+        HomeDataState(
+            trendingGames = trendingGames, topGames = topGames, topRecords = topRecords
+        )
+    }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = HomeDataState(listOf(), listOf(), listOf())
+        )
+
+    private val _homeViewState = MutableStateFlow(HomeViewState())
+    val homeViewState: StateFlow<HomeViewState> = _homeViewState
+
+    fun toggleTrendingGamesExpandState() {
+        _homeViewState.value = _homeViewState.value.copy(isTrendingGamesExpanded = !_homeViewState.value.isTrendingGamesExpanded)
+    }
+
+    fun toggleTopGamesExpandState() {
+        _homeViewState.value = _homeViewState.value.copy(isTopGamesExpanded = !_homeViewState.value.isTopGamesExpanded)
+    }
+
+    fun toggleTopRecordsExpandState() {
+        _homeViewState.value = _homeViewState.value.copy(isTopRecordsExpanded = !_homeViewState.value.isTopRecordsExpanded)
+    }
 }

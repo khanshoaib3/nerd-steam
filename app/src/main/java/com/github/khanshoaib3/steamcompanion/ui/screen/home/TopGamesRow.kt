@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
 import android.content.res.Configuration
 import android.icu.text.NumberFormat
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,10 +33,16 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
+import com.github.khanshoaib3.steamcompanion.ui.common.CollapseButton
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
 @Composable
-fun TopGamesRow(topGames: List<TopGame>, modifier: Modifier = Modifier) {
+fun TopGamesRow(
+    topGames: List<TopGame>,
+    expanded: Boolean,
+    collapseButtonOnClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
     val imageHeight: Dp
@@ -43,25 +50,30 @@ fun TopGamesRow(topGames: List<TopGame>, modifier: Modifier = Modifier) {
         imageWidth = 150.toDp()
         imageHeight = 225.toDp()
     }
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))) {
-        TopGamesHeader(imageWidth)
-        HorizontalDivider(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium), vertical = dimensionResource(R.dimen.padding_very_small)))
-        topGames.forEach { item ->
-            TopGameCapsule(
-                topGame = item,
-                imageWidth = imageWidth,
-                imageHeight = imageHeight
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
+    ) {
+        TopGamesHeader(expanded, imageWidth, collapseButtonOnClick)
+        if (expanded) {
+            HorizontalDivider(
+                Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.padding_medium),
+                    vertical = dimensionResource(R.dimen.padding_very_small)
+                )
             )
+            topGames.forEach { item ->
+                TopGameCapsule(
+                    topGame = item, imageWidth = imageWidth, imageHeight = imageHeight
+                )
+            }
         }
     }
 }
 
 @Composable
 fun TopGameCapsule(
-    topGame: TopGame,
-    imageWidth: Dp,
-    imageHeight: Dp,
-    modifier: Modifier = Modifier
+    topGame: TopGame, imageWidth: Dp, imageHeight: Dp, modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -111,55 +123,67 @@ fun TopGameCapsule(
 }
 
 @Composable
-fun TopGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
+fun TopGamesHeader(
+    expanded: Boolean,
+    imageWidth: Dp,
+    collapseButtonOnClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(true, onClick = collapseButtonOnClick)
+        ) {
             Text(
                 "Top Games",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Start
             )
+            CollapseButton(expanded, collapseButtonOnClick)
         }
-        Spacer(Modifier.height(dimensionResource(R.dimen.padding_medium)))
-        Row {
-            Spacer(Modifier.width(imageWidth))
-            Text(
-                "App Name",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(2f)
-            )
-            Text(
-                "Current Players",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                "Peak Players",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                "Hours Played",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(1.25f)
-            )
+        if (expanded) {
+            Spacer(Modifier.height(dimensionResource(R.dimen.padding_medium)))
+            Row {
+                Spacer(Modifier.width(imageWidth))
+                Text(
+                    "App Name",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.weight(2f)
+                )
+                Text(
+                    "Current Players",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    "Peak Players",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    "Hours Played",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.weight(1.25f)
+                )
+            }
         }
     }
 }
 
 @Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    backgroundColor = 0xFF111318
+    showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, backgroundColor = 0xFF111318
 )
 @Preview(showBackground = true)
 @Composable
@@ -179,41 +203,34 @@ private fun TopGameCapsulePreview() {
                 peakPlayers = 315,
                 currentPlayers = 31,
                 hours = 729111667
-            ),
-            imageWidth = imageWidth,
-            imageHeight = imageHeight
+            ), imageWidth = imageWidth, imageHeight = imageHeight
         )
     }
 }
 
 @Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    backgroundColor = 0xFF111318
+    showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, backgroundColor = 0xFF111318
 )
 @Preview(showBackground = true)
 @Composable
 fun TopGamesRowPreview() {
     SteamCompanionTheme {
-        TopGamesRow(
-            topGames = listOf(
-                TopGame(
-                    id = 1,
-                    appId = 12150,
-                    name = "Max Payne 2: The Fall of Max Payne",
-                    peakPlayers = 351,
-                    currentPlayers = 31,
-                    hours = 729111667
-                ),
-                TopGame(
-                    id = 2,
-                    appId = 367520,
-                    name = "Hollow Knight",
-                    peakPlayers = 20169,
-                    currentPlayers = 4540,
-                    hours = 310064845
-                )
+        TopGamesRow(topGames = listOf(
+            TopGame(
+                id = 1,
+                appId = 12150,
+                name = "Max Payne 2: The Fall of Max Payne",
+                peakPlayers = 351,
+                currentPlayers = 31,
+                hours = 729111667
+            ), TopGame(
+                id = 2,
+                appId = 367520,
+                name = "Hollow Knight",
+                peakPlayers = 20169,
+                currentPlayers = 4540,
+                hours = 310064845
             )
-        )
+        ), expanded = true, collapseButtonOnClick = {})
     }
 }
