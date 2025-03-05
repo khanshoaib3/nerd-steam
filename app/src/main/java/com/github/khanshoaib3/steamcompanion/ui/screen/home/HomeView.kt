@@ -1,38 +1,17 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
-import android.content.res.Configuration
-import android.icu.text.NumberFormat
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.AppViewModelProvider
-import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.R
 
 @Composable
 fun HomeView(
@@ -40,52 +19,12 @@ fun HomeView(
     homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val homeUiState by homeViewModel.homeUiState.collectAsState()
-    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
+        modifier = modifier.verticalScroll(rememberScrollState())
+    ) {
         TrendingGamesRow(homeUiState.trendingGames)
-        Spacer(Modifier.height(8.dp))
         TopGamesRow(homeUiState.topGames)
-        Spacer(Modifier.height(8.dp))
-        Card {
-            Column {
-                homeUiState.topRecords.forEach { item ->
-                    GameEntry(
-                        url = "https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg",
-                        name = item.name,
-                        players = item.peakPlayers
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun GameEntry(url: String, name: String, players: Int, modifier: Modifier = Modifier) {
-    val density: Density = LocalDensity.current
-    val width: Dp
-    val height: Dp
-    with(density) {
-        width = 225.toDp()
-        height = 338.toDp()
-    }
-    Card(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(4.dp)
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data(url)
-                    .build(),
-                contentDescription = name,
-                placeholder = painterResource(R.drawable.preview_image_300x450),
-                modifier = Modifier
-                    .size(width = width, height = height)
-                    .clip(RoundedCornerShape(4.dp))
-            )
-            Text(name, modifier = Modifier.weight(2f))
-            Text(NumberFormat.getNumberInstance().format(players), modifier = Modifier.weight(1f))
-            Spacer(modifier.height(2.dp))
-        }
+        TopRecordsRow(homeUiState.topRecords)
     }
 }

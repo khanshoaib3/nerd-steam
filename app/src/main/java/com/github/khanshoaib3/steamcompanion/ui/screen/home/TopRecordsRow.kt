@@ -31,11 +31,11 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
 @Composable
-fun TopGamesRow(topGames: List<TopGame>, modifier: Modifier = Modifier) {
+fun TopRecordsRow(topRecords: List<TopRecord>, modifier: Modifier = Modifier) {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
     val imageHeight: Dp
@@ -44,11 +44,11 @@ fun TopGamesRow(topGames: List<TopGame>, modifier: Modifier = Modifier) {
         imageHeight = 225.toDp()
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))) {
-        TopGamesHeader(imageWidth)
+        TopRecordsHeader(imageWidth)
         HorizontalDivider(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium), vertical = dimensionResource(R.dimen.padding_very_small)))
-        topGames.forEach { item ->
-            TopGameCapsule(
-                topGame = item,
+        topRecords.forEach { item ->
+            TopRecordCapsule(
+                topRecord = item,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight
             )
@@ -57,8 +57,8 @@ fun TopGamesRow(topGames: List<TopGame>, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TopGameCapsule(
-    topGame: TopGame,
+fun TopRecordCapsule(
+    topRecord: TopRecord,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -66,14 +66,14 @@ fun TopGameCapsule(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(dimensionResource(R.dimen.padding_small))
+            .padding(dimensionResource(R.dimen.padding_medium))
             .fillMaxWidth()
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context = LocalContext.current)
-                .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${topGame.appId}/library_600x900.jpg")
+                .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${topRecord.appId}/library_600x900.jpg")
                 .build(),
-            contentDescription = topGame.name,
+            contentDescription = topRecord.name,
             placeholder = painterResource(R.drawable.preview_image_300x450),
             modifier = Modifier
                 .size(width = imageWidth, height = imageHeight)
@@ -81,41 +81,34 @@ fun TopGameCapsule(
         )
         Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
         Text(
-            topGame.name,
+            topRecord.name,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(2f)
         )
         Text(
-            NumberFormat.getNumberInstance().format(topGame.currentPlayers),
+            NumberFormat.getNumberInstance().format(topRecord.peakPlayers),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
         )
         Text(
-            NumberFormat.getNumberInstance().format(topGame.peakPlayers),
+            topRecord.month,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
-        )
-        Text(
-            NumberFormat.getNumberInstance().format(topGame.hours),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1.25f)
         )
     }
 }
 
 @Composable
-fun TopGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
+fun TopRecordsHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Top Games",
+                "Top Records",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Start
@@ -132,13 +125,6 @@ fun TopGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
                 modifier = Modifier.weight(2f)
             )
             Text(
-                "Current Players",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
                 "Peak Players",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
@@ -146,11 +132,11 @@ fun TopGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "Hours Played",
+                "Time",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Light,
-                modifier = Modifier.weight(1.25f)
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -163,7 +149,7 @@ fun TopGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
 )
 @Preview(showBackground = true)
 @Composable
-private fun TopGameCapsulePreview() {
+private fun TopRecordCapsulePreview() {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
     val imageHeight: Dp
@@ -172,13 +158,12 @@ private fun TopGameCapsulePreview() {
         imageHeight = 225.toDp()
     }
     SteamCompanionTheme {
-        TopGameCapsule(
-            topGame = TopGame(
+        TopRecordCapsule(
+            topRecord = TopRecord(
                 appId = 12150,
                 name = "Max Payne 2: The Fall of Max Payne",
                 peakPlayers = 315,
-                currentPlayers = 31,
-                hours = 729111667
+                month = "Jan 2018"
             ),
             imageWidth = imageWidth,
             imageHeight = imageHeight
@@ -193,25 +178,23 @@ private fun TopGameCapsulePreview() {
 )
 @Preview(showBackground = true)
 @Composable
-fun TopGamesRowPreview() {
+fun TopRecordsRowPreview() {
     SteamCompanionTheme {
-        TopGamesRow(
-            topGames = listOf(
-                TopGame(
+        TopRecordsRow(
+            topRecords = listOf(
+                TopRecord(
                     id = 1,
                     appId = 12150,
                     name = "Max Payne 2: The Fall of Max Payne",
                     peakPlayers = 351,
-                    currentPlayers = 31,
-                    hours = 729111667
+                    month = "Jan 2018"
                 ),
-                TopGame(
+                TopRecord(
                     id = 2,
                     appId = 367520,
                     name = "Hollow Knight",
                     peakPlayers = 20169,
-                    currentPlayers = 4540,
-                    hours = 310064845
+                    month = "Mar 2016"
                 )
             )
         )

@@ -21,13 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.khanshoaib3.steamcompanion.R
@@ -45,9 +45,9 @@ fun TrendingGamesRow(trendingGames: List<TrendingGame>, modifier: Modifier = Mod
         imageWidth = 150.toDp()
         imageHeight = 225.toDp()
     }
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))) {
         TrendingGamesHeader(imageWidth)
-        HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
+        HorizontalDivider(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium), vertical = dimensionResource(R.dimen.padding_very_small)))
         trendingGames.forEach { item ->
             TrendingGameCapsule(
                 trendingGame = item,
@@ -68,7 +68,7 @@ private fun TrendingGameCapsule(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(4.dp)
+            .padding(dimensionResource(R.dimen.padding_small))
             .fillMaxWidth()
     ) {
         AsyncImage(
@@ -79,9 +79,9 @@ private fun TrendingGameCapsule(
             placeholder = painterResource(R.drawable.preview_image_300x450),
             modifier = Modifier
                 .size(width = imageWidth, height = imageHeight)
-                .clip(RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
         )
-        Spacer(Modifier.width(4.dp))
+        Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
         Text(
             trendingGame.name,
             style = MaterialTheme.typography.bodyMedium,
@@ -117,7 +117,7 @@ private fun TrendingGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Start
             )
         }
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(dimensionResource(R.dimen.padding_medium)))
         Row {
             Spacer(Modifier.width(imageWidth))
             Text(
