@@ -22,5 +22,5 @@ data class TopGame(
     val peakPlayers: Int,
 
     @ColumnInfo(name = "hours_played")
-    val hours: String,
+    val hours: Long,
 )

@@ -143,7 +143,7 @@ fun SteamChartsScrapedData.parseAndGetTopGamesList(): List<TopGame> =
             name = it[1],
             currentPlayers = it[2].toInt(),
             peakPlayers = it[3].toInt(),
-            hours = it[4]
+            hours = it[4].toLong()
         )
     }
 

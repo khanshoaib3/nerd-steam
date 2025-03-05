@@ -43,17 +43,7 @@ fun HomeView(
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         TrendingGamesRow(homeUiState.trendingGames)
         Spacer(Modifier.height(8.dp))
-        Card {
-            Column {
-                homeUiState.topGames.forEach { item ->
-                    GameEntry(
-                        url = "https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg",
-                        name = item.name,
-                        players = item.currentPlayers
-                    )
-                }
-            }
-        }
+        TopGamesRow(homeUiState.topGames)
         Spacer(Modifier.height(8.dp))
         Card {
             Column {

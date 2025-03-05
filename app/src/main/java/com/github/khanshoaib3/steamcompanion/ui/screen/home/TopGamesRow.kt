@@ -31,13 +31,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
+import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
-import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
-import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
 
 @Composable
-fun TrendingGamesRow(trendingGames: List<TrendingGame>, modifier: Modifier = Modifier) {
+fun TopGamesRow(topGames: List<TopGame>, modifier: Modifier = Modifier) {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
     val imageHeight: Dp
@@ -46,11 +44,11 @@ fun TrendingGamesRow(trendingGames: List<TrendingGame>, modifier: Modifier = Mod
         imageHeight = 225.toDp()
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        TrendingGamesHeader(imageWidth)
+        TopGamesHeader(imageWidth)
         HorizontalDivider(Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
-        trendingGames.forEach { item ->
-            TrendingGameCapsule(
-                trendingGame = item,
+        topGames.forEach { item ->
+            TopGameCapsule(
+                topGame = item,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight
             )
@@ -59,8 +57,8 @@ fun TrendingGamesRow(trendingGames: List<TrendingGame>, modifier: Modifier = Mod
 }
 
 @Composable
-private fun TrendingGameCapsule(
-    trendingGame: TrendingGame,
+fun TopGameCapsule(
+    topGame: TopGame,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -73,9 +71,9 @@ private fun TrendingGameCapsule(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context = LocalContext.current)
-                .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${trendingGame.appId}/library_600x900.jpg")
+                .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${topGame.appId}/library_600x900.jpg")
                 .build(),
-            contentDescription = trendingGame.name,
+            contentDescription = topGame.name,
             placeholder = painterResource(R.drawable.preview_image_300x450),
             modifier = Modifier
                 .size(width = imageWidth, height = imageHeight)
@@ -83,35 +81,41 @@ private fun TrendingGameCapsule(
         )
         Spacer(Modifier.width(4.dp))
         Text(
-            trendingGame.name,
+            topGame.name,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(2f)
         )
         Text(
-            trendingGame.gain,
+            NumberFormat.getNumberInstance().format(topGame.currentPlayers),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = if (trendingGame.gain.first() == '+') steamChartsChangePositive else steamChartsChangeNegative,
             modifier = Modifier.weight(1f)
         )
         Text(
-            NumberFormat.getNumberInstance().format(trendingGame.currentPlayers),
+            NumberFormat.getNumberInstance().format(topGame.peakPlayers),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
+        )
+        Text(
+            NumberFormat.getNumberInstance().format(topGame.hours),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1.25f)
         )
     }
 }
 
 @Composable
-private fun TrendingGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
+fun TopGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Trending Games",
+                "Top Games",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Start
@@ -128,18 +132,25 @@ private fun TrendingGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
                 modifier = Modifier.weight(2f)
             )
             Text(
-                "24-Hour Change",
+                "Current Players",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Light,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "Current Players",
+                "Peak Players",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Light,
                 modifier = Modifier.weight(1f)
+            )
+            Text(
+                "Hours Played",
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Light,
+                modifier = Modifier.weight(1.25f)
             )
         }
     }
@@ -152,7 +163,7 @@ private fun TrendingGamesHeader(imageWidth: Dp, modifier: Modifier = Modifier) {
 )
 @Preview(showBackground = true)
 @Composable
-private fun TrendingGameCapsulePreview() {
+private fun TopGameCapsulePreview() {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
     val imageHeight: Dp
@@ -161,12 +172,13 @@ private fun TrendingGameCapsulePreview() {
         imageHeight = 225.toDp()
     }
     SteamCompanionTheme {
-        TrendingGameCapsule(
-            trendingGame = TrendingGame(
+        TopGameCapsule(
+            topGame = TopGame(
                 appId = 12150,
                 name = "Max Payne 2: The Fall of Max Payne",
-                gain = "+300%",
+                peakPlayers = 315,
                 currentPlayers = 31,
+                hours = 729111667
             ),
             imageWidth = imageWidth,
             imageHeight = imageHeight
@@ -181,23 +193,25 @@ private fun TrendingGameCapsulePreview() {
 )
 @Preview(showBackground = true)
 @Composable
-fun TrendingGamesRowPreview() {
+fun TopGamesRowPreview() {
     SteamCompanionTheme {
-        TrendingGamesRow(
-            listOf(
-                TrendingGame(
+        TopGamesRow(
+            topGames = listOf(
+                TopGame(
                     id = 1,
                     appId = 12150,
                     name = "Max Payne 2: The Fall of Max Payne",
-                    gain = "-3%",
-                    currentPlayers = 31
+                    peakPlayers = 351,
+                    currentPlayers = 31,
+                    hours = 729111667
                 ),
-                TrendingGame(
+                TopGame(
                     id = 2,
                     appId = 367520,
                     name = "Hollow Knight",
-                    gain = "+26.22%",
-                    currentPlayers = 4540
+                    peakPlayers = 20169,
+                    currentPlayers = 4540,
+                    hours = 310064845
                 )
             )
         )
