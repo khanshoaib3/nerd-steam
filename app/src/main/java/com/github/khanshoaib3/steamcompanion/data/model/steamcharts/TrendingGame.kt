@@ -7,17 +7,17 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "trending_games")
 data class TrendingGame(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    override val id: Int = 0,
 
     @ColumnInfo(name = "appid")
-    val appId: Int,
+    override val appId: Int,
 
     @ColumnInfo(name = "name")
-    val name: String,
+    override val name: String,
 
     @ColumnInfo(name = "gain")
     val gain: String,
 
     @ColumnInfo(name = "current_players")
     val currentPlayers: Int,
-)
+) : SteamChartsItem

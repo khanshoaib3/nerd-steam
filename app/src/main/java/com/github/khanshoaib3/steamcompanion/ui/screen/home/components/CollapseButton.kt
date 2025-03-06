@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.common
+package com.github.khanshoaib3.steamcompanion.ui.screen.home.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess

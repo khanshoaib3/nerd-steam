@@ -15,6 +15,8 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.khanshoaib3.steamcompanion.ui.AppViewModelProvider
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTable
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTableType
 
 @Composable
 fun HomeView(
@@ -30,27 +32,30 @@ fun HomeView(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
-        TrendingGamesRow(
-            trendingGames = homeDataState.trendingGames,
-            expanded = homeViewState.isTrendingGamesExpanded,
+        SteamChartsTable(
+            gamesList = homeDataState.trendingGames,
+            tableType = SteamChartsTableType.TrendingGames,
+            isTableExpanded = homeViewState.isTrendingGamesExpanded,
             collapseButtonOnClick = {
                 homeViewModel.toggleTrendingGamesExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
             modifier = Modifier.animateContentSize()
         )
-        TopGamesRow(
-            topGames = homeDataState.topGames,
-            expanded = homeViewState.isTopGamesExpanded,
+        SteamChartsTable(
+            gamesList = homeDataState.topGames,
+            tableType = SteamChartsTableType.TopGames,
+            isTableExpanded = homeViewState.isTopGamesExpanded,
             collapseButtonOnClick = {
                 homeViewModel.toggleTopGamesExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
             modifier = Modifier.animateContentSize()
         )
-        TopRecordsRow(
-            homeDataState.topRecords,
-            expanded = homeViewState.isTopRecordsExpanded,
+        SteamChartsTable(
+            gamesList = homeDataState.topRecords,
+            tableType = SteamChartsTableType.TopRecords,
+            isTableExpanded = homeViewState.isTopRecordsExpanded,
             collapseButtonOnClick = {
                 homeViewModel.toggleTopRecordsExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
