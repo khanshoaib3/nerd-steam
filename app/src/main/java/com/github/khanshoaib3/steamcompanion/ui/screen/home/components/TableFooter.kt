@@ -27,6 +27,7 @@ fun TableFooter(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
+            // https://developer.android.com/reference/kotlin/androidx/compose/ui/text/LinkAnnotation
             buildAnnotatedString {
                 append("powered by ")
                 withLink(

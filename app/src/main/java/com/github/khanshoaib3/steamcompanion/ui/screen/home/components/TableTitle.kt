@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 fun TableTitle(
     tableType: SteamChartsTableType,
     isTableExpanded: Boolean = true,
-    collapseButtonOnClick: () -> Unit = {},
+    onCollapseButtonClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -24,7 +24,7 @@ fun TableTitle(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
-            .clickable(true, onClick = collapseButtonOnClick)
+            .clickable(true, onClick = onCollapseButtonClick)
     ) {
         Text(
             text = when (tableType) {
@@ -36,6 +36,6 @@ fun TableTitle(
             fontWeight = FontWeight.Light,
             textAlign = TextAlign.Start
         )
-        CollapseButton(expanded = isTableExpanded, onClick = collapseButtonOnClick)
+        CollapseButton(expanded = isTableExpanded, onClick = onCollapseButtonClick)
     }
 }

@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home.components
 
 import android.icu.text.NumberFormat
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,11 +40,14 @@ fun <T : SteamChartsItem> TableRow(
     item: T,
     imageWidth: Dp,
     imageHeight: Dp,
+    onClick: (appId: Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(true, onClick = { onClick(item.appId) })
     ) {
         Row(
             modifier = Modifier.weight(1f),

@@ -1,4 +1,5 @@
 [versions]
+adaptiveLayout = "1.1.0-rc01"
 agp = "8.8.2"
 coilCompose = "2.4.0"
 datastorePreferences = "1.1.3"
@@ -16,6 +17,9 @@ skrapeit = "1.2.2"
 uiTextGoogleFonts = "1.7.8"
 
 [libraries]
+androidx-material-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptiveLayout" }
+androidx-material-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "adaptiveLayout" }
+androidx-material-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptiveLayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }

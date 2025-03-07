@@ -31,7 +31,8 @@ fun <T : SteamChartsItem> SteamChartsTable(
     gamesList: List<T>,
     tableType: SteamChartsTableType,
     isTableExpanded: Boolean = true,
-    collapseButtonOnClick: () -> Unit = {},
+    onCollapseButtonClick: () -> Unit = {},
+    onGameRowClick: (appId: Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val density: Density = LocalDensity.current
@@ -53,7 +54,7 @@ fun <T : SteamChartsItem> SteamChartsTable(
             TableTitle(
                 tableType = tableType,
                 isTableExpanded = isTableExpanded,
-                collapseButtonOnClick = collapseButtonOnClick
+                onCollapseButtonClick = onCollapseButtonClick
             )
             AnimatedVisibility(visible = isTableExpanded) {
                 Column {
@@ -64,6 +65,7 @@ fun <T : SteamChartsItem> SteamChartsTable(
                         gamesList = gamesList,
                         imageWidth = imageWidth,
                         imageHeight = imageHeight,
+                        onRowClick = onGameRowClick,
                         modifier = Modifier.padding(
                             vertical = dimensionResource(R.dimen.padding_small)
                         )

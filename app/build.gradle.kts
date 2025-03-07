@@ -65,6 +65,10 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     // Material Icons
     implementation(libs.material.icons.extended)
+    // Material Adaptive Layouts
+    implementation(libs.androidx.material.adaptive)
+    implementation(libs.androidx.material.adaptive.layout)
+    implementation(libs.androidx.material.adaptive.navigation)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

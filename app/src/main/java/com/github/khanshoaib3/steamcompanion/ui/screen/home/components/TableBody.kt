@@ -10,10 +10,11 @@ import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.SteamChartsI
 import com.github.khanshoaib3.steamcompanion.R
 
 @Composable
-fun <T : SteamChartsItem>TableBody(
+fun <T : SteamChartsItem> TableBody(
     gamesList: List<T>,
     imageWidth: Dp,
     imageHeight: Dp,
+    onRowClick: (appId: Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -25,6 +26,7 @@ fun <T : SteamChartsItem>TableBody(
                 item = item,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight,
+                onClick = onRowClick,
                 modifier = Modifier
             )
         }

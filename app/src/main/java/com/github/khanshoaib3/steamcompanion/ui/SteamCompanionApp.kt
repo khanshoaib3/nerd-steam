@@ -5,15 +5,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeView
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.Home
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
 @Composable
 fun SteamCompanionApp(modifier: Modifier = Modifier) {
     Scaffold { innerPadding ->
-        HomeView(modifier = modifier.padding(innerPadding))
+        Home(modifier = modifier.padding(innerPadding))
     }
-
 }
 
 @Preview

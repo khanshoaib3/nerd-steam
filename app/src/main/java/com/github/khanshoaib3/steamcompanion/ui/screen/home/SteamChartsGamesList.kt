@@ -7,26 +7,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.khanshoaib3.steamcompanion.ui.AppViewModelProvider
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTable
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTableType
 
 @Composable
-fun HomeView(
+fun SteamChartsGamesList(
+    onGameClick: (appId: Int) -> Unit = {},
+    homeViewModel: HomeViewModel,
+    homeDataState: HomeDataState,
+    homeViewState: HomeViewState,
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val homeDataState by homeViewModel.homeDataState.collectAsState()
-    val homeViewState by homeViewModel.homeViewState.collectAsState()
-
     val view = LocalView.current
 
     Column(
@@ -37,10 +33,11 @@ fun HomeView(
             gamesList = homeDataState.trendingGames,
             tableType = SteamChartsTableType.TrendingGames,
             isTableExpanded = homeViewState.isTrendingGamesExpanded,
-            collapseButtonOnClick = {
+            onCollapseButtonClick = {
                 homeViewModel.toggleTrendingGamesExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
+            onGameRowClick = onGameClick,
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.padding_small))
                 .animateContentSize()
@@ -49,10 +46,11 @@ fun HomeView(
             gamesList = homeDataState.topGames,
             tableType = SteamChartsTableType.TopGames,
             isTableExpanded = homeViewState.isTopGamesExpanded,
-            collapseButtonOnClick = {
+            onCollapseButtonClick = {
                 homeViewModel.toggleTopGamesExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
+            onGameRowClick = onGameClick,
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.padding_small))
                 .animateContentSize()
@@ -61,10 +59,11 @@ fun HomeView(
             gamesList = homeDataState.topRecords,
             tableType = SteamChartsTableType.TopRecords,
             isTableExpanded = homeViewState.isTopRecordsExpanded,
-            collapseButtonOnClick = {
+            onCollapseButtonClick = {
                 homeViewModel.toggleTopRecordsExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
+            onGameRowClick = onGameClick,
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.padding_small))
                 .animateContentSize()
