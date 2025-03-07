@@ -10,7 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun CollapseButton(expanded: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun CollapseButton(
+    expanded: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     IconButton(onClick = onClick, modifier = modifier) {
         Icon(
             imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,

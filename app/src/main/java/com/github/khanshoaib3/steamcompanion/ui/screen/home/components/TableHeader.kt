@@ -20,7 +20,7 @@ import com.github.khanshoaib3.steamcompanion.R
 fun TableHeader(
     tableType: SteamChartsTableType,
     imageWidth: Dp,
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
 ) {
     val headingsWithWeights: List<Pair<String, Float>> = when (tableType) {
         SteamChartsTableType.TrendingGames -> listOf(
@@ -43,12 +43,12 @@ fun TableHeader(
     Column(modifier = modifier) {
         Row {
             Row(modifier = Modifier.weight(1f)) {
-                Spacer(Modifier.Companion.width(imageWidth))
+                Spacer(Modifier.width(imageWidth))
                 Text(
                     "App Name",
                     style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Companion.Center,
-                    fontWeight = FontWeight.Companion.Light,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
                 )
             }
             Row(modifier = Modifier.weight(1f)) {
@@ -56,15 +56,15 @@ fun TableHeader(
                     Text(
                         it.first,
                         style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Companion.Center,
-                        fontWeight = FontWeight.Companion.Light,
-                        modifier = Modifier.Companion.weight(it.second)
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Light,
+                        modifier = Modifier.weight(it.second)
                     )
                 }
             }
         }
         HorizontalDivider(
-            Modifier.Companion.padding(
+            Modifier.padding(
                 horizontal = dimensionResource(R.dimen.padding_medium),
                 vertical = dimensionResource(R.dimen.padding_very_small)
             )

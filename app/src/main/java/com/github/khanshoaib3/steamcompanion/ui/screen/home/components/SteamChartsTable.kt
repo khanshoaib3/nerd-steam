@@ -42,7 +42,10 @@ fun <T : SteamChartsItem> SteamChartsTable(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.padding(
+            horizontal = dimensionResource(R.dimen.padding_small),
+            vertical = dimensionResource(R.dimen.padding_very_small)
+        ),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
     ) {
         TableTitle(
@@ -51,7 +54,11 @@ fun <T : SteamChartsItem> SteamChartsTable(
             collapseButtonOnClick = collapseButtonOnClick
         )
         AnimatedVisibility(visible = isTableExpanded) {
-            Column {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.padding_small),
+                ),
+            ) {
                 TableHeader(
                     tableType = tableType,
                     imageWidth = imageWidth
@@ -63,7 +70,6 @@ fun <T : SteamChartsItem> SteamChartsTable(
                 )
                 TableFooter(
                     modifier = Modifier.padding(
-                        horizontal = dimensionResource(R.dimen.padding_small),
                         vertical = dimensionResource(R.dimen.padding_very_small)
                     )
                 )
