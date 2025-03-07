@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
-import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,6 +25,10 @@ interface TopRecordDao {
 
     @Query("DELETE from top_records")
     suspend fun deleteAll()
+
+    // https://medium.com/@sdevpremthakur/how-to-reset-room-db-completely-including-primary-keys-android-6382f00df87b
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'top_records'")
+    fun deletePrimaryKeyIndex()
 
     @Query("SELECT * from top_records WHERE id = :id")
     fun getOne(id: Int): Flow<TopRecord>

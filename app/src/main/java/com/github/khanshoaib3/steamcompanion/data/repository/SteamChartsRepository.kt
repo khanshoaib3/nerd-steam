@@ -51,9 +51,16 @@ class ScraperSteamChartsRepository(
                 return
             }
 
+            // Deleting the contents does not reset the primary key index,
+            // and since we can't use DROP, we have to manually delete the primary index as well.
+            // https://medium.com/@sdevpremthakur/how-to-reset-room-db-completely-including-primary-keys-android-6382f00df87b
+
             trendingGameDao.deleteAll()
+            trendingGameDao.deletePrimaryKeyIndex()
             topGameDao.deleteAll()
+            topGameDao.deletePrimaryKeyIndex()
             topRecordDao.deleteAll()
+            topRecordDao.deletePrimaryKeyIndex()
             Log.d(TAG, "Deleted old records, adding new ones...")
         }
 

@@ -2,11 +2,11 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.khanshoaib3.steamcompanion.data.local.LocalDataStoreRepository
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,11 +27,11 @@ data class HomeViewState(
 )
 
 class HomeViewModel(
-    private val steamChartsRepository: SteamChartsRepository,
-    private val localDataStoreRepository: LocalDataStoreRepository
+    private val steamChartsRepository: SteamChartsRepository
 ) : ViewModel() {
     init {
-        viewModelScope.launch {
+        // https://stackoverflow.com/a/70574508/12026423
+        viewModelScope.launch(Dispatchers.IO) {
             steamChartsRepository.fetchAndStoreData()
         }
     }

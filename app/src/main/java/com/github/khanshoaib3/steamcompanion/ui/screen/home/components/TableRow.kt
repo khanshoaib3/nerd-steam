@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home.components
 
 import android.icu.text.NumberFormat
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,26 +49,42 @@ fun <T : SteamChartsItem> TableRow(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context = LocalContext.current)
-                    .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg")
-                    .build(),
-                contentDescription = item.name,
-                placeholder = painterResource(R.drawable.preview_image_300x450),
-                modifier = Modifier
-                    .size(width = imageWidth, height = imageHeight)
-                    .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
-            )
-            Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
-            Text(
-                item.name,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-            )
+            Row(
+                modifier = Modifier.weight(0.1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    item.id.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg")
+                        .build(),
+                    contentDescription = item.name,
+                    placeholder = painterResource(R.drawable.preview_image_300x450),
+                    modifier = Modifier
+                        .size(width = imageWidth, height = imageHeight)
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+                )
+                Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
+                Text(
+                    item.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
         when (item) {
             is TrendingGame -> TrendingGameColumns(item, Modifier.weight(1f))
-            is TopGame -> TopGameColumns(item, Modifier.weight(1f))
+            is TopGame -> TopGameColumns(item, Modifier.weight(1.2f))
             is TopRecord -> TopRecordColumns(item, Modifier.weight(1f))
             else -> throw Error("Unknown type found for item")
         }
@@ -79,14 +96,17 @@ fun TrendingGameColumns(
     item: TrendingGame,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             item.gain,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             color = if (item.gain.first() == '+') steamChartsChangePositive else steamChartsChangeNegative,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(0.8f)
         )
         Text(
             NumberFormat.getNumberInstance().format(item.currentPlayers),
@@ -103,27 +123,30 @@ fun TopGameColumns(
     item: TopGame,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             NumberFormat.getNumberInstance().format(item.currentPlayers),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
         )
         Text(
             NumberFormat.getNumberInstance().format(item.peakPlayers),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1.1f)
         )
         Text(
             NumberFormat.getNumberInstance().format(item.hours),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1.25f)
+            modifier = Modifier.weight(1.3f)
         )
     }
 }
@@ -133,7 +156,10 @@ fun TopRecordColumns(
     item: TopRecord,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             NumberFormat.getNumberInstance().format(item.peakPlayers),
             style = MaterialTheme.typography.bodyMedium,
@@ -146,7 +172,7 @@ fun TopRecordColumns(
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(0.8f)
         )
     }
 }
@@ -167,6 +193,7 @@ private fun TrendingGameRowPreview() {
     SteamCompanionTheme {
         TableRow(
             item = TrendingGame(
+                id = 10,
                 appId = 12150,
                 name = "Max Payne 2: The Fall of Max Payne",
                 currentPlayers = 31,
@@ -192,6 +219,7 @@ private fun TopGameRowPreview() {
     SteamCompanionTheme {
         TableRow(
             item = TopGame(
+                id = 10,
                 appId = 12150,
                 name = "Max Payne 2: The Fall of Max Payne",
                 peakPlayers = 315,
@@ -218,6 +246,7 @@ private fun TopRecordRowPreview() {
     SteamCompanionTheme {
         TableRow(
             item = TopRecord(
+                id = 10,
                 appId = 12150,
                 name = "Max Payne 2: The Fall of Max Payne",
                 peakPlayers = 315,

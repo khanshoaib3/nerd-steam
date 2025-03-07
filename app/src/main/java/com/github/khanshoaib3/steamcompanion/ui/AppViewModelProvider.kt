@@ -12,8 +12,7 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(
-                steamChartsRepository = mainApplication().container.steamChartsRepository,
-                localDataStoreRepository = mainApplication().container.localDataStoreRepository
+                steamChartsRepository = mainApplication().container.steamChartsRepository
             )
         }
     }

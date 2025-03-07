@@ -3,6 +3,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.home
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -40,7 +41,9 @@ fun HomeView(
                 homeViewModel.toggleTrendingGamesExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
-            modifier = Modifier.animateContentSize()
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .animateContentSize()
         )
         SteamChartsTable(
             gamesList = homeDataState.topGames,
@@ -50,7 +53,9 @@ fun HomeView(
                 homeViewModel.toggleTopGamesExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
-            modifier = Modifier.animateContentSize()
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .animateContentSize()
         )
         SteamChartsTable(
             gamesList = homeDataState.topRecords,
@@ -60,7 +65,9 @@ fun HomeView(
                 homeViewModel.toggleTopRecordsExpandState()
                 view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
             },
-            modifier = Modifier.animateContentSize()
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .animateContentSize()
         )
     }
 }

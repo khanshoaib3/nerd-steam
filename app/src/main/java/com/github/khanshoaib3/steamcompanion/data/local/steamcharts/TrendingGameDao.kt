@@ -26,6 +26,10 @@ interface TrendingGameDao {
     @Query("DELETE from trending_games")
     suspend fun deleteAll()
 
+    // https://medium.com/@sdevpremthakur/how-to-reset-room-db-completely-including-primary-keys-android-6382f00df87b
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'trending_games'")
+    fun deletePrimaryKeyIndex()
+
     @Query("SELECT * from trending_games WHERE id = :id")
     fun getOne(id: Int): Flow<TrendingGame>
 

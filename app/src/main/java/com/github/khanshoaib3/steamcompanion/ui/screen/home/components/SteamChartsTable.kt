@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -41,38 +42,38 @@ fun <T : SteamChartsItem> SteamChartsTable(
         imageHeight = 225.toDp()
     }
 
-    Column(
-        modifier = modifier.padding(
-            horizontal = dimensionResource(R.dimen.padding_small),
-            vertical = dimensionResource(R.dimen.padding_very_small)
-        ),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
-    ) {
-        TableTitle(
-            tableType = tableType,
-            isTableExpanded = isTableExpanded,
-            collapseButtonOnClick = collapseButtonOnClick
-        )
-        AnimatedVisibility(visible = isTableExpanded) {
-            Column(
-                modifier = Modifier.padding(
-                    horizontal = dimensionResource(R.dimen.padding_small),
-                ),
-            ) {
-                TableHeader(
-                    tableType = tableType,
-                    imageWidth = imageWidth
-                )
-                TableBody(
-                    gamesList = gamesList,
-                    imageWidth = imageWidth,
-                    imageHeight = imageHeight
-                )
-                TableFooter(
-                    modifier = Modifier.padding(
-                        vertical = dimensionResource(R.dimen.padding_very_small)
+    OutlinedCard(modifier = modifier) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.padding_medium),
+                vertical = dimensionResource(R.dimen.padding_small)
+            ),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
+        ) {
+            TableTitle(
+                tableType = tableType,
+                isTableExpanded = isTableExpanded,
+                collapseButtonOnClick = collapseButtonOnClick
+            )
+            AnimatedVisibility(visible = isTableExpanded) {
+                Column {
+                    TableHeader(
+                        tableType = tableType
                     )
-                )
+                    TableBody(
+                        gamesList = gamesList,
+                        imageWidth = imageWidth,
+                        imageHeight = imageHeight,
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(R.dimen.padding_small)
+                        )
+                    )
+                    TableFooter(
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(R.dimen.padding_very_small)
+                        )
+                    )
+                }
             }
         }
     }
@@ -98,7 +99,8 @@ private fun TrendingGamesTablePreview() {
                     currentPlayers = 4540
                 )
             ),
-            tableType = SteamChartsTableType.TrendingGames
+            tableType = SteamChartsTableType.TrendingGames,
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
         )
     }
 }
@@ -125,7 +127,8 @@ private fun TopGamesTablePreview() {
                     hours = 310064845
                 )
             ),
-            tableType = SteamChartsTableType.TopGames
+            tableType = SteamChartsTableType.TopGames,
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
         )
     }
 }
@@ -150,7 +153,8 @@ private fun SteamChartsTablePreview() {
                     month = "Mar 2016"
                 )
             ),
-            tableType = SteamChartsTableType.TopRecords
+            tableType = SteamChartsTableType.TopRecords,
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
         )
     }
 }
