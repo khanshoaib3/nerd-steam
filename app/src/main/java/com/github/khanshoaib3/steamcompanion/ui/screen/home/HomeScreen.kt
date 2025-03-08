@@ -13,12 +13,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.khanshoaib3.steamcompanion.ui.AppViewModelProvider
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailScreen
 import kotlinx.coroutines.launch
 
 // https://www.youtube.com/watch?v=W3R_ETKMj0E
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun Home(
+fun HomeScreen(
     homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier.Companion
 ) {
@@ -49,8 +50,7 @@ fun Home(
                     },
                     homeViewModel = homeViewModel,
                     homeDataState = homeDataState,
-                    homeViewState = homeViewState,
-                    modifier = modifier
+                    homeViewState = homeViewState
                 )
             }
         },
@@ -58,7 +58,7 @@ fun Home(
             AnimatedPane {
                 // Show the detail pane content if selected item is available
                 navigator.currentDestination?.contentKey.let {
-                    GameDetail(it as Int?)
+                    GameDetailScreen(it as Int?)
                 }
             }
         },

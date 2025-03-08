@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.home
+package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun GameDetail(appId: Int?) {
+fun GameDetailScreen(appId: Int?) {
     val text = "Selected game with id: ${appId ?: 0}"
     Log.d("GameDetail", text)
     Surface(color = MaterialTheme.colorScheme.surface) {
