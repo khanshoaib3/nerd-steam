@@ -14,17 +14,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun BottomBar(
+fun NavBar(
     navController: NavHostController,
     topLevelRoutes: List<TopLevelRoute<Any>>,
     modifier: Modifier = Modifier,
 ) {
     // https://developer.android.com/develop/ui/compose/navigation#bottom-nav
-    NavigationBar(
-//        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-//        contentColor = MaterialTheme.colorScheme.primary,
-        modifier = modifier
-    ) {
+    NavigationBar(modifier = modifier) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 

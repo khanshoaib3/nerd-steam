@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.github.khanshoaib3.steamcompanion.ui.components.CollapseButton
 
 @Composable
 fun TableTitle(

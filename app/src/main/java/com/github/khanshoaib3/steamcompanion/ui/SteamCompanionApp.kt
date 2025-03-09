@@ -57,7 +57,7 @@ fun SteamCompanionApp(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = { TopBar(topAppBarScrollBehavior) },
-        bottomBar = { BottomBar(navController = navController, topLevelRoutes = topLevelRoutes) }
+        bottomBar = { NavBar(navController = navController, topLevelRoutes = topLevelRoutes) }
     ) { innerPadding ->
         NavHost(
             navController = navController,

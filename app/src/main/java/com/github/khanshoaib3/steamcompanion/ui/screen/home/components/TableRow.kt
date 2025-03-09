@@ -31,6 +31,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.SteamChartsI
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
+import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
@@ -79,7 +80,7 @@ fun <T : SteamChartsItem> TableRow(
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
                 )
                 Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
-                Text(
+                CenterAlignedSelectableText(
                     item.name,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
@@ -104,7 +105,7 @@ fun TrendingGameColumns(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        CenterAlignedSelectableText(
             item.gain,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
@@ -112,7 +113,7 @@ fun TrendingGameColumns(
             color = if (item.gain.first() == '+') steamChartsChangePositive else steamChartsChangeNegative,
             modifier = Modifier.weight(0.8f)
         )
-        Text(
+        CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.currentPlayers),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
@@ -131,21 +132,21 @@ fun TopGameColumns(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.currentPlayers),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
         )
-        Text(
+        CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.peakPlayers),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1.1f)
         )
-        Text(
+        CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.hours),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
@@ -164,14 +165,14 @@ fun TopRecordColumns(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.peakPlayers),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f)
         )
-        Text(
+        CenterAlignedSelectableText(
             item.month,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
