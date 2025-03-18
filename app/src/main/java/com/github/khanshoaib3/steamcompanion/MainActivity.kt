@@ -14,7 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsScraper
 import com.github.khanshoaib3.steamcompanion.ui.SteamCompanionApp
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

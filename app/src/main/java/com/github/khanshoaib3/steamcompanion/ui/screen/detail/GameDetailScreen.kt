@@ -14,13 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+private const val TAG = "GameDetail"
+
 @Composable
-fun GameDetailScreen(appId: Int?) {
+fun GameDetailScreen(
+    modifier: Modifier = Modifier,
+    appId: Int?,
+) {
     val text = "Selected game with id: ${appId ?: 0}"
-    Log.d("GameDetail", text)
+    Log.d(TAG, text)
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(
-            Modifier.Companion
+            Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {

@@ -11,8 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.khanshoaib3.steamcompanion.ui.AppViewModelProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailScreen
 import kotlinx.coroutines.launch
 
@@ -20,8 +19,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    modifier: Modifier = Modifier.Companion
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
@@ -58,7 +57,7 @@ fun HomeScreen(
             AnimatedPane {
                 // Show the detail pane content if selected item is available
                 navigator.currentDestination?.contentKey.let {
-                    GameDetailScreen(it as Int?)
+                    GameDetailScreen(appId = it as Int?)
                 }
             }
         },

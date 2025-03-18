@@ -15,6 +15,7 @@ import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTrendingGam
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 private const val TAG = "SteamChartsRepository"
 
@@ -31,7 +32,7 @@ interface SteamChartsRepository {
 
 private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH")
 
-class ScraperSteamChartsRepository(
+class ScraperSteamChartsRepository @Inject constructor(
     private val trendingGameDao: TrendingGameDao,
     private val topGameDao: TopGameDao,
     private val topRecordDao: TopRecordDao,
