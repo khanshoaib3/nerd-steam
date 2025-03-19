@@ -11,11 +11,16 @@ import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopRecordDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGameDao
+import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
 import javax.inject.Singleton
 
 private const val DATASTORE_NAME = "steam_companion_data_store"
@@ -48,5 +53,16 @@ class AppModule {
     @Singleton
     fun provideLocalDatastoreRepository(@ApplicationContext context: Context): LocalDataStoreRepository {
         return LocalDataStoreRepository(context.dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSteamInternalWebApiService(): SteamInternalWebApiService {
+        val json = Json { ignoreUnknownKeys = true }
+        return Retrofit.Builder()
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .baseUrl("https://store.steampowered.com")
+            .build()
+            .create(SteamInternalWebApiService::class.java)
     }
 }
