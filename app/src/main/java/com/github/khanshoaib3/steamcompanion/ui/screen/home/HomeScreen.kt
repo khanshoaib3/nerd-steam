@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -11,8 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailScreen
+import com.github.khanshoaib3.steamcompanion.R
 import kotlinx.coroutines.launch
 
 // https://www.youtube.com/watch?v=W3R_ETKMj0E
@@ -20,7 +23,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
@@ -57,7 +60,10 @@ fun HomeScreen(
             AnimatedPane {
                 // Show the detail pane content if selected item is available
                 navigator.currentDestination?.contentKey.let {
-                    GameDetailScreen(appId = it as Int?)
+                    GameDetailScreen(
+                        appId = it as Int?,
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+                    )
                 }
             }
         },

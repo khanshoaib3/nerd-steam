@@ -27,7 +27,7 @@ data class AppDetail(
     @SerialName("website") val website: String? = null,
     @SerialName("developers") val developers: List<String>? = null,
     @SerialName("publishers") val publishers: List<String>? = null,
-//    @SerialName("platforms") val platforms: Platforms,
+    @SerialName("platforms") val platforms: Platforms,
 //    @SerialName("categories") val categories: List<Category>,
 //    @SerialName("genres") val genres: List<Genre>,
 //    @SerialName("metacritic") val metacritic: Metacritic? = null,

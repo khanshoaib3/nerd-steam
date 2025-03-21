@@ -1,9 +1,12 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home.components
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,7 +21,6 @@ import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
-import kotlin.Boolean
 
 enum class SteamChartsTableType {
     TrendingGames,
@@ -43,7 +45,13 @@ fun <T : SteamChartsItem> SteamChartsTable(
         imageHeight = 225.toDp()
     }
 
-    OutlinedCard(modifier = modifier) {
+    OutlinedCard(
+        modifier = modifier,
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
+    ) {
         Column(
             modifier = Modifier.padding(
                 horizontal = dimensionResource(R.dimen.padding_medium),
@@ -82,6 +90,7 @@ fun <T : SteamChartsItem> SteamChartsTable(
 }
 
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun TrendingGamesTablePreview() {
     SteamCompanionTheme {
@@ -108,6 +117,7 @@ private fun TrendingGamesTablePreview() {
 }
 
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun TopGamesTablePreview() {
     SteamCompanionTheme {
@@ -136,6 +146,7 @@ private fun TopGamesTablePreview() {
 }
 
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun SteamChartsTablePreview() {
     SteamCompanionTheme {
