@@ -2,10 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
 import android.icu.text.NumberFormat
-import android.os.Build
-import android.util.Log
 import android.view.HapticFeedbackConstants
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,16 +24,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,20 +46,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -99,6 +93,9 @@ fun GameDetailCard(
     modifier: Modifier = Modifier,
     gameData: GameData,
 ) {
+    val tabs = listOf<String>("About", "System Requirements", "Deals", "Player Stats")
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+
     OutlinedCard(modifier = modifier) {
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -124,7 +121,10 @@ fun GameDetailCard(
                     )
                     Row {
                         IconButton(onClick = { /* TODO Add behaviour */ }) {
-                            Icon(Icons.Default.BookmarkBorder, contentDescription = "Bookmark app")
+                            Icon(
+                                Icons.Default.BookmarkBorder,
+                                contentDescription = "Bookmark app"
+                            )
                         }
                         IconButton(onClick = { /* TODO Add behaviour */ }) {
                             Icon(Icons.Default.Share, contentDescription = "Share app")
@@ -214,15 +214,15 @@ fun GameDetailCard(
                                         .padding(dimensionResource(R.dimen.padding_medium))
                                 ) {
                                     val currentPrice = NumberFormat.getNumberInstance().format(
-                                        gameData.content?.data?.priceOverview?.finalPrice?.toBigDecimal()
+                                        gameData.content.data.priceOverview?.finalPrice?.toBigDecimal()
                                             ?.movePointLeft(2) ?: 0
                                     )
                                     val originalPrice = NumberFormat.getNumberInstance().format(
-                                        gameData.content?.data?.priceOverview?.initial?.toBigDecimal()
+                                        gameData.content.data.priceOverview?.initial?.toBigDecimal()
                                             ?.movePointLeft(2) ?: 0
                                     )
                                     val currencySymbol = Currency.getInstance(
-                                        gameData.content?.data?.priceOverview?.currency ?: "INR"
+                                        gameData.content.data.priceOverview?.currency ?: "INR"
                                     ).symbol
                                     Text(
                                         text = "$currencySymbol $currentPrice",
@@ -270,20 +270,22 @@ fun GameDetailCard(
                 CenterAlignedSelectableText(
                     gameData.content?.data?.shortDescription ?: "Empty Description"
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    FilledIconButton(
-                        onClick = { /* TODO Add tracking functionality */ },
-                        modifier = Modifier.fillMaxWidth(0.8f)
+                if (gameData.content?.data?.isFree == false) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Track Price",
-                            fontWeight = FontWeight.Medium,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        FilledIconButton(
+                            onClick = { /* TODO Add tracking functionality */ },
+                            modifier = Modifier.fillMaxWidth(0.8f)
+                        ) {
+                            Text(
+                                text = "Track Price",
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                 }
             }
@@ -292,11 +294,29 @@ fun GameDetailCard(
             color = MaterialTheme.colorScheme.surfaceContainerLow,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
-            ) {
-                RenderHtmlContent(html = gameData.content?.data?.detailedDescription ?: "Empty")
+            Column {
+                HorizontalDivider()
+                ScrollableTabRow(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    selectedTabIndex = selectedTabIndex
+                ) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onClick = { selectedTabIndex = index },
+                            text = { Text(text = tab) }
+                        )
+                    }
+                }
+                when (selectedTabIndex) {
+                    0 -> RenderHtmlContent(
+                        html = gameData.content?.data?.detailedDescription ?: "Empty"
+                    )
+                    1 -> Text("System Requirements Page")
+                    2 -> Text("Deals Page")
+                    3 -> Text("Player Stats Page")
+                    else -> Text("Unknown Page")
+                }
             }
         }
     }

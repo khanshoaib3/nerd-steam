@@ -55,7 +55,7 @@ android {
 dependencies {
     // Coil
     implementation(libs.coil.compose)
-    implementation(libs.coil.gif)
+//    implementation(libs.coil.gif)
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
