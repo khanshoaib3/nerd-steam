@@ -28,7 +28,7 @@ data class AppDetail(
     @SerialName("developers") val developers: List<String>? = null,
     @SerialName("publishers") val publishers: List<String>? = null,
     @SerialName("platforms") val platforms: Platforms,
-//    @SerialName("categories") val categories: List<Category>,
+    @SerialName("categories") val categories: List<Category>,
 //    @SerialName("genres") val genres: List<Genre>,
 //    @SerialName("metacritic") val metacritic: Metacritic? = null,
 //    @SerialName("recommendations") val recommendations: Recommendations? = null,
@@ -36,7 +36,7 @@ data class AppDetail(
 //    @SerialName("pc_requirements") val pcRequirements: JsonElement? = null,
 //    @SerialName("mac_requirements") val macRequirements: JsonElement? = null,
 //    @SerialName("linux_requirements") val linuxRequirements: JsonElement? = null,
-//    @SerialName("price_overview") val priceOverview: PriceOverview? = null,
+    @SerialName("price_overview") val priceOverview: PriceOverview? = null,
 //    @SerialName("screenshots") val screenshots: List<Screenshot>? = null,
 //    @SerialName("packages") val packages: List<Int>? = null,
 //    @SerialName("package_groups") val packageGroups: List<PackageGroup>? = null

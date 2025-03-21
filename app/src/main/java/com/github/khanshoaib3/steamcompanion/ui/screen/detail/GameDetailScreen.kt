@@ -1,10 +1,22 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
+import android.icu.text.NumberFormat
+import android.os.Build
+import android.util.Log
+import android.view.HapticFeedbackConstants
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,26 +38,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.data.model.detail.Category
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
+import java.util.Currency
 
 @Composable
 fun GameDetailScreen(
@@ -62,13 +86,14 @@ fun GameDetailScreen(
     }
 
     if (gameData.content == null || gameData.content?.data == null || gameData.content?.success != true) {
-        CenterAlignedSelectableText("Unable to get data for app with id $appId")
+        if (appId != null && appId != 0) CenterAlignedSelectableText("Unable to get data for app with id $appId")
         return
     }
 
     GameDetailCard(modifier = modifier.verticalScroll(scrollState), gameData = gameData)
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GameDetailCard(
     modifier: Modifier = Modifier,
@@ -169,15 +194,82 @@ fun GameDetailCard(
                         }
                     }
                 }
-                Row {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     // Price
+                    if (gameData.content?.data?.isFree == false) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(0.4f)
+                                .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+                        ) {
+                            Surface(color = MaterialTheme.colorScheme.secondary) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(dimensionResource(R.dimen.padding_medium))
+                                ) {
+                                    val currentPrice = NumberFormat.getNumberInstance().format(
+                                        gameData.content?.data?.priceOverview?.finalPrice?.toBigDecimal()
+                                            ?.movePointLeft(2) ?: 0
+                                    )
+                                    val originalPrice = NumberFormat.getNumberInstance().format(
+                                        gameData.content?.data?.priceOverview?.initial?.toBigDecimal()
+                                            ?.movePointLeft(2) ?: 0
+                                    )
+                                    val currencySymbol = Currency.getInstance(
+                                        gameData.content?.data?.priceOverview?.currency ?: "INR"
+                                    ).symbol
+                                    Text(
+                                        text = "$currencySymbol $currentPrice",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        "Original: $currencySymbol $originalPrice",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    }
                     // Rating
                 }
-                Row {
-                    Row {
-                        // Features/Category
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_medium)))
+                ) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.padding_very_small))
+                    ) {
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .padding(dimensionResource(R.dimen.padding_small)),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            // Features/Category
+                            gameData.content?.data?.categories?.forEach { category ->
+                                CategoryChip(
+                                    category = category,
+                                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small))
+                                )
+                            }
+                        }
                     }
                 }
+                CenterAlignedSelectableText(
+                    gameData.content?.data?.shortDescription ?: "Empty Description"
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -202,20 +294,39 @@ fun GameDetailCard(
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-                modifier = Modifier
-                    .padding(vertical = dimensionResource(R.dimen.padding_small))
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                    .padding(bottom = dimensionResource(R.dimen.padding_medium))
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
             ) {
-                Text(
-                    text = "Details page for ${gameData.content?.data?.name ?: "Empty"}",
-                    fontSize = 24.sp,
-                )
-                Spacer(Modifier.size(16.dp))
-                Text(
-                    text = "TODO: Add great details here"
-                )
+                RenderHtmlContent(html = gameData.content?.data?.detailedDescription ?: "Empty")
             }
+        }
+    }
+}
+
+@Composable
+fun CategoryChip(category: Category, modifier: Modifier = Modifier) {
+    var isOpen by remember { mutableStateOf(false) }
+    val view = LocalView.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable(true, onClick = {
+                isOpen = !isOpen
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            })
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+            .background(color = if (isOpen) MaterialTheme.colorScheme.secondary else Color.Unspecified)
+            .animateContentSize()
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(context = LocalContext.current)
+                .data("https://steamdb.info/static/img/categories/${category.id}.png")
+                .build(),
+            contentDescription = category.description,
+            placeholder = painterResource(R.drawable.windows_icon),
+            modifier = Modifier.size(28.dp)
+        )
+        AnimatedVisibility(isOpen) {
+            Text(category.description, maxLines = 1, color = MaterialTheme.colorScheme.onSecondary)
         }
     }
 }
