@@ -8,6 +8,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -52,6 +53,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,10 +61,13 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Category
+import com.github.khanshoaib3.steamcompanion.data.model.detail.Requirements
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import java.util.Currency
 
 @Composable
@@ -96,226 +101,296 @@ fun GameDetailCard(
     val tabs = listOf<String>("About", "System Requirements", "Deals", "Player Stats")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
-    OutlinedCard(modifier = modifier) {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-                modifier = Modifier
-                    .padding(vertical = dimensionResource(R.dimen.padding_small))
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                    .padding(bottom = dimensionResource(R.dimen.padding_medium))
+    Box(modifier = modifier) {
+        OutlinedCard {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+                    modifier = Modifier
+                        .padding(vertical = dimensionResource(R.dimen.padding_small))
+                        .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                        .padding(bottom = dimensionResource(R.dimen.padding_medium))
                 ) {
-                    Text(
-                        text = gameData.content!!.data!!.name,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Start
-                    )
-                    Row {
-                        IconButton(onClick = { /* TODO Add behaviour */ }) {
-                            Icon(
-                                Icons.Default.BookmarkBorder,
-                                contentDescription = "Bookmark app"
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = gameData.content!!.data!!.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start
+                        )
+                        Row {
+                            IconButton(onClick = { /* TODO Add behaviour */ }) {
+                                Icon(
+                                    Icons.Default.BookmarkBorder,
+                                    contentDescription = "Bookmark app"
+                                )
+                            }
+                            IconButton(onClick = { /* TODO Add behaviour */ }) {
+                                Icon(Icons.Default.Share, contentDescription = "Share app")
+                            }
+                        }
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.weight(0.25f)) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context = LocalContext.current)
+                                    .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${gameData.content!!.data!!.steamAppId}/library_600x900.jpg")
+                                    .build(),
+                                contentDescription = "Hero capsule for ${gameData.content.data.name}",
+                                placeholder = painterResource(R.drawable.preview_image_300x450),
+                                modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
                             )
                         }
-                        IconButton(onClick = { /* TODO Add behaviour */ }) {
-                            Icon(Icons.Default.Share, contentDescription = "Share app")
-                        }
-                    }
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.weight(0.25f)) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context = LocalContext.current)
-                                .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${gameData.content!!.data!!.steamAppId}/library_600x900.jpg")
-                                .build(),
-                            contentDescription = "Hero capsule for ${gameData.content.data.name}",
-                            placeholder = painterResource(R.drawable.preview_image_300x450),
-                            modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
-                        )
-                    }
-                    Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
-                    Column(modifier = Modifier.weight(0.75f)) {
-                        Row {
-                            Column(modifier = Modifier.weight(0.45f)) {
-                                Text("App ID", fontWeight = FontWeight.Bold)
-                                Text("App Type", fontWeight = FontWeight.Bold)
-                                Text("Developer", fontWeight = FontWeight.Bold)
-                                Text("Publisher", fontWeight = FontWeight.Bold)
-                                Text("Supported Systems", fontWeight = FontWeight.Bold)
-                            }
-                            Column(modifier = Modifier.weight(0.55f)) {
-                                Text("${gameData.content!!.data!!.steamAppId}")
-                                Text(gameData.content.data.type)
-                                gameData.content.data
-                                Text(
-                                    gameData.content.data.developers?.joinToString(", ")
-                                        ?: "Not found!"
-                                )
-                                Text(
-                                    gameData.content.data.publishers?.joinToString(", ")
-                                        ?: "Not found!"
-                                )
-                                Row {
-                                    if (gameData.content.data.platforms.windows) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.windows_icon),
-                                            contentDescription = "Windows",
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                    if (gameData.content.data.platforms.linux) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.linux_icon),
-                                            contentDescription = "Linux",
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                    if (gameData.content.data.platforms.mac) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.mac_icon),
-                                            contentDescription = "MacOS",
-                                            modifier = Modifier.size(20.dp)
-                                        )
+                        Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
+                        Column(modifier = Modifier.weight(0.75f)) {
+                            Row {
+                                Column(modifier = Modifier.weight(0.45f)) {
+                                    Text("App ID", fontWeight = FontWeight.Bold)
+                                    Text("App Type", fontWeight = FontWeight.Bold)
+                                    Text("Developer", fontWeight = FontWeight.Bold)
+                                    Text("Publisher", fontWeight = FontWeight.Bold)
+                                    Text("Supported Systems", fontWeight = FontWeight.Bold)
+                                }
+                                Column(modifier = Modifier.weight(0.55f)) {
+                                    Text("${gameData.content!!.data!!.steamAppId}")
+                                    Text(gameData.content.data.type)
+                                    gameData.content.data
+                                    Text(
+                                        gameData.content.data.developers?.joinToString(", ")
+                                            ?: "Not found!"
+                                    )
+                                    Text(
+                                        gameData.content.data.publishers?.joinToString(", ")
+                                            ?: "Not found!"
+                                    )
+                                    Row {
+                                        if (gameData.content.data.platforms.windows) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.windows_icon),
+                                                contentDescription = "Windows",
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                        if (gameData.content.data.platforms.linux) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.linux_icon),
+                                                contentDescription = "Linux",
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                        if (gameData.content.data.platforms.mac) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.mac_icon),
+                                                contentDescription = "MacOS",
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Price
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Price
+                        if (gameData.content?.data?.isFree == false) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.4f)
+                                    .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+                            ) {
+                                Surface(color = MaterialTheme.colorScheme.secondary) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(dimensionResource(R.dimen.padding_medium))
+                                    ) {
+                                        val currentPrice = NumberFormat.getNumberInstance().format(
+                                            gameData.content.data.priceOverview?.finalPrice?.toBigDecimal()
+                                                ?.movePointLeft(2) ?: 0
+                                        )
+                                        val originalPrice = NumberFormat.getNumberInstance().format(
+                                            gameData.content.data.priceOverview?.initial?.toBigDecimal()
+                                                ?.movePointLeft(2) ?: 0
+                                        )
+                                        val currencySymbol = Currency.getInstance(
+                                            gameData.content.data.priceOverview?.currency ?: "INR"
+                                        ).symbol
+                                        Text(
+                                            text = "$currencySymbol $currentPrice",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            "Original: $currencySymbol $originalPrice",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Rating
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_medium)))
+                    ) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            shape = RoundedCornerShape(dimensionResource(R.dimen.padding_very_small))
+                        ) {
+                            FlowRow(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.9f)
+                                    .padding(dimensionResource(R.dimen.padding_small)),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                gameData.content?.data?.categories?.forEach { category ->
+                                    CategoryChip(
+                                        category = category,
+                                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small))
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    CenterAlignedSelectableText(
+                        gameData.content?.data?.shortDescription ?: "Empty Description"
+                    )
                     if (gameData.content?.data?.isFree == false) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth(0.4f)
-                                .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
-                        ) {
-                            Surface(color = MaterialTheme.colorScheme.secondary) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(dimensionResource(R.dimen.padding_medium))
-                                ) {
-                                    val currentPrice = NumberFormat.getNumberInstance().format(
-                                        gameData.content.data.priceOverview?.finalPrice?.toBigDecimal()
-                                            ?.movePointLeft(2) ?: 0
-                                    )
-                                    val originalPrice = NumberFormat.getNumberInstance().format(
-                                        gameData.content.data.priceOverview?.initial?.toBigDecimal()
-                                            ?.movePointLeft(2) ?: 0
-                                    )
-                                    val currencySymbol = Currency.getInstance(
-                                        gameData.content.data.priceOverview?.currency ?: "INR"
-                                    ).symbol
-                                    Text(
-                                        text = "$currencySymbol $currentPrice",
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        "Original: $currencySymbol $originalPrice",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    // Rating
-                }
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_medium)))
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        shape = RoundedCornerShape(dimensionResource(R.dimen.padding_very_small))
-                    ) {
-                        FlowRow(
-                            modifier = Modifier
-                                .fillMaxWidth(0.9f)
-                                .padding(dimensionResource(R.dimen.padding_small)),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
-                            verticalArrangement = Arrangement.Center
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Features/Category
-                            gameData.content?.data?.categories?.forEach { category ->
-                                CategoryChip(
-                                    category = category,
-                                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small))
+                            FilledIconButton(
+                                onClick = { /* TODO Add tracking functionality */ },
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ) {
+                                Text(
+                                    text = "Track Price",
+                                    fontWeight = FontWeight.Medium,
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
-                        }
-                    }
-                }
-                CenterAlignedSelectableText(
-                    gameData.content?.data?.shortDescription ?: "Empty Description"
-                )
-                if (gameData.content?.data?.isFree == false) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        FilledIconButton(
-                            onClick = { /* TODO Add tracking functionality */ },
-                            modifier = Modifier.fillMaxWidth(0.8f)
-                        ) {
-                            Text(
-                                text = "Track Price",
-                                fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
                         }
                     }
                 }
             }
-        }
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column {
-                HorizontalDivider()
-                ScrollableTabRow(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    selectedTabIndex = selectedTabIndex
-                ) {
-                    tabs.forEachIndexed { index, tab ->
-                        Tab(
-                            selected = index == selectedTabIndex,
-                            onClick = { selectedTabIndex = index },
-                            text = { Text(text = tab) }
-                        )
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column {
+                    HorizontalDivider()
+                    ScrollableTabRow(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        selectedTabIndex = selectedTabIndex
+                    ) {
+                        tabs.forEachIndexed { index, tab ->
+                            Tab(
+                                selected = index == selectedTabIndex,
+                                onClick = { selectedTabIndex = index },
+                                text = { Text(text = tab) }
+                            )
+                        }
                     }
-                }
-                when (selectedTabIndex) {
-                    0 -> RenderHtmlContent(
-                        html = gameData.content?.data?.detailedDescription ?: "Empty"
-                    )
-                    1 -> Text("System Requirements Page")
-                    2 -> Text("Deals Page")
-                    3 -> Text("Player Stats Page")
-                    else -> Text("Unknown Page")
+                    when (selectedTabIndex) {
+                        0 -> RenderHtmlContent(
+                            html = gameData.content?.data?.detailedDescription ?: "Empty"
+                        )
+
+                        1 -> Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))) {
+                            val json = Json { ignoreUnknownKeys = true }
+                            if (gameData.content?.data?.platforms?.windows == true
+                                && gameData.content.data.pcRequirements is JsonObject
+                            ) {
+                                Text(
+                                    "Windows Requirements",
+                                    textDecoration = TextDecoration.Underline
+                                )
+                                val pcRequirements =
+                                    json.decodeFromJsonElement<Requirements>(gameData.content.data.pcRequirements)
+                                if (pcRequirements.minimum != null) {
+                                    RenderHtmlContent(
+                                        html = pcRequirements.minimum,
+                                        removeLineBreaks = true
+                                    )
+                                }
+                                if (pcRequirements.recommended != null) {
+                                    RenderHtmlContent(
+                                        html = pcRequirements.recommended,
+                                        removeLineBreaks = true
+                                    )
+                                }
+                            }
+                            if (gameData.content?.data?.platforms?.linux == true
+                                && gameData.content.data.linuxRequirements is JsonObject
+                            ) {
+                                Text(
+                                    "Linux Requirements",
+                                    textDecoration = TextDecoration.Underline
+                                )
+                                val linuxRequirements =
+                                    json.decodeFromJsonElement<Requirements>(gameData.content.data.linuxRequirements)
+                                if (linuxRequirements.minimum != null) {
+                                    RenderHtmlContent(
+                                        html = linuxRequirements.minimum,
+                                        removeLineBreaks = true
+                                    )
+                                }
+                                if (linuxRequirements.recommended != null) {
+                                    RenderHtmlContent(
+                                        html = linuxRequirements.recommended,
+                                        removeLineBreaks = true
+                                    )
+                                }
+                            }
+                            if (gameData.content?.data?.platforms?.mac == true
+                                && gameData.content.data.macRequirements is JsonObject
+                            ) {
+                                Text(
+                                    "MacOS Requirements",
+                                    textDecoration = TextDecoration.Underline
+                                )
+                                val macRequirements =
+                                    json.decodeFromJsonElement<Requirements>(gameData.content.data.macRequirements)
+                                if (macRequirements.minimum != null) {
+                                    RenderHtmlContent(
+                                        html = macRequirements.minimum,
+                                        removeLineBreaks = true
+                                    )
+                                }
+                                if (macRequirements.recommended != null) {
+                                    RenderHtmlContent(
+                                        html = macRequirements.recommended,
+                                        removeLineBreaks = true
+                                    )
+                                }
+                            }
+                        }
+                        2 -> CenterAlignedSelectableText("Deals Page")
+                        3 -> CenterAlignedSelectableText("Player Stats Page")
+                        else -> Text("Unknown Page")
+                    }
                 }
             }
         }

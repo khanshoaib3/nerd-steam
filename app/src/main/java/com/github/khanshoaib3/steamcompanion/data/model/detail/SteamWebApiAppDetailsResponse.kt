@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.data.model.detail
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class SteamWebApiAppDetailsResponse(
@@ -33,9 +34,9 @@ data class AppDetail(
 //    @SerialName("metacritic") val metacritic: Metacritic? = null,
 //    @SerialName("recommendations") val recommendations: Recommendations? = null,
 //    @SerialName("release_date") val releaseDate: ReleaseDate,
-//    @SerialName("pc_requirements") val pcRequirements: JsonElement? = null,
-//    @SerialName("mac_requirements") val macRequirements: JsonElement? = null,
-//    @SerialName("linux_requirements") val linuxRequirements: JsonElement? = null,
+    @SerialName("pc_requirements") val pcRequirements: JsonElement? = null,
+    @SerialName("mac_requirements") val macRequirements: JsonElement? = null,
+    @SerialName("linux_requirements") val linuxRequirements: JsonElement? = null,
     @SerialName("price_overview") val priceOverview: PriceOverview? = null,
 //    @SerialName("screenshots") val screenshots: List<Screenshot>? = null,
 //    @SerialName("packages") val packages: List<Int>? = null,

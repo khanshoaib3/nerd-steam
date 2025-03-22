@@ -28,8 +28,12 @@ import org.jsoup.nodes.TextNode
 
 // ENTRY POINT
 @Composable
-fun RenderHtmlContent(html: String, modifier: Modifier = Modifier) {
-    val html2 = "<p>$html<p/>"
+fun RenderHtmlContent(html: String, removeLineBreaks: Boolean = false, modifier: Modifier = Modifier) {
+    var html2 = "<p>$html<p/>"
+    if (removeLineBreaks) {
+        html2 = html2.replace("<br/>", "")
+        html2 = html2.replace("<br>", "")
+    }
     val document = Jsoup.parse(html2).body()
     Column(modifier = modifier.padding(16.dp)) {
         document.children().forEach { element ->
