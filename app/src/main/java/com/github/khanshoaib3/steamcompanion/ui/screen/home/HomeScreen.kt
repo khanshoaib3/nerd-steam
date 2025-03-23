@@ -14,7 +14,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.R
 import kotlinx.coroutines.launch
 
@@ -60,7 +60,7 @@ fun HomeScreen(
             AnimatedPane {
                 // Show the detail pane content if selected item is available
                 navigator.currentDestination?.contentKey.let {
-                    GameDetailScreen(
+                    AppDetailsScreen(
                         appId = it as Int?,
                         modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
                     )
