@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardLower
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardUpper
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

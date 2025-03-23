@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail
+package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants

@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail
+package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 
 import android.content.res.Configuration
 import android.icu.text.NumberFormat
@@ -39,6 +39,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.Platforms
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceOverview
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
 import java.util.Currency

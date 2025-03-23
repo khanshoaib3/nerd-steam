@@ -97,6 +97,7 @@ dependencies {
     // Hil nav fragment
     implementation(libs.androidx.hilt.navigation.fragment)
 
+    implementation(libs.androidx.foundation) // Added for AnnotatedString.fromHtml()
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

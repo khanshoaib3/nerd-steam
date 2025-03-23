@@ -1,8 +1,8 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail
+package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 
 import android.content.res.Configuration
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
@@ -15,23 +15,81 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.detail.Requirements
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
+
+data class TabItem(
+    val name: String,
+    val content: @Composable (Modifier, GameData) -> Unit,
+)
+
+fun getDefaultTabItems(): List<TabItem> = listOf(
+    TabItem(
+        name = "About",
+        content = { modifier, gameData ->
+            AboutTab(modifier = modifier, gameData = gameData)
+        },
+    ),
+    TabItem(
+        name = "System Requirements",
+        content = { modifier, gameData ->
+            SystemRequirementsTab(modifier = modifier, gameData = gameData)
+        }
+    ),
+    TabItem(
+        name = "Media",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("Media Tab")
+        }
+    ),
+    TabItem(
+        name = "Deals",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("Deals Tab")
+        }
+    ),
+    TabItem(
+        name = "Completion",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("HowLongToBeat tab")
+        }
+    ),
+    TabItem(
+        name = "Player Stats",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("Player Stats Tab")
+        }
+    ),
+    TabItem(
+        name = "DLCs",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("DLCs Tab")
+        }
+    ),
+    TabItem(
+        name = "Achievements",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("Achievements Tab")
+        }
+    ),
+    TabItem(
+        name = "External Links",
+        content = { modifier, gameData ->
+            CenterAlignedSelectableText("External Links")
+        }
+    )
+)
 
 @Composable
 fun CardLower(modifier: Modifier = Modifier, gameData: GameData) {
-    val tabs = listOf<String>("About", "System Requirements", "Deals", "Player Stats")
+    val tabItems = getDefaultTabItems()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val view = LocalView.current
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -39,88 +97,24 @@ fun CardLower(modifier: Modifier = Modifier, gameData: GameData) {
     ) {
         Column {
             HorizontalDivider()
+
             ScrollableTabRow(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 selectedTabIndex = selectedTabIndex
             ) {
-                tabs.forEachIndexed { index, tab ->
+                tabItems.forEachIndexed { index, item ->
                     Tab(
                         selected = index == selectedTabIndex,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(text = tab) })
+                        onClick = {
+                            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            selectedTabIndex = index
+                        },
+                        text = { Text(text = item.name) }
+                    )
                 }
             }
-            when (selectedTabIndex) {
-                0 -> RenderHtmlContent(
-                    html = gameData.content?.data?.detailedDescription ?: "Empty"
-                )
 
-                1 -> Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))) {
-                    val json = Json { ignoreUnknownKeys = true }
-                    if (gameData.content?.data?.platforms?.windows == true && gameData.content.data.pcRequirements is JsonObject) {
-                        Text(
-                            "Windows Requirements",
-                            textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Bold
-                        )
-                        val pcRequirements =
-                            json.decodeFromJsonElement<Requirements>(gameData.content.data.pcRequirements)
-                        if (pcRequirements.minimum != null) {
-                            RenderHtmlContent(
-                                html = pcRequirements.minimum, removeLineBreaks = true
-                            )
-                        }
-                        if (pcRequirements.recommended != null) {
-                            RenderHtmlContent(
-                                html = pcRequirements.recommended, removeLineBreaks = true
-                            )
-                        }
-                    }
-                    if (gameData.content?.data?.platforms?.linux == true && gameData.content.data.linuxRequirements is JsonObject) {
-                        Text(
-                            "Linux Requirements",
-                            textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Bold
-                        )
-                        val linuxRequirements =
-                            json.decodeFromJsonElement<Requirements>(gameData.content.data.linuxRequirements)
-                        if (linuxRequirements.minimum != null) {
-                            RenderHtmlContent(
-                                html = linuxRequirements.minimum, removeLineBreaks = true
-                            )
-                        }
-                        if (linuxRequirements.recommended != null) {
-                            RenderHtmlContent(
-                                html = linuxRequirements.recommended,
-                                removeLineBreaks = true
-                            )
-                        }
-                    }
-                    if (gameData.content?.data?.platforms?.mac == true && gameData.content.data.macRequirements is JsonObject) {
-                        Text(
-                            "MacOS Requirements",
-                            textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Bold
-                        )
-                        val macRequirements =
-                            json.decodeFromJsonElement<Requirements>(gameData.content.data.macRequirements)
-                        if (macRequirements.minimum != null) {
-                            RenderHtmlContent(
-                                html = macRequirements.minimum, removeLineBreaks = true
-                            )
-                        }
-                        if (macRequirements.recommended != null) {
-                            RenderHtmlContent(
-                                html = macRequirements.recommended, removeLineBreaks = true
-                            )
-                        }
-                    }
-                }
-
-                2 -> CenterAlignedSelectableText("Deals Page")
-                3 -> CenterAlignedSelectableText("Player Stats Page")
-                else -> Text("Unknown Page")
-            }
+            tabItems[selectedTabIndex].content(Modifier, gameData)
         }
     }
 }

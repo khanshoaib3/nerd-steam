@@ -30,9 +30,9 @@ import org.jsoup.nodes.TextNode
 // ENTRY POINT
 @Composable
 fun RenderHtmlContent(
+    modifier: Modifier = Modifier,
     html: String,
     removeLineBreaks: Boolean = false,
-    modifier: Modifier = Modifier,
 ) {
     var html2 = "<p>$html<p/>"
     if (removeLineBreaks) {
