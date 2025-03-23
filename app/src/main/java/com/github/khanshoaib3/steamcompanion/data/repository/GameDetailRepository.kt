@@ -11,8 +11,6 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 private const val TAG = "GameDetailRepository"
@@ -51,20 +49,12 @@ class OnlineGameDetailRepository @Inject constructor(
         return json.decodeFromJsonElement<SteamWebApiAppDetailsResponse>(result.get(key = "$newAppId")!!)
     }
 
-    private fun getUpdatedAppIdFromRedirectUrl(currentAppId: Int) : Int? {
-        val regex = "https://store\\.steampowered\\.com/app/([0-9]*)"
-        val url = getRedirectUrl("https://store.steampowered.com/app/$currentAppId")
-        if (url.isNullOrBlank()) return null
+    private fun getUpdatedAppIdFromRedirectUrl(currentAppId: Int): Int? {
+        val regex = Regex("""https://store\.steampowered\.com/app/([0-9]+)""", RegexOption.MULTILINE)
+        val url = getRedirectUrl("https://store.steampowered.com/app/$currentAppId") ?: return null
 
-        val pattern:Pattern  = Pattern.compile(regex, Pattern.MULTILINE)
-        val matcher:Matcher  = pattern.matcher(url)
-
-        if (matcher.find()) {
-            println("Full match: " + matcher.group(0))
-            return matcher.group(1)?.toInt()
-        }
-
-        return null
+        val match = regex.find(url)
+        return match?.groupValues[1]?.toIntOrNull()
     }
 
     private fun getRedirectUrl(url: String): String? {
