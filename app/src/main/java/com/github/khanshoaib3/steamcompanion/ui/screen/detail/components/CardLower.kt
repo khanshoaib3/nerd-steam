@@ -3,6 +3,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
@@ -16,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
@@ -114,7 +117,7 @@ fun CardLower(modifier: Modifier = Modifier, gameData: GameData) {
                 }
             }
 
-            tabItems[selectedTabIndex].content(Modifier, gameData)
+            tabItems[selectedTabIndex].content(Modifier.padding(dimensionResource(R.dimen.padding_medium)), gameData)
         }
     }
 }
