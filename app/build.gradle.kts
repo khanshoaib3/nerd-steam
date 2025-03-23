@@ -48,6 +48,7 @@ android {
         resources {
             excludes += "META-INF/DEPENDENCIES"
             excludes += "mozilla/public-suffix-list.txt"
+            excludes += "META-INF/INDEX.LIST"
         }
     }
 }
@@ -55,13 +56,16 @@ android {
 dependencies {
     // Coil
     implementation(libs.coil.compose)
-//    implementation(libs.coil.gif)
+    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.gif)
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-    // Scrape-it
-    implementation(libs.skrapeit)
+    // Skrape-it
+    implementation(libs.skrapeit.dsl)
+    implementation(libs.skrapeit.html.parser)
+    implementation(libs.skrapeit.http.fetcher)
     // Datetime
     implementation(libs.kotlinx.datetime)
     // Preferences Datastore
@@ -86,7 +90,7 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     // Kotlin serialization
-    implementation(libs.kotlinx.serialization.json.v151)
+    implementation(libs.kotlinx.serialization.json)
     // Retrofit with Kotlin serialization Converter
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.okhttp)

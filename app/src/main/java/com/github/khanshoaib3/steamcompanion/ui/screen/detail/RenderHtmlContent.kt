@@ -4,13 +4,13 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -20,7 +20,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
+import com.github.khanshoaib3.steamcompanion.R
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
@@ -28,14 +29,18 @@ import org.jsoup.nodes.TextNode
 
 // ENTRY POINT
 @Composable
-fun RenderHtmlContent(html: String, removeLineBreaks: Boolean = false, modifier: Modifier = Modifier) {
+fun RenderHtmlContent(
+    html: String,
+    removeLineBreaks: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     var html2 = "<p>$html<p/>"
     if (removeLineBreaks) {
         html2 = html2.replace("<br/>", "")
         html2 = html2.replace("<br>", "")
     }
     val document = Jsoup.parse(html2).body()
-    Column(modifier = modifier.padding(16.dp)) {
+    Column(modifier = modifier.padding(dimensionResource(R.dimen.padding_large))) {
         document.children().forEach { element ->
             RenderElement(element)
         }
@@ -56,13 +61,11 @@ private fun RenderElement(element: Element) {
 
 // COMPONENTS
 @Composable
-private fun RenderParagraph(element: Element) {
-    Text(
-        text = parseInlineContent(element),
-        style = MaterialTheme.typography.bodyLarge,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-}
+private fun RenderParagraph(element: Element) = Text(
+    text = parseInlineContent(element),
+    style = MaterialTheme.typography.bodyLarge,
+    modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_medium))
+)
 
 /*
 @Composable
@@ -126,30 +129,24 @@ fun RenderParagraph(element: Element) {
 
 
 @Composable
-private fun RenderHeader(element: Element) {
-    Text(
-        text = parseInlineContent(element),
-        style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
-        modifier = Modifier.padding(vertical = 12.dp)
-    )
-}
+private fun RenderHeader(element: Element) = Text(
+    text = parseInlineContent(element),
+    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
+    modifier = Modifier.padding(vertical = 12.dp)
+)
 
 @Composable
-private fun RenderImage(element: Element) {
-    val src = element.attr("src")
-    AsyncImage(
-        model = src,
-        contentDescription = null,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp)
-            .padding(vertical = 8.dp),
-        contentScale = ContentScale.Crop
-    )
-}
+private fun RenderImage(element: Element) = AsyncImage(
+    model = element.attr("src"),
+    contentDescription = null,
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = dimensionResource(R.dimen.padding_medium)),
+    contentScale = ContentScale.Crop
+)
 
 @Composable
-private fun RenderUnorderedList(element: Element) {
+private fun RenderUnorderedList(element: Element) =
     Column(modifier = Modifier.padding(bottom = 8.dp)) {
         element.select("li").forEach { li ->
             Row(modifier = Modifier.padding(bottom = 4.dp)) {
@@ -161,14 +158,11 @@ private fun RenderUnorderedList(element: Element) {
             }
         }
     }
-}
 
 // INLINE PARSER
 @Composable
-private fun parseInlineContent(element: Element): AnnotatedString {
-    return buildAnnotatedString {
-        ParseNode(this, element)
-    }
+private fun parseInlineContent(element: Element) = buildAnnotatedString {
+    ParseNode(this, element)
 }
 
 @Composable

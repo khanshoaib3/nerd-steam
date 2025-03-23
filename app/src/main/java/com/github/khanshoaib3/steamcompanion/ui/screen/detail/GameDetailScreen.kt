@@ -46,7 +46,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -56,8 +55,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Category
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Requirements
@@ -145,9 +143,7 @@ fun GameDetailCard(
                     ) {
                         Column(modifier = Modifier.weight(0.25f)) {
                             AsyncImage(
-                                model = ImageRequest.Builder(context = LocalContext.current)
-                                    .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${gameData.content!!.data!!.steamAppId}/library_600x900.jpg")
-                                    .build(),
+                                model = "https://cdn.cloudflare.steamstatic.com/steam/apps/${gameData.content!!.data!!.steamAppId}/library_600x900.jpg",
                                 contentDescription = "Hero capsule for ${gameData.content.data.name}",
                                 placeholder = painterResource(R.drawable.preview_image_300x450),
                                 modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
@@ -409,8 +405,7 @@ fun CategoryChip(category: Category, modifier: Modifier = Modifier) {
             .animateContentSize()
     ) {
         AsyncImage(
-            model = ImageRequest.Builder(context = LocalContext.current)
-                .data("https://steamdb.info/static/img/categories/${category.id}.png").build(),
+            model = "https://steamdb.info/static/img/categories/${category.id}.png",
             contentDescription = category.description,
             placeholder = painterResource(R.drawable.windows_icon),
             modifier = Modifier

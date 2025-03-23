@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -24,8 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.SteamChartsItem
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
@@ -51,8 +49,7 @@ fun <T : SteamChartsItem> TableRow(
             .clickable(true, onClick = { onClick(item.appId) })
     ) {
         Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 modifier = Modifier.weight(0.1f),
@@ -66,13 +63,10 @@ fun <T : SteamChartsItem> TableRow(
                 )
             }
             Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(
-                    model = ImageRequest.Builder(context = LocalContext.current)
-                        .data("https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg")
-                        .build(),
+                    model = "https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg",
                     contentDescription = item.name,
                     placeholder = painterResource(R.drawable.preview_image_300x450),
                     modifier = Modifier
@@ -102,8 +96,7 @@ fun TrendingGameColumns(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         CenterAlignedSelectableText(
             item.gain,
@@ -129,8 +122,7 @@ fun TopGameColumns(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.currentPlayers),
@@ -162,8 +154,7 @@ fun TopRecordColumns(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         CenterAlignedSelectableText(
             NumberFormat.getNumberInstance().format(item.peakPlayers),
