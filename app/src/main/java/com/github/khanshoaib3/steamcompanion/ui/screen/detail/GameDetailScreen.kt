@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +64,8 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.Requirements
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -77,11 +78,12 @@ fun GameDetailScreen(
 ) {
     val viewModel = hiltViewModel<GameDetailViewModel>()
     val gameData by viewModel.gameData.collectAsState()
-    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(scope) {
-        viewModel.updateAppId(appId)
+    LaunchedEffect(appId) {
+        withContext(Dispatchers.IO) {
+            viewModel.updateAppId(appId)
+        }
     }
 
     if (gameData.content == null || gameData.content?.data == null || gameData.content?.success != true) {
@@ -206,7 +208,9 @@ fun GameDetailCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Price
-                        if (gameData.content?.data?.isFree == false) {
+                        if (gameData.content?.data?.isFree == false
+                            && !gameData.content.data.releaseDate.comingSoon
+                        ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth(0.4f)
@@ -275,7 +279,7 @@ fun GameDetailCard(
                     CenterAlignedSelectableText(
                         gameData.content?.data?.shortDescription ?: "Empty Description"
                     )
-                    if (gameData.content?.data?.isFree == false) {
+                    if (gameData.content?.data?.isFree == false && !gameData.content.data.releaseDate.comingSoon) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
@@ -309,8 +313,7 @@ fun GameDetailCard(
                             Tab(
                                 selected = index == selectedTabIndex,
                                 onClick = { selectedTabIndex = index },
-                                text = { Text(text = tab) }
-                            )
+                                text = { Text(text = tab) })
                         }
                     }
                     when (selectedTabIndex) {
@@ -320,41 +323,36 @@ fun GameDetailCard(
 
                         1 -> Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))) {
                             val json = Json { ignoreUnknownKeys = true }
-                            if (gameData.content?.data?.platforms?.windows == true
-                                && gameData.content.data.pcRequirements is JsonObject
-                            ) {
+                            if (gameData.content?.data?.platforms?.windows == true && gameData.content.data.pcRequirements is JsonObject) {
                                 Text(
                                     "Windows Requirements",
-                                    textDecoration = TextDecoration.Underline
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
                                 )
                                 val pcRequirements =
                                     json.decodeFromJsonElement<Requirements>(gameData.content.data.pcRequirements)
                                 if (pcRequirements.minimum != null) {
                                     RenderHtmlContent(
-                                        html = pcRequirements.minimum,
-                                        removeLineBreaks = true
+                                        html = pcRequirements.minimum, removeLineBreaks = true
                                     )
                                 }
                                 if (pcRequirements.recommended != null) {
                                     RenderHtmlContent(
-                                        html = pcRequirements.recommended,
-                                        removeLineBreaks = true
+                                        html = pcRequirements.recommended, removeLineBreaks = true
                                     )
                                 }
                             }
-                            if (gameData.content?.data?.platforms?.linux == true
-                                && gameData.content.data.linuxRequirements is JsonObject
-                            ) {
+                            if (gameData.content?.data?.platforms?.linux == true && gameData.content.data.linuxRequirements is JsonObject) {
                                 Text(
                                     "Linux Requirements",
-                                    textDecoration = TextDecoration.Underline
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
                                 )
                                 val linuxRequirements =
                                     json.decodeFromJsonElement<Requirements>(gameData.content.data.linuxRequirements)
                                 if (linuxRequirements.minimum != null) {
                                     RenderHtmlContent(
-                                        html = linuxRequirements.minimum,
-                                        removeLineBreaks = true
+                                        html = linuxRequirements.minimum, removeLineBreaks = true
                                     )
                                 }
                                 if (linuxRequirements.recommended != null) {
@@ -364,29 +362,27 @@ fun GameDetailCard(
                                     )
                                 }
                             }
-                            if (gameData.content?.data?.platforms?.mac == true
-                                && gameData.content.data.macRequirements is JsonObject
-                            ) {
+                            if (gameData.content?.data?.platforms?.mac == true && gameData.content.data.macRequirements is JsonObject) {
                                 Text(
                                     "MacOS Requirements",
-                                    textDecoration = TextDecoration.Underline
+                                    textDecoration = TextDecoration.Underline,
+                                    fontWeight = FontWeight.Bold
                                 )
                                 val macRequirements =
                                     json.decodeFromJsonElement<Requirements>(gameData.content.data.macRequirements)
                                 if (macRequirements.minimum != null) {
                                     RenderHtmlContent(
-                                        html = macRequirements.minimum,
-                                        removeLineBreaks = true
+                                        html = macRequirements.minimum, removeLineBreaks = true
                                     )
                                 }
                                 if (macRequirements.recommended != null) {
                                     RenderHtmlContent(
-                                        html = macRequirements.recommended,
-                                        removeLineBreaks = true
+                                        html = macRequirements.recommended, removeLineBreaks = true
                                     )
                                 }
                             }
                         }
+
                         2 -> CenterAlignedSelectableText("Deals Page")
                         3 -> CenterAlignedSelectableText("Player Stats Page")
                         else -> Text("Unknown Page")
@@ -414,14 +410,20 @@ fun CategoryChip(category: Category, modifier: Modifier = Modifier) {
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context = LocalContext.current)
-                .data("https://steamdb.info/static/img/categories/${category.id}.png")
-                .build(),
+                .data("https://steamdb.info/static/img/categories/${category.id}.png").build(),
             contentDescription = category.description,
             placeholder = painterResource(R.drawable.windows_icon),
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier
+                .size(28.dp)
+                .padding(start = dimensionResource(R.dimen.padding_very_small))
         )
         AnimatedVisibility(isOpen) {
-            Text(category.description, maxLines = 1, color = MaterialTheme.colorScheme.onSecondary)
+            Text(
+                category.description,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_very_small))
+            )
         }
     }
 }

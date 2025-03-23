@@ -33,7 +33,7 @@ data class AppDetail(
 //    @SerialName("genres") val genres: List<Genre>,
 //    @SerialName("metacritic") val metacritic: Metacritic? = null,
 //    @SerialName("recommendations") val recommendations: Recommendations? = null,
-//    @SerialName("release_date") val releaseDate: ReleaseDate,
+    @SerialName("release_date") val releaseDate: ReleaseDate,
     @SerialName("pc_requirements") val pcRequirements: JsonElement? = null,
     @SerialName("mac_requirements") val macRequirements: JsonElement? = null,
     @SerialName("linux_requirements") val linuxRequirements: JsonElement? = null,
