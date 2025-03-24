@@ -3,7 +3,6 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +21,7 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
 @Composable
 fun AboutTab(modifier: Modifier = Modifier, gameData: GameData) {
     val html = gameData.content?.data?.detailedDescription ?: "<b>Empty</b>"
-    // Memoize expensive parsing logic (to not recalculate on recomposition
+    // Memoize expensive parsing logic (to not recalculate on recomposition)
     val (annotatedString, imageTags) = remember(html) {
         val processedHtml = prepareHtml(html)
         val annotated = AnnotatedString.fromHtml(
