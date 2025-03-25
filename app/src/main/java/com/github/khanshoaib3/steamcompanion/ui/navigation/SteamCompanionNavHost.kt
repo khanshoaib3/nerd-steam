@@ -13,12 +13,11 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreen
 
-
 @Composable
 fun SteamCompanionNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    menuButtonOnClick: () -> Unit,
+    onMenuButtonClick: () -> Unit,
 ) {
     NavHost(
         modifier = modifier,
@@ -26,7 +25,7 @@ fun SteamCompanionNavHost(
         startDestination = Route.Home,
     ) {
         composable<Route.Home> {
-            HomeScreenRoot(menuButtonOnClick = menuButtonOnClick)
+            HomeScreenRoot(onMenuButtonClick = onMenuButtonClick)
         }
         composable<Route.Search> {
             SearchScreen()
@@ -34,7 +33,7 @@ fun SteamCompanionNavHost(
         composable<Route.AppDetail> {
             AppDetailsScreen(
                 appId = it.toRoute<Route.AppDetail>().appId,
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
             )
         }
     }

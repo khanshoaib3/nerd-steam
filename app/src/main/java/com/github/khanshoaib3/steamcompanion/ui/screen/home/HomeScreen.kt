@@ -40,21 +40,23 @@ import kotlinx.coroutines.launch
 fun HomeScreenRoot(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    menuButtonOnClick: () -> Unit,
+    onMenuButtonClick: () -> Unit,
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
 
     val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
     val scope = rememberCoroutineScope()
+    val view = LocalView.current
+
 
     BackHandler(navigator.canNavigateBack()) {
         scope.launch {
             navigator.navigateBack()
         }
     }
-    val topAppBarScrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     NavigableListDetailPaneScaffold(
         navigator = navigator,
@@ -69,11 +71,22 @@ fun HomeScreenRoot(
                             )
                         }
                     },
-                    homeViewModel = homeViewModel,
+                    onTrendingGamesCollapseButtonClick = {
+                        homeViewModel.toggleTrendingGamesExpandState()
+                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+                    },
+                    onTopGamesCollapseButtonClick = {
+                        homeViewModel.toggleTopGamesExpandState()
+                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+                    },
+                    onTopRecordsCollapseButtonClick = {
+                        homeViewModel.toggleTopRecordsExpandState()
+                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+                    },
+                    onMenuButtonClick = onMenuButtonClick,
                     homeDataState = homeDataState,
                     homeViewState = homeViewState,
-                    topAppBarScrollBehavior = topAppBarScrollBehavior,
-                    menuButtonOnClick = menuButtonOnClick
+                    topAppBarScrollBehavior = scrollBehavior,
                 )
             }
         },
@@ -97,19 +110,19 @@ fun HomeScreenRoot(
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onGameClick: (appId: Int) -> Unit,
-    homeViewModel: HomeViewModel,
+    onTrendingGamesCollapseButtonClick: () -> Unit,
+    onTopGamesCollapseButtonClick: () -> Unit,
+    onTopRecordsCollapseButtonClick: () -> Unit,
+    onMenuButtonClick: () -> Unit,
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    menuButtonOnClick: () -> Unit,
 ) {
-    val view = LocalView.current
-
     Scaffold(
         topBar = {
             SteamCompanionTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
-                menuButtonOnClick = menuButtonOnClick
+                onMenuButtonClick = onMenuButtonClick
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -124,10 +137,7 @@ fun HomeScreen(
                 gamesList = homeDataState.trendingGames,
                 tableType = SteamChartsTableType.TrendingGames,
                 isTableExpanded = homeViewState.isTrendingGamesExpanded,
-                onCollapseButtonClick = {
-                    homeViewModel.toggleTrendingGamesExpandState()
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
-                },
+                onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
                 onGameRowClick = onGameClick,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_small))
@@ -137,10 +147,7 @@ fun HomeScreen(
                 gamesList = homeDataState.topGames,
                 tableType = SteamChartsTableType.TopGames,
                 isTableExpanded = homeViewState.isTopGamesExpanded,
-                onCollapseButtonClick = {
-                    homeViewModel.toggleTopGamesExpandState()
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
-                },
+                onCollapseButtonClick = onTopGamesCollapseButtonClick,
                 onGameRowClick = onGameClick,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_small))
@@ -150,10 +157,7 @@ fun HomeScreen(
                 gamesList = homeDataState.topRecords,
                 tableType = SteamChartsTableType.TopRecords,
                 isTableExpanded = homeViewState.isTopRecordsExpanded,
-                onCollapseButtonClick = {
-                    homeViewModel.toggleTopRecordsExpandState()
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
-                },
+                onCollapseButtonClick = onTopRecordsCollapseButtonClick,
                 onGameRowClick = onGameClick,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_small))

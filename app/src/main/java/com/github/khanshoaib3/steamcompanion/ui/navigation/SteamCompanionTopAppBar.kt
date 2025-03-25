@@ -27,14 +27,14 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 @Composable
 fun SteamCompanionTopAppBar(
     modifier: Modifier = Modifier,
+    onMenuButtonClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    menuButtonOnClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = { Text(text = stringResource(R.string.app_name)) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = menuButtonOnClick) {
+            IconButton(onClick = onMenuButtonClick) {
                 Icon(Icons.Default.Menu, contentDescription = "Open app drawer")
             }
         },
@@ -54,7 +54,7 @@ private fun TopAppBarPreview() {
                 topBar = {
                     SteamCompanionTopAppBar(
                         scrollBehavior = scrollBehavior,
-                        menuButtonOnClick = {}
+                        onMenuButtonClick = {}
                     )
                 }
             ) {
