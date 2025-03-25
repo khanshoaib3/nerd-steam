@@ -8,12 +8,10 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -33,10 +31,6 @@ fun SteamCompanionTopAppBar(
     menuButtonOnClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
-        colors = topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
         title = { Text(text = stringResource(R.string.app_name)) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
@@ -55,15 +49,22 @@ fun SteamCompanionTopAppBar(
 private fun TopAppBarPreview() {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     SteamCompanionTheme {
-        Scaffold(
-            topBar = {
-                SteamCompanionTopAppBar(
-                    scrollBehavior = scrollBehavior,
-                    menuButtonOnClick = {}
+        Surface {
+            Scaffold(
+                topBar = {
+                    SteamCompanionTopAppBar(
+                        scrollBehavior = scrollBehavior,
+                        menuButtonOnClick = {}
+                    )
+                }
+            ) {
+                CenterAlignedSelectableText(
+                    "Some text",
+                    modifier = Modifier
+                        .padding(it)
+                        .fillMaxSize()
                 )
             }
-        ) {
-            CenterAlignedSelectableText("Some text", modifier = Modifier.padding(it).fillMaxSize())
         }
     }
 }

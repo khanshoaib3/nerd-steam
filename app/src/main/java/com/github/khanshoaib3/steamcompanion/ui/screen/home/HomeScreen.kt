@@ -56,29 +56,6 @@ fun HomeScreenRoot(
     val topAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-//    Scaffold(
-//        topBar = { TopBar(topAppBarScrollBehavior) },
-//        modifier = modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-//    ) { innerPadding ->
-//        if (!isAppDetailsOpen) {
-//            SteamChartsGamesList(
-//                onGameClick = { navigationActions.navigateToAppDetailsScreen(it) },
-//                homeViewModel = homeViewModel,
-//                homeDataState = homeDataState,
-//                homeViewState = homeViewState,
-//                modifier = Modifier.padding(innerPadding)
-//            )
-//        } else {
-//            navController.currentBackStackEntry?.toRoute<Route.AppDetail>().let {
-//                AppDetailsScreen(
-//                    appId = it?.appId,
-//                    modifier = Modifier
-//                        .padding(innerPadding)
-//                        .padding(dimensionResource(R.dimen.padding_medium))
-//                )
-//            }
-//        }
-//    }
     NavigableListDetailPaneScaffold(
         navigator = navigator,
         listPane = {
@@ -106,7 +83,7 @@ fun HomeScreenRoot(
                 navigator.currentDestination?.contentKey.let {
                     AppDetailsScreen(
                         appId = it as Int?,
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
                     )
                 }
             }

@@ -4,12 +4,17 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -17,17 +22,25 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.PermanentDrawerSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowSize
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,12 +60,11 @@ private fun WindowSizeClass.isCompact() =
 
 class SteamCompanionNavSuiteScope(
     val navSuiteType: NavigationSuiteType,
-    val drawerState: DrawerState
+    val drawerState: DrawerState,
 )
 
 @Composable
 fun SteamCompanionNavigationWrapper(
-    modifier: Modifier = Modifier,
     currentDestination: NavDestination?,
     navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
     content: @Composable SteamCompanionNavSuiteScope.() -> Unit,
@@ -75,7 +87,8 @@ fun SteamCompanionNavigationWrapper(
     val coroutineScope = rememberCoroutineScope()
     // Avoid opening the modal drawer when there is a permanent drawer or a bottom nav bar,
     // but always allow closing an open drawer.
-    val gesturesEnabled = drawerState.isOpen || navLayoutType == NavigationSuiteType.NavigationRail
+    val gesturesEnabled =
+        drawerState.isOpen || navLayoutType != NavigationSuiteType.NavigationDrawer
 
     BackHandler(enabled = drawerState.isOpen) {
         coroutineScope.launch {
@@ -87,46 +100,155 @@ fun SteamCompanionNavigationWrapper(
         drawerState = drawerState,
         gesturesEnabled = gesturesEnabled,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalNavigationDrawerContent(
+                currentDestination = currentDestination,
+                navigateToTopLevelDestination = navigateToTopLevelDestination,
+                onDrawerClicked = {
+                    coroutineScope.launch {
+                        drawerState.close()
+                    }
+                }
+            )
+        }
+    ) {
+        NavigationSuiteScaffoldLayout(
+            layoutType = navLayoutType,
+            navigationSuite = {
+                when (navLayoutType) {
+                    NavigationSuiteType.NavigationBar -> SteamCompanionNavBar(
+                        currentDestination = currentDestination,
+                        navigateToTopLevelDestination = navigateToTopLevelDestination
+                    )
+
+                    NavigationSuiteType.NavigationRail -> SteamCompanionNavRail(
+                        currentDestination = currentDestination,
+                        navigateToTopLevelDestination = navigateToTopLevelDestination,
+                        onDrawerClicked = {
+                            coroutineScope.launch {
+                                drawerState.open()
+                            }
+                        }
+                    )
+
+                    NavigationSuiteType.NavigationDrawer -> PermanentNavigationDrawerContent(
+                        currentDestination = currentDestination,
+                        navigateToTopLevelDestination = navigateToTopLevelDestination
+                    )
+                }
+            }
+        )
+        {
+            SteamCompanionNavSuiteScope(navLayoutType, drawerState).content()
+        }
+    }
+}
+
+@Composable
+fun SteamCompanionNavRail(
+    currentDestination: NavDestination?,
+    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+    onDrawerClicked: () -> Unit = {},
+) {
+    NavigationRail(
+        modifier = Modifier.fillMaxHeight(),
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            NavigationRailItem(
+                selected = false,
+                onClick = onDrawerClicked,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Open app drawer"
+                    )
+                }
+            )
+            Spacer(Modifier.height(8.dp)) // NavigationRailHeaderPadding
+            Spacer(Modifier.height(4.dp)) // NavigationRailVerticalPadding
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
+                NavigationRailItem(
+                    selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
+                    onClick = { navigateToTopLevelDestination(topLevelRoute) },
+                    icon = {
+                        Icon(
+                            imageVector = topLevelRoute.selectedIcon,
+                            contentDescription = topLevelRoute.name
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SteamCompanionNavBar(
+    currentDestination: NavDestination?,
+    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+) {
+    NavigationBar(modifier = Modifier.fillMaxWidth()) {
+        TOP_LEVEL_ROUTES.forEach { topLevelRoutes ->
+            NavigationBarItem(
+                selected = currentDestination?.hasRoute(topLevelRoutes.route::class) == true,
+                onClick = { navigateToTopLevelDestination(topLevelRoutes) },
+                icon = {
+                    Icon(
+                        imageVector = topLevelRoutes.selectedIcon,
+                        contentDescription = topLevelRoutes.name
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun PermanentNavigationDrawerContent(
+    currentDestination: NavDestination?,
+    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+) {
+    PermanentDrawerSheet(
+        modifier = Modifier.sizeIn(minWidth = 200.dp, maxWidth = 300.dp),
+        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxHeight()
+            ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Row(
+                    Text(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.app_name).uppercase(),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        IconButton(onClick = {
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.MenuOpen,
-                                contentDescription = "Close drawer"
-                            )
-                        }
-                    }
+                        text = stringResource(id = R.string.app_name).uppercase(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
 
                 Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState()),
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
-                        val isSelected =
-                            currentDestination?.hasRoute(topLevelRoute.route::class) == true
                         NavigationDrawerItem(
-                            selected = isSelected,
+                            selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
                             label = {
                                 Text(
                                     text = topLevelRoute.name,
@@ -135,7 +257,7 @@ fun SteamCompanionNavigationWrapper(
                             },
                             icon = {
                                 Icon(
-                                    imageVector = if (isSelected) topLevelRoute.selectedIcon else topLevelRoute.icon,
+                                    imageVector = topLevelRoute.selectedIcon,
                                     contentDescription = topLevelRoute.name
                                 )
                             },
@@ -148,15 +270,49 @@ fun SteamCompanionNavigationWrapper(
                 }
             }
         }
-    ) {
-        NavigationSuiteScaffold(
-            layoutType = navLayoutType,
-            navigationSuiteItems = {
+    }
+}
+
+@Composable
+fun ModalNavigationDrawerContent(
+    currentDestination: NavDestination?,
+    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+    onDrawerClicked: () -> Unit = {},
+) {
+    ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.inverseOnSurface) {
+        Column(modifier = Modifier.fillMaxHeight()) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.app_name).uppercase(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    IconButton(onClick = onDrawerClicked) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.MenuOpen,
+                            contentDescription = "Close drawer"
+                        )
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
-                    val isSelected =
-                        currentDestination?.hasRoute(topLevelRoute.route::class) == true
-                    item(
-                        selected = isSelected,
+                    NavigationDrawerItem(
+                        selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
                         label = {
                             Text(
                                 text = topLevelRoute.name,
@@ -165,20 +321,17 @@ fun SteamCompanionNavigationWrapper(
                         },
                         icon = {
                             Icon(
-                                imageVector = if (isSelected) topLevelRoute.selectedIcon else topLevelRoute.icon,
+                                imageVector = topLevelRoute.selectedIcon,
                                 contentDescription = topLevelRoute.name
                             )
                         },
-//                            colors = NavigationDrawerItemDefaults.colors(
-//                                unselectedContainerColor = Color.Transparent
-//                            ),
+                        colors = NavigationDrawerItemDefaults.colors(
+                            unselectedContainerColor = Color.Transparent
+                        ),
                         onClick = { navigateToTopLevelDestination(topLevelRoute) }
                     )
                 }
             }
-        )
-        {
-            SteamCompanionNavSuiteScope(navLayoutType, drawerState).content()
         }
     }
 }

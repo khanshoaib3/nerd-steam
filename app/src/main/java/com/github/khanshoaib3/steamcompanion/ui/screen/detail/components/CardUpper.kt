@@ -46,7 +46,7 @@ import java.util.Currency
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CardUpper(modifier: Modifier = Modifier, gameData: GameData) {
+fun CardUpper(modifier: Modifier = Modifier, gameData: GameData, showHeader: Boolean = true) {
     val data = gameData.content?.data
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier
@@ -58,10 +58,12 @@ fun CardUpper(modifier: Modifier = Modifier, gameData: GameData) {
                 .padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 .padding(bottom = dimensionResource(R.dimen.padding_medium))
         ) {
-            Header(
-                modifier = Modifier.fillMaxWidth(),
-                appName = data?.name ?: "No Name"
-            )
+            if (showHeader) {
+                Header(
+                    modifier = Modifier.fillMaxWidth(),
+                    appName = data?.name ?: "No Name"
+                )
+            }
             FeaturesOverview(
                 modifier = Modifier.fillMaxWidth(),
                 appId = data?.steamAppId ?: 0,

@@ -3,14 +3,27 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
@@ -22,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDetailsScreen(
     modifier: Modifier = Modifier,
@@ -41,18 +55,58 @@ fun AppDetailsScreen(
         if (appId != null && appId != 0) CenterAlignedSelectableText("Unable to get data for app with id $appId")
         return
     }
+    
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    AppDetailsCard(modifier = modifier.verticalScroll(scrollState), gameData = gameData)
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { Text(gameData.content?.data?.name ?: "No Name") },
+                navigationIcon = {
+                    IconButton(onClick = { /* TODO Add behaviour */ }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, "Go back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO Add behaviour */ }) {
+                        Icon(
+                            Icons.Default.BookmarkBorder, contentDescription = "Bookmark app"
+                        )
+                    }
+                    IconButton(onClick = { /* TODO Add behaviour */ }) {
+                        Icon(Icons.Default.Share, contentDescription = "Share app")
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
+        }
+    ) { innerPadding ->
+        AppDetailsCard(
+            modifier = modifier
+                .padding(innerPadding)
+                .verticalScroll(scrollState),
+            gameData = gameData,
+            showHeader = false
+        )
+    }
 }
 
 @Composable
 fun AppDetailsCard(
     modifier: Modifier = Modifier,
     gameData: GameData,
+    showHeader: Boolean = true,
 ) {
     Box(modifier = modifier) {
         OutlinedCard {
-            CardUpper(modifier = Modifier.fillMaxWidth(), gameData = gameData)
+            CardUpper(
+                modifier = Modifier.fillMaxWidth(),
+                gameData = gameData,
+                showHeader = showHeader
+            )
             CardLower(modifier = Modifier.fillMaxWidth(), gameData = gameData)
         }
     }
