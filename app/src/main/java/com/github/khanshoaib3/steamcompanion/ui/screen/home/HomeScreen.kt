@@ -1,29 +1,46 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTable
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTableType
 import kotlinx.coroutines.launch
 
 // https://www.youtube.com/watch?v=W3R_ETKMj0E
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun HomeScreenRoot(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    menuButtonOnClick: () -> Unit,
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
@@ -36,12 +53,37 @@ fun HomeScreen(
             navigator.navigateBack()
         }
     }
+    val topAppBarScrollBehavior =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
+//    Scaffold(
+//        topBar = { TopBar(topAppBarScrollBehavior) },
+//        modifier = modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+//    ) { innerPadding ->
+//        if (!isAppDetailsOpen) {
+//            SteamChartsGamesList(
+//                onGameClick = { navigationActions.navigateToAppDetailsScreen(it) },
+//                homeViewModel = homeViewModel,
+//                homeDataState = homeDataState,
+//                homeViewState = homeViewState,
+//                modifier = Modifier.padding(innerPadding)
+//            )
+//        } else {
+//            navController.currentBackStackEntry?.toRoute<Route.AppDetail>().let {
+//                AppDetailsScreen(
+//                    appId = it?.appId,
+//                    modifier = Modifier
+//                        .padding(innerPadding)
+//                        .padding(dimensionResource(R.dimen.padding_medium))
+//                )
+//            }
+//        }
+//    }
     NavigableListDetailPaneScaffold(
         navigator = navigator,
         listPane = {
             AnimatedPane {
-                SteamChartsGamesList(
+                HomeScreen(
                     onGameClick = {
                         scope.launch {
                             navigator.navigateTo(
@@ -52,7 +94,9 @@ fun HomeScreen(
                     },
                     homeViewModel = homeViewModel,
                     homeDataState = homeDataState,
-                    homeViewState = homeViewState
+                    homeViewState = homeViewState,
+                    topAppBarScrollBehavior = topAppBarScrollBehavior,
+                    menuButtonOnClick = menuButtonOnClick
                 )
             }
         },
@@ -69,4 +113,75 @@ fun HomeScreen(
         },
         modifier = modifier
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onGameClick: (appId: Int) -> Unit,
+    homeViewModel: HomeViewModel,
+    homeDataState: HomeDataState,
+    homeViewState: HomeViewState,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    menuButtonOnClick: () -> Unit,
+) {
+    val view = LocalView.current
+
+    Scaffold(
+        topBar = {
+            SteamCompanionTopAppBar(
+                scrollBehavior = topAppBarScrollBehavior,
+                menuButtonOnClick = menuButtonOnClick
+            )
+        },
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+    ) { innerPadding ->
+        Column(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
+            modifier = modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            SteamChartsTable(
+                gamesList = homeDataState.trendingGames,
+                tableType = SteamChartsTableType.TrendingGames,
+                isTableExpanded = homeViewState.isTrendingGamesExpanded,
+                onCollapseButtonClick = {
+                    homeViewModel.toggleTrendingGamesExpandState()
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+                },
+                onGameRowClick = onGameClick,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_small))
+                    .animateContentSize()
+            )
+            SteamChartsTable(
+                gamesList = homeDataState.topGames,
+                tableType = SteamChartsTableType.TopGames,
+                isTableExpanded = homeViewState.isTopGamesExpanded,
+                onCollapseButtonClick = {
+                    homeViewModel.toggleTopGamesExpandState()
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+                },
+                onGameRowClick = onGameClick,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_small))
+                    .animateContentSize()
+            )
+            SteamChartsTable(
+                gamesList = homeDataState.topRecords,
+                tableType = SteamChartsTableType.TopRecords,
+                isTableExpanded = homeViewState.isTopRecordsExpanded,
+                onCollapseButtonClick = {
+                    homeViewModel.toggleTopRecordsExpandState()
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+                },
+                onGameRowClick = onGameClick,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_small))
+                    .animateContentSize()
+            )
+        }
+    }
 }

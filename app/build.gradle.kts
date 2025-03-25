@@ -6,9 +6,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
 //    kotlin("plugin.serialization") version "2.0.21"
-    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
+    // Keep this at last (https://stackoverflow.com/questions/70550883/warning-the-following-options-were-not-recognized-by-any-processor-dagger-f)
+    id("kotlin-kapt")
 }
 
 android {
@@ -82,6 +83,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.compose.material.adaptive.navigation.suite)
+    implementation(libs.androidx.compose.materialWindow)
+    implementation("com.google.accompanist:accompanist-adaptive:0.26.2-beta")
     // Dagger-Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)

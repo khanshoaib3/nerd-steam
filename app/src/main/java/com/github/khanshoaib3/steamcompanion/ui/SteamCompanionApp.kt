@@ -1,140 +1,81 @@
 package com.github.khanshoaib3.steamcompanion.ui
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreen
-import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreen
+import androidx.window.layout.DisplayFeature
+import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavHost
+import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavigationActions
+import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavigationWrapper
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
-import kotlinx.serialization.Serializable
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SteamCompanionApp(modifier: Modifier = Modifier) {
+fun SteamCompanionApp(
+    modifier: Modifier = Modifier,
+    windowSize: WindowSizeClass,
+    displayFeatures: List<DisplayFeature>,
+) {
     // https://developer.android.com/develop/ui/compose/components/app-bars#center
-    val topAppBarScrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-    val navController = rememberNavController()
-    val topLevelRoutes = listOf(
-        TopLevelRoute<Any>(
-            name = "Home",
-            route = HomeRoute,
-            icon = Icons.Outlined.Home,
-            selectedIcon = Icons.Filled.Home
-        ),
-        TopLevelRoute<Any>(
-            name = "Search",
-            route = SearchRoute,
-            icon = Icons.Outlined.Search,
-            selectedIcon = Icons.Filled.Search
-        )
-    )
+    /**
+     * We are using display's folding features to map the device postures a fold is in.
+     * In the state of folding device If it's half fold in BookPosture we want to avoid content
+     * at the crease/hinge
+     */
+//    val foldingFeature = displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull()
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-        topBar = { TopBar(topAppBarScrollBehavior) },
-        bottomBar = { NavBar(navController = navController, topLevelRoutes = topLevelRoutes) }
-    ) { innerPadding ->
-        NavHost(
+//    val foldingDevicePosture = when {
+//        isBookPosture(foldingFeature) ->
+//            DevicePosture.BookPosture(foldingFeature.bounds)
+//
+//        isSeparating(foldingFeature) ->
+//            DevicePosture.Separating(foldingFeature.bounds, foldingFeature.orientation)
+//
+//        else -> DevicePosture.NormalPosture
+//    }
+
+    val navController = rememberNavController()
+    val navigationActions = remember(navController) {
+        SteamCompanionNavigationActions(navController)
+    }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val scope = rememberCoroutineScope()
+
+    SteamCompanionNavigationWrapper(
+        currentDestination = currentDestination,
+        navigateToTopLevelDestination = { navigationActions.navigateToTopLevelRoute(it) },
+    ) {
+        SteamCompanionNavHost(
             navController = navController,
-            startDestination = HomeRoute,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            modifier = modifier.padding(innerPadding)
-        ) {
-            composable<HomeRoute>(
-                enterTransition = {
-                    // https://developer.android.com/develop/ui/compose/animation/quick-guide#animate-whilst
-                    fadeIn(
-                        animationSpec = tween(
-                            300, easing = LinearEasing
-                        )
-                    ) + slideIntoContainer(
-                        animationSpec = tween(300, easing = EaseIn),
-                        towards = AnimatedContentTransitionScope.SlideDirection.End
-                    )
-                },
-                exitTransition = {
-                    // https://developer.android.com/develop/ui/compose/animation/quick-guide#animate-whilst
-                    fadeOut(
-                        animationSpec = tween(
-                            300, easing = LinearEasing
-                        )
-                    ) + slideOutOfContainer(
-                        animationSpec = tween(300, easing = EaseOut),
-                        towards = AnimatedContentTransitionScope.SlideDirection.Start
-                    )
-                },
-            ) { HomeScreen() }
-            composable<SearchRoute>(
-                enterTransition = {
-                    // https://developer.android.com/develop/ui/compose/animation/quick-guide#animate-whilst
-                    fadeIn(
-                        animationSpec = tween(
-                            300, easing = LinearEasing
-                        )
-                    ) + slideIntoContainer(
-                        animationSpec = tween(300, easing = EaseIn),
-                        towards = AnimatedContentTransitionScope.SlideDirection.Start
-                    )
-                },
-                exitTransition = {
-                    // https://developer.android.com/develop/ui/compose/animation/quick-guide#animate-whilst
-                    fadeOut(
-                        animationSpec = tween(
-                            300, easing = LinearEasing
-                        )
-                    ) + slideOutOfContainer(
-                        animationSpec = tween(300, easing = EaseOut),
-                        towards = AnimatedContentTransitionScope.SlideDirection.End
-                    )
-                },
-            ) { SearchScreen() }
-        }
+            menuButtonOnClick = {
+                scope.launch {
+                    drawerState.open()
+                }
+            }
+        )
     }
 }
 
-data class TopLevelRoute<T : Any>(
-    val name: String,
-    val route: T,
-    val icon: ImageVector,
-    val selectedIcon: ImageVector,
-)
-
-@Serializable
-object HomeRoute
-
-@Serializable
-object SearchRoute
-
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
 @Composable
 private fun SteamCompanionAppPreview() {
     SteamCompanionTheme {
-        SteamCompanionApp()
+        SteamCompanionApp(
+            windowSize = WindowSizeClass.calculateFromSize(DpSize(400.dp, 900.dp)),
+            displayFeatures = emptyList()
+        )
     }
 }
