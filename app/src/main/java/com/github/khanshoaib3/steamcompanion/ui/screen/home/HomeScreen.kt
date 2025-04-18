@@ -14,8 +14,12 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.PaneExpansionState
+import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,6 +44,7 @@ import kotlinx.coroutines.launch
 fun HomeScreenRoot(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    navSuiteType: NavigationSuiteType,
     onMenuButtonClick: () -> Unit,
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
@@ -51,6 +56,26 @@ fun HomeScreenRoot(
     val scope = rememberCoroutineScope()
     val view = LocalView.current
 
+    val onGameClick: (Int) -> Unit = {
+        scope.launch {
+            navigator.navigateTo(
+                pane = ListDetailPaneScaffoldRole.Detail,
+                contentKey = it
+            )
+        }
+    }
+    val onTrendingGamesCollapseButtonClick: () -> Unit = {
+        homeViewModel.toggleTrendingGamesExpandState()
+        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+    }
+    val onTopGamesCollapseButtonClick: () -> Unit = {
+        homeViewModel.toggleTopGamesExpandState()
+        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+    }
+    val onTopRecordsCollapseButtonClick: () -> Unit = {
+        homeViewModel.toggleTopRecordsExpandState()
+        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+    }
 
     BackHandler(navigator.canNavigateBack()) {
         scope.launch {
@@ -58,36 +83,99 @@ fun HomeScreenRoot(
         }
     }
 
+    if (navSuiteType == NavigationSuiteType.NavigationBar) {
+        ListDetailScaffold(
+            modifier = modifier,
+            navSuiteType = navSuiteType,
+            navigator = navigator,
+            paneExpansionState = null,
+            onGameClick = onGameClick,
+            onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+            onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+            onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+            onMenuButtonClick = onMenuButtonClick,
+            onListPaneUpButtonClick = {
+                scope.launch {
+                    navigator.navigateBack()
+                }
+            },
+            homeDataState = homeDataState,
+            homeViewState = homeViewState,
+            topAppBarScrollBehavior = scrollBehavior
+        )
+    } else {
+        val paneExpansionState = rememberPaneExpansionState()
+        paneExpansionState.setFirstPaneProportion(0.45f)
+
+        Scaffold(topBar = {
+            SteamCompanionTopAppBar(
+                scrollBehavior = scrollBehavior,
+                showMenuButton = false,
+                onMenuButtonClick = onMenuButtonClick
+            )
+        }) { innerPadding ->
+            ListDetailScaffold(
+                modifier = modifier.padding(innerPadding),
+                navSuiteType = navSuiteType,
+                navigator = navigator,
+                paneExpansionState = paneExpansionState,
+                onGameClick = onGameClick,
+                onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+                onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+                onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+                onMenuButtonClick = onMenuButtonClick,
+                onListPaneUpButtonClick = {},
+                homeDataState = homeDataState,
+                homeViewState = homeViewState,
+                topAppBarScrollBehavior = scrollBehavior
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun ListDetailScaffold(
+    modifier: Modifier = Modifier,
+    navSuiteType: NavigationSuiteType,
+    navigator: ThreePaneScaffoldNavigator<Any>,
+    paneExpansionState: PaneExpansionState?,
+    onGameClick: (appId: Int) -> Unit,
+    onTrendingGamesCollapseButtonClick: () -> Unit,
+    onTopGamesCollapseButtonClick: () -> Unit,
+    onTopRecordsCollapseButtonClick: () -> Unit,
+    onMenuButtonClick: () -> Unit,
+    onListPaneUpButtonClick: () -> Unit,
+    homeDataState: HomeDataState,
+    homeViewState: HomeViewState,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+) {
     NavigableListDetailPaneScaffold(
         navigator = navigator,
+        paneExpansionState = paneExpansionState,
         listPane = {
             AnimatedPane {
-                HomeScreen(
-                    onGameClick = {
-                        scope.launch {
-                            navigator.navigateTo(
-                                pane = ListDetailPaneScaffoldRole.Detail,
-                                contentKey = it
-                            )
-                        }
-                    },
-                    onTrendingGamesCollapseButtonClick = {
-                        homeViewModel.toggleTrendingGamesExpandState()
-                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
-                    },
-                    onTopGamesCollapseButtonClick = {
-                        homeViewModel.toggleTopGamesExpandState()
-                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
-                    },
-                    onTopRecordsCollapseButtonClick = {
-                        homeViewModel.toggleTopRecordsExpandState()
-                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
-                    },
-                    onMenuButtonClick = onMenuButtonClick,
-                    homeDataState = homeDataState,
-                    homeViewState = homeViewState,
-                    topAppBarScrollBehavior = scrollBehavior,
-                )
+                if (navSuiteType == NavigationSuiteType.NavigationBar) {
+                    HomeScreenWithScaffold(
+                        onGameClick = onGameClick,
+                        onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+                        onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+                        onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+                        onMenuButtonClick = onMenuButtonClick,
+                        homeDataState = homeDataState,
+                        homeViewState = homeViewState,
+                        topAppBarScrollBehavior = topAppBarScrollBehavior,
+                    )
+                } else {
+                    HomeScreen(
+                        onGameClick = onGameClick,
+                        onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+                        onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+                        onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+                        homeDataState = homeDataState,
+                        homeViewState = homeViewState
+                    )
+                }
             }
         },
         detailPane = {
@@ -95,8 +183,10 @@ fun HomeScreenRoot(
                 // Show the detail pane content if selected item is available
                 navigator.currentDestination?.contentKey.let {
                     AppDetailsScreen(
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
                         appId = it as Int?,
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
+                        showTopBar = navSuiteType == NavigationSuiteType.NavigationBar,
+                        onUpButtonClick = onListPaneUpButtonClick
                     )
                 }
             }
@@ -107,7 +197,7 @@ fun HomeScreenRoot(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+fun HomeScreenWithScaffold(
     modifier: Modifier = Modifier,
     onGameClick: (appId: Int) -> Unit,
     onTrendingGamesCollapseButtonClick: () -> Unit,
@@ -122,47 +212,67 @@ fun HomeScreen(
         topBar = {
             SteamCompanionTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
+                showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
-            modifier = modifier
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-        ) {
-            SteamChartsTable(
-                gamesList = homeDataState.trendingGames,
-                tableType = SteamChartsTableType.TrendingGames,
-                isTableExpanded = homeViewState.isTrendingGamesExpanded,
-                onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
-                onGameRowClick = onGameClick,
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .animateContentSize()
-            )
-            SteamChartsTable(
-                gamesList = homeDataState.topGames,
-                tableType = SteamChartsTableType.TopGames,
-                isTableExpanded = homeViewState.isTopGamesExpanded,
-                onCollapseButtonClick = onTopGamesCollapseButtonClick,
-                onGameRowClick = onGameClick,
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .animateContentSize()
-            )
-            SteamChartsTable(
-                gamesList = homeDataState.topRecords,
-                tableType = SteamChartsTableType.TopRecords,
-                isTableExpanded = homeViewState.isTopRecordsExpanded,
-                onCollapseButtonClick = onTopRecordsCollapseButtonClick,
-                onGameRowClick = onGameClick,
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .animateContentSize()
-            )
-        }
+        HomeScreen(
+            modifier = modifier.padding(innerPadding),
+            onGameClick = onGameClick,
+            onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+            onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+            onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+            homeDataState = homeDataState,
+            homeViewState = homeViewState
+        )
+    }
+}
+
+@Composable
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onGameClick: (appId: Int) -> Unit,
+    onTrendingGamesCollapseButtonClick: () -> Unit,
+    onTopGamesCollapseButtonClick: () -> Unit,
+    onTopRecordsCollapseButtonClick: () -> Unit,
+    homeDataState: HomeDataState,
+    homeViewState: HomeViewState,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
+        modifier = modifier.verticalScroll(rememberScrollState())
+    ) {
+        SteamChartsTable(
+            gamesList = homeDataState.trendingGames,
+            tableType = SteamChartsTableType.TrendingGames,
+            isTableExpanded = homeViewState.isTrendingGamesExpanded,
+            onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+            onGameRowClick = onGameClick,
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .animateContentSize()
+        )
+        SteamChartsTable(
+            gamesList = homeDataState.topGames,
+            tableType = SteamChartsTableType.TopGames,
+            isTableExpanded = homeViewState.isTopGamesExpanded,
+            onCollapseButtonClick = onTopGamesCollapseButtonClick,
+            onGameRowClick = onGameClick,
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .animateContentSize()
+        )
+        SteamChartsTable(
+            gamesList = homeDataState.topRecords,
+            tableType = SteamChartsTableType.TopRecords,
+            isTableExpanded = homeViewState.isTopRecordsExpanded,
+            onCollapseButtonClick = onTopRecordsCollapseButtonClick,
+            onGameRowClick = onGameClick,
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .animateContentSize()
+        )
     }
 }

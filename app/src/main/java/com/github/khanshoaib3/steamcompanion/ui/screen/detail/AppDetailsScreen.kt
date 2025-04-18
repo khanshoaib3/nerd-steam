@@ -40,10 +40,11 @@ import kotlinx.serialization.json.Json
 fun AppDetailsScreen(
     modifier: Modifier = Modifier,
     appId: Int?,
+    showTopBar: Boolean,
+    onUpButtonClick: () -> Unit,
 ) {
     val viewModel = hiltViewModel<GameDetailViewModel>()
     val gameData by viewModel.gameData.collectAsState()
-    val scrollState = rememberScrollState()
 
     LaunchedEffect(appId) {
         withContext(Dispatchers.IO) {
@@ -55,41 +56,50 @@ fun AppDetailsScreen(
         if (appId != null && appId != 0) CenterAlignedSelectableText("Unable to get data for app with id $appId")
         return
     }
-    
+
+    val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                title = { Text(gameData.content?.data?.name ?: "No Name") },
-                navigationIcon = {
-                    IconButton(onClick = { /* TODO Add behaviour */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack, "Go back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO Add behaviour */ }) {
-                        Icon(
-                            Icons.Default.BookmarkBorder, contentDescription = "Bookmark app"
-                        )
-                    }
-                    IconButton(onClick = { /* TODO Add behaviour */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share app")
-                    }
-                },
-                scrollBehavior = scrollBehavior
+    if (showTopBar) {
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                TopAppBar(
+                    title = { Text(gameData.content?.data?.name ?: "No Name") },
+                    navigationIcon = {
+                        IconButton(onClick = onUpButtonClick) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack, "Go back"
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { /* TODO Add behaviour */ }) {
+                            Icon(
+                                Icons.Default.BookmarkBorder, contentDescription = "Bookmark app"
+                            )
+                        }
+                        IconButton(onClick = { /* TODO Add behaviour */ }) {
+                            Icon(Icons.Default.Share, contentDescription = "Share app")
+                        }
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        ) { innerPadding ->
+            AppDetailsCard(
+                modifier = modifier
+                    .padding(innerPadding)
+                    .verticalScroll(scrollState),
+                gameData = gameData,
+                showHeader = false
             )
         }
-    ) { innerPadding ->
+    } else {
         AppDetailsCard(
-            modifier = modifier
-                .padding(innerPadding)
-                .verticalScroll(scrollState),
+            modifier = modifier.verticalScroll(scrollState),
             gameData = gameData,
-            showHeader = false
+            showHeader = true
         )
     }
 }

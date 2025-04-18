@@ -34,6 +34,7 @@ fun SteamCompanionApp() {
         ) {
             SteamCompanionNavHost(
                 navController = navController,
+                navSuiteType = navSuiteType,
                 onMenuButtonClick = {
                     scope.launch {
                         drawerState.open()

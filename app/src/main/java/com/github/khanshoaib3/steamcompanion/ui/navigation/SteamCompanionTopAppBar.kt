@@ -27,6 +27,7 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 @Composable
 fun SteamCompanionTopAppBar(
     modifier: Modifier = Modifier,
+    showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
@@ -34,8 +35,10 @@ fun SteamCompanionTopAppBar(
         title = { Text(text = stringResource(R.string.app_name)) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = onMenuButtonClick) {
-                Icon(Icons.Default.Menu, contentDescription = "Open app drawer")
+            if (showMenuButton) {
+                IconButton(onClick = onMenuButtonClick) {
+                    Icon(Icons.Default.Menu, contentDescription = "Open app drawer")
+                }
             }
         },
         expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
@@ -54,6 +57,7 @@ private fun TopAppBarPreview() {
                 topBar = {
                     SteamCompanionTopAppBar(
                         scrollBehavior = scrollBehavior,
+                        showMenuButton = true,
                         onMenuButtonClick = {}
                     )
                 }
