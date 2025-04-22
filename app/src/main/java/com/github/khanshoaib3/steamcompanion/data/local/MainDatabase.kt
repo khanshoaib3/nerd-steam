@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.github.khanshoaib3.steamcompanion.data.local.bookmark.BookmarkDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopRecordDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGameDao
@@ -20,6 +21,7 @@ abstract class MainDatabase : RoomDatabase() {
     abstract fun trendingGameDao(): TrendingGameDao
     abstract fun topGameDao(): TopGameDao
     abstract fun topRecordDao(): TopRecordDao
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
         @Volatile

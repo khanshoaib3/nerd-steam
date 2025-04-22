@@ -104,6 +104,7 @@ fun HomeScreenRoot(
             topAppBarScrollBehavior = scrollBehavior
         )
     } else {
+        // https://stackoverflow.com/a/79314221/12026423
         val paneExpansionState = rememberPaneExpansionState()
         paneExpansionState.setFirstPaneProportion(0.45f)
 

@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.github.khanshoaib3.steamcompanion.data.local.LocalDataStoreRepository
 import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
+import com.github.khanshoaib3.steamcompanion.data.local.bookmark.BookmarkDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopRecordDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGameDao
@@ -47,6 +48,12 @@ class AppModule {
     @Singleton
     fun provideTopRecordDao(@ApplicationContext context: Context): TopRecordDao {
         return MainDatabase.getDatabase(context).topRecordDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookmarkDao(@ApplicationContext context: Context): BookmarkDao {
+        return MainDatabase.getDatabase(context).bookmarkDao()
     }
 
     @Provides
