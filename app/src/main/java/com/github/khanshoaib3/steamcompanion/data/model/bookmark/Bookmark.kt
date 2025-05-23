@@ -15,6 +15,6 @@ data class Bookmark(
     @ColumnInfo(name = "name")
     val name: String,
 
-    @ColumnInfo(name = "time")
-    val time: String,
+    @ColumnInfo(name = "time_stamp")
+    val timeStamp: Long = System.currentTimeMillis()
 )

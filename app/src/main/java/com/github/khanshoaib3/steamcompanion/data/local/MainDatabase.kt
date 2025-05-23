@@ -8,12 +8,13 @@ import com.github.khanshoaib3.steamcompanion.data.local.bookmark.BookmarkDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopRecordDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGameDao
+import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
 
 @Database(
-    entities = [TrendingGame::class, TopGame::class, TopRecord::class],
+    entities = [TrendingGame::class, TopGame::class, TopRecord::class, Bookmark::class],
     version = 1,
     exportSchema = false
 )

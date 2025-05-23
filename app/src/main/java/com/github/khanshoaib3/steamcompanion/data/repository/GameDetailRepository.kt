@@ -50,11 +50,12 @@ class OnlineGameDetailRepository @Inject constructor(
     }
 
     private fun getUpdatedAppIdFromRedirectUrl(currentAppId: Int): Int? {
-        val regex = Regex("""https://store\.steampowered\.com/app/([0-9]+)""", RegexOption.MULTILINE)
+        val regex =
+            Regex("""https://store\.steampowered\.com/app/([0-9]+)""", RegexOption.MULTILINE)
         val url = getRedirectUrl("https://store.steampowered.com/app/$currentAppId") ?: return null
 
         val match = regex.find(url)
-        return match?.groupValues[1]?.toIntOrNull()
+        return match?.groupValues?.get(1)?.toIntOrNull()
     }
 
     private fun getRedirectUrl(url: String): String? {

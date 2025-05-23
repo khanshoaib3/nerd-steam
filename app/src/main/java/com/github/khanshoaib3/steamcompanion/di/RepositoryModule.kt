@@ -1,6 +1,8 @@
 package com.github.khanshoaib3.steamcompanion.di
 
+import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.LocalBookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineGameDetailRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.ScraperSteamChartsRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
@@ -24,5 +26,11 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindGameDetailRepository(
         gameDetailRepository: OnlineGameDetailRepository
-    ) : GameDetailRepository
+    ): GameDetailRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBookmarkRepository(
+        bookmarkRepository: LocalBookmarkRepository
+    ): BookmarkRepository
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,9 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
@@ -32,6 +36,7 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardLow
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardUpper
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
@@ -45,6 +50,8 @@ fun AppDetailsScreen(
 ) {
     val viewModel = hiltViewModel<GameDetailViewModel>()
     val gameData by viewModel.gameData.collectAsState()
+    val scope = rememberCoroutineScope()
+    val currentLocalView = LocalView.current
 
     LaunchedEffect(appId) {
         withContext(Dispatchers.IO) {
@@ -60,6 +67,14 @@ fun AppDetailsScreen(
     val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    val toggleBookmarkStatus: () -> Unit = {
+        scope.launch(context = Dispatchers.IO) {
+            viewModel.toggleBookmarkStatus()
+        }
+        currentLocalView.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
+    }
+    val isBookmarked = gameData.isBookmarked
+
     if (showTopBar) {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -74,9 +89,10 @@ fun AppDetailsScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* TODO Add behaviour */ }) {
+                        IconButton(onClick = toggleBookmarkStatus) {
                             Icon(
-                                Icons.Default.BookmarkBorder, contentDescription = "Bookmark app"
+                                if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                contentDescription = "Bookmark app"
                             )
                         }
                         IconButton(onClick = { /* TODO Add behaviour */ }) {
@@ -92,6 +108,8 @@ fun AppDetailsScreen(
                     .padding(innerPadding)
                     .verticalScroll(scrollState),
                 gameData = gameData,
+                onBookmarkClick = toggleBookmarkStatus,
+                isBookmarkActive = isBookmarked,
                 showHeader = false
             )
         }
@@ -99,6 +117,8 @@ fun AppDetailsScreen(
         AppDetailsCard(
             modifier = modifier.verticalScroll(scrollState),
             gameData = gameData,
+            onBookmarkClick = toggleBookmarkStatus,
+            isBookmarkActive = isBookmarked,
             showHeader = true
         )
     }
@@ -108,6 +128,8 @@ fun AppDetailsScreen(
 fun AppDetailsCard(
     modifier: Modifier = Modifier,
     gameData: GameData,
+    onBookmarkClick: () -> Unit,
+    isBookmarkActive: Boolean,
     showHeader: Boolean = true,
 ) {
     Box(modifier = modifier) {
@@ -115,6 +137,8 @@ fun AppDetailsCard(
             CardUpper(
                 modifier = Modifier.fillMaxWidth(),
                 gameData = gameData,
+                onBookmarkClick = onBookmarkClick,
+                isBookmarkActive = isBookmarkActive,
                 showHeader = showHeader
             )
             CardLower(modifier = Modifier.fillMaxWidth(), gameData = gameData)
@@ -131,6 +155,10 @@ private fun GameDetailScreenPreview() {
     val json = Json { ignoreUnknownKeys = true }
     val gameData = json.decodeFromString<SteamWebApiAppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
-        AppDetailsCard(gameData = GameData(content = gameData))
+        AppDetailsCard(
+            gameData = GameData(content = gameData),
+            onBookmarkClick = {},
+            isBookmarkActive = true
+        )
     }
 }

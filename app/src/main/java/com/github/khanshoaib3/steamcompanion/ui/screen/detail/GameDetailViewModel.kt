@@ -2,7 +2,9 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 // Ref(assisted inject): https://medium.com/@cgaisl/how-to-pass-arguments-to-a-hiltviewmodel-from-compose-97c74a75f772
 
 import androidx.lifecycle.ViewModel
+import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
+import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,13 +14,15 @@ import javax.inject.Inject
 
 data class GameData(
     val content: SteamWebApiAppDetailsResponse? = null,
+    val isBookmarked: Boolean = false
 )
 
 @HiltViewModel
 class GameDetailViewModel @Inject constructor(
     private val gameDetailRepository: GameDetailRepository,
+    private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
-    private val _gameData = MutableStateFlow<GameData>(GameData())
+    private val _gameData = MutableStateFlow(GameData())
     val gameData: StateFlow<GameData> = _gameData
 
     suspend fun updateAppId(appId: Int?) {
@@ -26,11 +30,39 @@ class GameDetailViewModel @Inject constructor(
         if (appId == 0) return
 
         _gameData.update {
+            val content = gameDetailRepository.fetchDataForAppId(appId = appId)
+            val isBookmarked = bookmarkRepository.isBookmarked(content?.data?.steamAppId)
             GameData(
-                content = gameDetailRepository.fetchDataForAppId(
-                    appId = appId
-                )
+                content = content,
+                isBookmarked = isBookmarked
             )
+        }
+    }
+
+    suspend fun toggleBookmarkStatus() {
+        gameData.value.apply {
+            if (content?.data?.steamAppId == null) return
+
+            if (!isBookmarked) {
+                bookmarkRepository.addBookmark(
+                    Bookmark(
+                        appId = content.data.steamAppId,
+                        name = content.data.name,
+                    )
+                )
+                _gameData.update {
+                    it.copy(
+                        isBookmarked = true
+                    )
+                }
+            } else {
+                bookmarkRepository.removeBookmark(content.data.steamAppId)
+                _gameData.update {
+                    it.copy(
+                        isBookmarked = false
+                    )
+                }
+            }
         }
     }
 }

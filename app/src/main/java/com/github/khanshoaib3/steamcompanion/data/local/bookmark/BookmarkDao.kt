@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.data.local.bookmark
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,6 +9,7 @@ import androidx.room.Update
 import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface BookmarkDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(bookmark: Bookmark)
@@ -21,6 +23,9 @@ interface BookmarkDao {
     @Delete
     suspend fun delete(bookmark: Bookmark)
 
+    @Query("DELETE from bookmark WHERE appid = :appId")
+    suspend fun deleteByAppId(appId: Int)
+
     @Query("DELETE from bookmark")
     suspend fun deleteAll()
 
@@ -30,6 +35,9 @@ interface BookmarkDao {
 
     @Query("SELECT * from bookmark WHERE appid = :appId")
     fun getOne(appId: Int): Flow<Bookmark>
+
+    @Query("SELECT EXISTS(SELECT * from bookmark WHERE appid = :appId)")
+    fun doesExist(appId: Int): Boolean
 
     @Query("SELECT * from bookmark")
     fun getAll(): Flow<List<Bookmark>>

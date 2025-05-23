@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FilledIconButton
@@ -44,9 +45,14 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
 import java.util.Currency
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CardUpper(modifier: Modifier = Modifier, gameData: GameData, showHeader: Boolean = true) {
+fun CardUpper(
+    modifier: Modifier = Modifier,
+    gameData: GameData,
+    onBookmarkClick: () -> Unit,
+    isBookmarkActive: Boolean,
+    showHeader: Boolean = true,
+) {
     val data = gameData.content?.data
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier
@@ -61,7 +67,9 @@ fun CardUpper(modifier: Modifier = Modifier, gameData: GameData, showHeader: Boo
             if (showHeader) {
                 Header(
                     modifier = Modifier.fillMaxWidth(),
-                    appName = data?.name ?: "No Name"
+                    appName = data?.name ?: "No Name",
+                    onBookmarkClick = onBookmarkClick,
+                    isBookmarkActive = isBookmarkActive
                 )
             }
             FeaturesOverview(
@@ -97,7 +105,12 @@ fun CardUpper(modifier: Modifier = Modifier, gameData: GameData, showHeader: Boo
 }
 
 @Composable
-fun Header(modifier: Modifier = Modifier, appName: String) {
+fun Header(
+    modifier: Modifier = Modifier,
+    onBookmarkClick: () -> Unit,
+    isBookmarkActive: Boolean,
+    appName: String
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -110,9 +123,10 @@ fun Header(modifier: Modifier = Modifier, appName: String) {
             textAlign = TextAlign.Start
         )
         Row {
-            IconButton(onClick = { /* TODO Add behaviour */ }) {
+            IconButton(onClick = onBookmarkClick) {
                 Icon(
-                    Icons.Default.BookmarkBorder, contentDescription = "Bookmark app"
+                    if (isBookmarkActive) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription = "Bookmark app"
                 )
             }
             IconButton(onClick = { /* TODO Add behaviour */ }) {
@@ -302,6 +316,10 @@ private fun GameDetailScreenPreview() {
     val json = Json { ignoreUnknownKeys = true }
     val gameData = json.decodeFromString<SteamWebApiAppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
-        CardUpper(gameData = GameData(content = gameData))
+        CardUpper(
+            gameData = GameData(content = gameData),
+            onBookmarkClick = {},
+            isBookmarkActive = false
+        )
     }
 }
