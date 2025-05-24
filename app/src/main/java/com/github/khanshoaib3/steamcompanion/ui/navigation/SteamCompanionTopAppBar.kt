@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavDestination
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -30,9 +31,17 @@ fun SteamCompanionTopAppBar(
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
+    currentDestination: NavDestination?
 ) {
+    val title: String = when(currentDestination?.route) {
+        Route.Home::class.qualifiedName -> stringResource(R.string.app_name)
+        Route.Search::class.qualifiedName -> "Search"
+        Route.Bookmark::class.qualifiedName -> "Bookmark"
+        else -> stringResource(R.string.app_name)
+    }
+
     CenterAlignedTopAppBar(
-        title = { Text(text = stringResource(R.string.app_name)) },
+        title = { Text(title) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             if (showMenuButton) {
@@ -58,7 +67,8 @@ private fun TopAppBarPreview() {
                     SteamCompanionTopAppBar(
                         scrollBehavior = scrollBehavior,
                         showMenuButton = true,
-                        onMenuButtonClick = {}
+                        onMenuButtonClick = {},
+                        currentDestination = null
                     )
                 }
             ) {

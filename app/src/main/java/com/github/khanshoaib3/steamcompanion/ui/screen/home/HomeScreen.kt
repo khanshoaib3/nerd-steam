@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
@@ -44,6 +45,7 @@ import kotlinx.coroutines.launch
 fun HomeScreenRoot(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    currentDestination: NavDestination?,
     navSuiteType: NavigationSuiteType,
     onMenuButtonClick: () -> Unit,
 ) {
@@ -101,7 +103,8 @@ fun HomeScreenRoot(
             },
             homeDataState = homeDataState,
             homeViewState = homeViewState,
-            topAppBarScrollBehavior = scrollBehavior
+            topAppBarScrollBehavior = scrollBehavior,
+            currentDestination = currentDestination
         )
     } else {
         // https://stackoverflow.com/a/79314221/12026423
@@ -112,7 +115,8 @@ fun HomeScreenRoot(
             SteamCompanionTopAppBar(
                 scrollBehavior = scrollBehavior,
                 showMenuButton = false,
-                onMenuButtonClick = onMenuButtonClick
+                onMenuButtonClick = onMenuButtonClick,
+                currentDestination = currentDestination
             )
         }) { innerPadding ->
             ListDetailScaffold(
@@ -128,7 +132,8 @@ fun HomeScreenRoot(
                 onListPaneUpButtonClick = {},
                 homeDataState = homeDataState,
                 homeViewState = homeViewState,
-                topAppBarScrollBehavior = scrollBehavior
+                topAppBarScrollBehavior = scrollBehavior,
+                currentDestination = currentDestination
             )
         }
     }
@@ -150,6 +155,7 @@ fun ListDetailScaffold(
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    currentDestination: NavDestination?
 ) {
     NavigableListDetailPaneScaffold(
         navigator = navigator,
@@ -166,6 +172,7 @@ fun ListDetailScaffold(
                         homeDataState = homeDataState,
                         homeViewState = homeViewState,
                         topAppBarScrollBehavior = topAppBarScrollBehavior,
+                        currentDestination = currentDestination
                     )
                 } else {
                     HomeScreen(
@@ -208,13 +215,15 @@ fun HomeScreenWithScaffold(
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    currentDestination: NavDestination?
 ) {
     Scaffold(
         topBar = {
             SteamCompanionTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
                 showMenuButton = true,
-                onMenuButtonClick = onMenuButtonClick
+                onMenuButtonClick = onMenuButtonClick,
+                currentDestination = currentDestination
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)

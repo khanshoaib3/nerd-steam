@@ -14,7 +14,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,32 +23,44 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
-import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import androidx.navigation.NavDestination
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
+import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
 @Composable
 fun BookmarkScreenRoot(
     modifier: Modifier = Modifier,
-    bookmarkViewModel: BookmarkViewModel = hiltViewModel()
+    bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
+    currentDestination: NavDestination?,
+    onMenuButtonClick: () -> Unit
 ) {
     val bookmarkDataState by bookmarkViewModel.bookmarkDataState.collectAsState()
-    BookmarkScreen(modifier, bookmarkDataState.bookmarks)
+    BookmarkScreen(
+        modifier = modifier,
+        bookmarks = bookmarkDataState.bookmarks,
+        currentDestination = currentDestination,
+
+        onMenuButtonClick = onMenuButtonClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreen(
     modifier: Modifier = Modifier,
-    bookmarks: List<Bookmark>
+    bookmarks: List<Bookmark>,
+    currentDestination: NavDestination?,
+    onMenuButtonClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
             SteamCompanionTopAppBar(
-                showMenuButton = false,
-                onMenuButtonClick = {},
-                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+                showMenuButton = true,
+                onMenuButtonClick = onMenuButtonClick,
+                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                currentDestination = currentDestination
             )
         }
     ) { innerPadding ->
@@ -132,7 +143,9 @@ private fun BookmarkScreenPreview() {
                     name = "Max Payne: The Fall of Max Payne",
                     timeStamp = 12341321
                 )
-            )
+            ),
+            currentDestination = null,
+            onMenuButtonClick = {}
         )
     }
 }

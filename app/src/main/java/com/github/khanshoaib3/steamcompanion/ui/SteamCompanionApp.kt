@@ -1,8 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.ui
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -16,7 +14,6 @@ import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavigat
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SteamCompanionApp() {
     val navController = rememberNavController()
@@ -35,6 +32,7 @@ fun SteamCompanionApp() {
             SteamCompanionNavHost(
                 navController = navController,
                 navSuiteType = navSuiteType,
+                currentDestination = currentDestination,
                 onMenuButtonClick = {
                     scope.launch {
                         drawerState.open()
@@ -45,7 +43,6 @@ fun SteamCompanionApp() {
     }
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Preview
 @Composable
 private fun SteamCompanionAppPreview() {

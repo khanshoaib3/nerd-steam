@@ -5,6 +5,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,6 +21,7 @@ fun SteamCompanionNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     navSuiteType: NavigationSuiteType,
+    currentDestination: NavDestination?,
     onMenuButtonClick: () -> Unit,
 ) {
     NavHost(
@@ -28,7 +30,11 @@ fun SteamCompanionNavHost(
         startDestination = Route.Home,
     ) {
         composable<Route.Home> {
-            HomeScreenRoot(onMenuButtonClick = onMenuButtonClick, navSuiteType = navSuiteType)
+            HomeScreenRoot(
+                onMenuButtonClick = onMenuButtonClick,
+                navSuiteType = navSuiteType,
+                currentDestination = currentDestination
+            )
         }
         composable<Route.Search> {
             SearchScreen()
@@ -38,11 +44,14 @@ fun SteamCompanionNavHost(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
                 appId = it.toRoute<Route.AppDetail>().appId,
                 showTopBar = true,
-                onUpButtonClick = { /* TODO (proposal) Navigate to home screen */}
+                onUpButtonClick = { /* TODO (proposal) Navigate to home screen */ }
             )
         }
         composable<Route.Bookmark> {
-            BookmarkScreenRoot()
+            BookmarkScreenRoot(
+                currentDestination = currentDestination,
+                onMenuButtonClick = onMenuButtonClick
+            )
         }
     }
 }
