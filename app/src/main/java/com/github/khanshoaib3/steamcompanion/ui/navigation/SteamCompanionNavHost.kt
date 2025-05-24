@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreen
@@ -39,6 +40,9 @@ fun SteamCompanionNavHost(
                 showTopBar = true,
                 onUpButtonClick = { /* TODO (proposal) Navigate to home screen */}
             )
+        }
+        composable<Route.Bookmark> {
+            BookmarkScreenRoot()
         }
     }
 }

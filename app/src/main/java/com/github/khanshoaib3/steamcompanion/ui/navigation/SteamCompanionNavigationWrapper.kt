@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -155,7 +156,7 @@ fun SteamCompanionNavRail(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
             NavigationRailItem(
                 selected = false,
@@ -175,7 +176,7 @@ fun SteamCompanionNavRail(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
+            NAV_BAR_ROUTES.forEach { topLevelRoute ->
                 NavigationRailItem(
                     selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
                     onClick = { navigateToTopLevelDestination(topLevelRoute) },
@@ -197,7 +198,7 @@ fun SteamCompanionNavBar(
     navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
 ) {
     NavigationBar(modifier = Modifier.fillMaxWidth()) {
-        TOP_LEVEL_ROUTES.forEach { topLevelRoutes ->
+        NAV_BAR_ROUTES.forEach { topLevelRoutes ->
             NavigationBarItem(
                 selected = currentDestination?.hasRoute(topLevelRoutes.route::class) == true,
                 onClick = { navigateToTopLevelDestination(topLevelRoutes) },
@@ -246,7 +247,7 @@ fun PermanentNavigationDrawerContent(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
+                    NAV_DRAWER_ROUTES.forEach { topLevelRoute ->
                         NavigationDrawerItem(
                             selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
                             label = {
@@ -310,7 +311,7 @@ fun ModalNavigationDrawerContent(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
+                NAV_DRAWER_ROUTES.forEach { topLevelRoute ->
                     NavigationDrawerItem(
                         selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
                         label = {

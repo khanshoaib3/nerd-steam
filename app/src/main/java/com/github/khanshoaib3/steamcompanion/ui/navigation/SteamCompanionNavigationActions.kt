@@ -1,14 +1,13 @@
 package com.github.khanshoaib3.steamcompanion.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.github.khanshoaib3.steamcompanion.ui.navigation.Route.AppDetail
@@ -26,10 +25,15 @@ data class SteamCompanionTopLevelRoute(
 sealed interface Route {
     @Serializable
     data object Home : Route
+
     @Serializable
     data object Search : Route
+
     @Serializable
     data class AppDetail(val appId: Int?) : Route
+
+    @Serializable
+    data object Bookmark : Route
 //    @Serializable data object DirectMessages : Route
 //    @Serializable data object Groups : Route
 }
@@ -56,7 +60,7 @@ class SteamCompanionNavigationActions(private val navController: NavHostControll
     }
 }
 
-val TOP_LEVEL_ROUTES = listOf(
+val NAV_BAR_ROUTES = listOf(
     SteamCompanionTopLevelRoute(
         name = "Home",
         route = Home,
@@ -68,5 +72,25 @@ val TOP_LEVEL_ROUTES = listOf(
         route = Search,
         icon = Icons.Outlined.Search,
         selectedIcon = Icons.Filled.Search
+    ),
+)
+val NAV_DRAWER_ROUTES = listOf(
+    SteamCompanionTopLevelRoute(
+        name = "Home",
+        route = Home,
+        icon = Icons.Outlined.Home,
+        selectedIcon = Icons.Filled.Home
+    ),
+    SteamCompanionTopLevelRoute(
+        name = "Search",
+        route = Search,
+        icon = Icons.Outlined.Search,
+        selectedIcon = Icons.Filled.Search
+    ),
+    SteamCompanionTopLevelRoute(
+        name = "Bookmark",
+        route = Route.Bookmark,
+        icon = Icons.Outlined.BookmarkBorder,
+        selectedIcon = Icons.Filled.Bookmark
     )
 )
