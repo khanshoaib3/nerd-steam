@@ -282,7 +282,7 @@ fun Categories(modifier: Modifier = Modifier, categories: List<Category>) {
 
 @Composable
 fun ShortDescription(modifier: Modifier = Modifier, description: String) {
-    CenterAlignedSelectableText(modifier = modifier, text = description)
+    CenterAlignedSelectableText(description, modifier)
 }
 
 @Composable

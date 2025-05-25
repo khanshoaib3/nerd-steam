@@ -11,11 +11,11 @@ import com.github.khanshoaib3.steamcompanion.R
 
 @Composable
 fun <T : SteamChartsItem> TableBody(
+    modifier: Modifier = Modifier,
     gamesList: List<T>,
     imageWidth: Dp,
     imageHeight: Dp,
-    onRowClick: (appId: Int) -> Unit = {},
-    modifier: Modifier = Modifier,
+    onRowClick: (appId: Int) -> Unit = {}
 ) {
     Column(
         modifier = modifier,
@@ -23,11 +23,11 @@ fun <T : SteamChartsItem> TableBody(
     ) {
         gamesList.forEach { item ->
             TableRow(
+                modifier = Modifier,
                 item = item,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight,
-                onClick = onRowClick,
-                modifier = Modifier
+                onClick = onRowClick
             )
         }
     }

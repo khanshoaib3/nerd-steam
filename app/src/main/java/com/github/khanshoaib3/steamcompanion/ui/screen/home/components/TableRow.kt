@@ -36,11 +36,11 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
 
 @Composable
 fun <T : SteamChartsItem> TableRow(
+    modifier: Modifier = Modifier,
     item: T,
     imageWidth: Dp,
     imageHeight: Dp,
-    onClick: (appId: Int) -> Unit = {},
-    modifier: Modifier = Modifier,
+    onClick: (appId: Int) -> Unit = {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

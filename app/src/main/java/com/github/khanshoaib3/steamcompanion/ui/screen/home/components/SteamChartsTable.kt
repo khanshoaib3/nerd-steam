@@ -30,12 +30,12 @@ enum class SteamChartsTableType {
 
 @Composable
 fun <T : SteamChartsItem> SteamChartsTable(
+    modifier: Modifier = Modifier,
     gamesList: List<T>,
     tableType: SteamChartsTableType,
     isTableExpanded: Boolean = true,
     onCollapseButtonClick: () -> Unit = {},
-    onGameRowClick: (appId: Int) -> Unit = {},
-    modifier: Modifier = Modifier,
+    onGameRowClick: (appId: Int) -> Unit = {}
 ) {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
@@ -66,23 +66,15 @@ fun <T : SteamChartsItem> SteamChartsTable(
             )
             AnimatedVisibility(visible = isTableExpanded) {
                 Column {
-                    TableHeader(
-                        tableType = tableType
-                    )
+                    TableHeader(tableType = tableType)
                     TableBody(
+                        modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_small)),
                         gamesList = gamesList,
                         imageWidth = imageWidth,
                         imageHeight = imageHeight,
-                        onRowClick = onGameRowClick,
-                        modifier = Modifier.padding(
-                            vertical = dimensionResource(R.dimen.padding_small)
-                        )
+                        onRowClick = onGameRowClick
                     )
-                    TableFooter(
-                        modifier = Modifier.padding(
-                            vertical = dimensionResource(R.dimen.padding_very_small)
-                        )
-                    )
+                    TableFooter(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_very_small)))
                 }
             }
         }

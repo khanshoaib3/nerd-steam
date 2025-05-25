@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.TextUnit
 @Composable
 fun CenterAlignedSelectableText(
     text: String,
+    modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
@@ -35,8 +36,7 @@ fun CenterAlignedSelectableText(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
-    style: TextStyle = LocalTextStyle.current,
-    modifier: Modifier = Modifier,
+    style: TextStyle = LocalTextStyle.current
 ) {
     Box(
         modifier = modifier,
