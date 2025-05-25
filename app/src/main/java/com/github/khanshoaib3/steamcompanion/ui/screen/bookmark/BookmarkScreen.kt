@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark
 
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,12 +20,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.PaneExpansionState
+import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
+import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
@@ -41,44 +55,26 @@ import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeDataState
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenWithScaffold
+import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeViewState
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreenRoot(
     modifier: Modifier = Modifier,
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
     currentDestination: NavDestination?,
+    navSuiteType: NavigationSuiteType,
     onMenuButtonClick: () -> Unit
 ) {
     val localView = LocalView.current
     val sortedBookmarks by bookmarkViewModel.sortedBookmarks.collectAsState()
 
-    BookmarkScreen(
-        modifier = modifier,
-        bookmarks = sortedBookmarks,
-        currentDestination = currentDestination,
-        onMenuButtonClick = onMenuButtonClick,
-        onGameHeaderClick = {
-            bookmarkViewModel.toggleSortOrderOfTypeName()
-            localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-        },
-        onTimeHeaderClick = {
-            bookmarkViewModel.toggleSortOrderOfTypeTime()
-            localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BookmarkScreen(
-    modifier: Modifier = Modifier,
-    bookmarks: List<BookmarkDisplay>,
-    currentDestination: NavDestination?,
-    onMenuButtonClick: () -> Unit,
-    onGameHeaderClick: () -> Unit,
-    onTimeHeaderClick: () -> Unit
-) {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
     val imageHeight: Dp
@@ -87,39 +83,219 @@ fun BookmarkScreen(
         imageHeight = 225.toDp()
     }
 
+    val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    val scope = rememberCoroutineScope()
+
+    val onGameClick: (Int) -> Unit = {
+        scope.launch {
+            navigator.navigateTo(
+                pane = ListDetailPaneScaffoldRole.Detail,
+                contentKey = it
+            )
+        }
+    }
+    val onGameHeaderClick: () -> Unit = {
+        bookmarkViewModel.toggleSortOrderOfTypeName()
+        localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+    }
+    val onTimeHeaderClick: () -> Unit = {
+        bookmarkViewModel.toggleSortOrderOfTypeTime()
+        localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+    }
+
+    BackHandler(navigator.canNavigateBack()) {
+        scope.launch {
+            navigator.navigateBack()
+        }
+    }
+
+    if (navSuiteType == NavigationSuiteType.NavigationBar) {
+        BookmarkListDetailScaffold(
+            navSuiteType = navSuiteType,
+            navigator = navigator,
+            paneExpansionState = null,
+            bookmarks = sortedBookmarks,
+            onGameClick = onGameClick,
+            onGameHeaderClick = onGameHeaderClick,
+            onTimeHeaderClick = onTimeHeaderClick,
+            onMenuButtonClick = onMenuButtonClick,
+            topAppBarScrollBehavior = scrollBehavior,
+            currentDestination = currentDestination,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            onListPaneUpButtonClick = {
+                scope.launch {
+                    navigator.navigateBack()
+                }
+            },
+        )
+    } else {
+        // https://stackoverflow.com/a/79314221/12026423
+        val paneExpansionState = rememberPaneExpansionState()
+        paneExpansionState.setFirstPaneProportion(0.45f)
+
+        Scaffold(topBar = {
+            SteamCompanionTopAppBar(
+                scrollBehavior = scrollBehavior,
+                showMenuButton = false,
+                onMenuButtonClick = onMenuButtonClick,
+                currentDestination = currentDestination
+            )
+        }) { innerPadding ->
+            BookmarkListDetailScaffold(
+                navSuiteType = navSuiteType,
+                navigator = navigator,
+                paneExpansionState = paneExpansionState,
+                bookmarks = sortedBookmarks,
+                onGameClick = onGameClick,
+                onGameHeaderClick = onGameHeaderClick,
+                onTimeHeaderClick = onTimeHeaderClick,
+                onMenuButtonClick = onMenuButtonClick,
+                topAppBarScrollBehavior = scrollBehavior,
+                currentDestination = currentDestination,
+                imageWidth = imageWidth,
+                imageHeight = imageHeight,
+                onListPaneUpButtonClick = {},
+                modifier = modifier.padding(innerPadding)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun BookmarkListDetailScaffold(
+    navSuiteType: NavigationSuiteType,
+    navigator: ThreePaneScaffoldNavigator<Any>,
+    paneExpansionState: PaneExpansionState?,
+    bookmarks: List<BookmarkDisplay>,
+    onGameClick: (Int) -> Unit,
+    onGameHeaderClick: () -> Unit,
+    onTimeHeaderClick: () -> Unit,
+    onMenuButtonClick: () -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    currentDestination: NavDestination?,
+    imageWidth: Dp,
+    imageHeight: Dp,
+    onListPaneUpButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NavigableListDetailPaneScaffold(
+        navigator = navigator,
+        paneExpansionState = paneExpansionState,
+        listPane = {
+            AnimatedPane {
+                if (navSuiteType == NavigationSuiteType.NavigationBar) {
+                    BookmarkScreenWithScaffold(
+                        bookmarks,
+                        onGameClick,
+                        onGameHeaderClick,
+                        onTimeHeaderClick,
+                        onMenuButtonClick,
+                        topAppBarScrollBehavior,
+                        currentDestination,
+                        imageWidth,
+                        imageHeight
+                    )
+                } else {
+                    BookmarkScreen(
+                        bookmarks,
+                        onGameClick,
+                        onGameHeaderClick,
+                        onTimeHeaderClick,
+                        imageWidth,
+                        imageHeight,
+                    )
+                }
+            }
+        },
+        detailPane = {
+            AnimatedPane {
+                // Show the detail pane content if selected item is available
+                navigator.currentDestination?.contentKey.let {
+                    AppDetailsScreen(
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                        appId = it as Int?,
+                        showTopBar = navSuiteType == NavigationSuiteType.NavigationBar,
+                        onUpButtonClick = onListPaneUpButtonClick
+                    )
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookmarkScreenWithScaffold(
+    bookmarks: List<BookmarkDisplay>,
+    onGameClick: (Int) -> Unit,
+    onGameHeaderClick: () -> Unit,
+    onTimeHeaderClick: () -> Unit,
+    onMenuButtonClick: () -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    currentDestination: NavDestination?,
+    imageWidth: Dp,
+    imageHeight: Dp,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         topBar = {
             SteamCompanionTopAppBar(
+                scrollBehavior = topAppBarScrollBehavior,
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
-                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
                 currentDestination = currentDestination
             )
-        }
+        },
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
-        Column(
-            modifier
-                .padding(innerPadding)
-                .padding(dimensionResource(R.dimen.padding_medium)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            BookmarkTableHeader(
-                onGameHeaderClick = onGameHeaderClick,
-                onTimeHeaderClick = onTimeHeaderClick
+        BookmarkScreen(
+            bookmarks,
+            onGameClick,
+            onGameHeaderClick,
+            onTimeHeaderClick,
+            imageWidth,
+            imageHeight,
+            modifier.padding(innerPadding)
+        )
+    }
+}
+
+@Composable
+fun BookmarkScreen(
+    bookmarks: List<BookmarkDisplay>,
+    onGameClick: (Int) -> Unit,
+    onGameHeaderClick: () -> Unit,
+    onTimeHeaderClick: () -> Unit,
+    imageWidth: Dp,
+    imageHeight: Dp,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        BookmarkTableHeader(
+            onGameHeaderClick = onGameHeaderClick,
+            onTimeHeaderClick = onTimeHeaderClick
+        )
+        HorizontalDivider(
+            Modifier.padding(
+                horizontal = dimensionResource(R.dimen.padding_medium),
+                vertical = dimensionResource(R.dimen.padding_very_small)
             )
-            HorizontalDivider(
-                Modifier.padding(
-                    horizontal = dimensionResource(R.dimen.padding_medium),
-                    vertical = dimensionResource(R.dimen.padding_very_small)
-                )
-            )
-            BookmarkTableBody(
-                bookmarks = bookmarks,
-                imageWidth = imageWidth,
-                imageHeight = imageHeight
-            )
-        }
+        )
+        BookmarkTableBody(
+            bookmarks = bookmarks,
+            onGameClick = onGameClick,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight
+        )
     }
 }
 
@@ -127,13 +303,14 @@ fun BookmarkScreen(
 fun BookmarkTableBody(
     modifier: Modifier = Modifier,
     bookmarks: List<BookmarkDisplay>,
+    onGameClick: (Int) -> Unit,
     imageWidth: Dp,
     imageHeight: Dp
 ) {
     LazyColumn(modifier) {
         items(bookmarks) { bookmark ->
             Row(
-                Modifier.clickable(true, onClick = { /* TODO Add details page */ }),
+                Modifier.clickable(true, onClick = { onGameClick(bookmark.appId) }),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
@@ -158,7 +335,7 @@ fun BookmarkTableBody(
                 }
                 CenterAlignedSelectableText(
                     modifier = Modifier.weight(0.2f),
-                    text = bookmark.appId,
+                    text = bookmark.appId.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -229,19 +406,28 @@ fun BookmarkTableHeader(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun BookmarkScreenPreview() {
+    val density: Density = LocalDensity.current
+    val imageWidth: Dp
+    val imageHeight: Dp
+    with(density) {
+        imageWidth = 150.toDp()
+        imageHeight = 225.toDp()
+    }
+
     SteamCompanionTheme {
         BookmarkScreen(
             bookmarks = listOf(
                 BookmarkDisplay(
-                    appId = "1231",
+                    appId = 1231,
                     name = "Max Payne: The Fall of Max Payne",
                     formattedTime = "dd MMM yyyy"
                 )
             ),
-            currentDestination = null,
-            onMenuButtonClick = {},
+            onGameClick = {},
             onGameHeaderClick = {},
-            onTimeHeaderClick = {}
+            onTimeHeaderClick = {},
+            imageWidth = imageWidth,
+            imageHeight = imageHeight
         )
     }
 }

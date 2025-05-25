@@ -86,7 +86,7 @@ fun HomeScreenRoot(
     }
 
     if (navSuiteType == NavigationSuiteType.NavigationBar) {
-        ListDetailScaffold(
+        HomeListDetailScaffold(
             modifier = modifier,
             navSuiteType = navSuiteType,
             navigator = navigator,
@@ -119,7 +119,7 @@ fun HomeScreenRoot(
                 currentDestination = currentDestination
             )
         }) { innerPadding ->
-            ListDetailScaffold(
+            HomeListDetailScaffold(
                 modifier = modifier.padding(innerPadding),
                 navSuiteType = navSuiteType,
                 navigator = navigator,
@@ -141,7 +141,7 @@ fun HomeScreenRoot(
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ListDetailScaffold(
+fun HomeListDetailScaffold(
     modifier: Modifier = Modifier,
     navSuiteType: NavigationSuiteType,
     navigator: ThreePaneScaffoldNavigator<Any>,

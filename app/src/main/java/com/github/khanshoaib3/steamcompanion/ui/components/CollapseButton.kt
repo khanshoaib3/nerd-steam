@@ -18,7 +18,7 @@ fun CollapseButton(
     IconButton(onClick = onClick, modifier = modifier) {
         Icon(
             imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-            contentDescription = "EE", // TODO Add description
+            contentDescription = if (expanded) "Collapse section" else "Expand section",
             tint = MaterialTheme.colorScheme.secondary
         )
     }

@@ -31,14 +31,14 @@ data class BookmarkViewState(
 )
 
 data class BookmarkDisplay(
-    val appId: String,
+    val appId: Int,
     val name: String,
     val formattedTime: String
 )
 
 fun Bookmark.toDisplayModel(): BookmarkDisplay {
     return BookmarkDisplay(
-        appId = this.appId.toString(),
+        appId = this.appId,
         name = this.name,
         formattedTime = formattedTimestamp()
     )

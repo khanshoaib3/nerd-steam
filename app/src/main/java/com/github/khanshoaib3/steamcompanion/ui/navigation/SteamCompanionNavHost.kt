@@ -49,8 +49,9 @@ fun SteamCompanionNavHost(
         }
         composable<Route.Bookmark> {
             BookmarkScreenRoot(
+                onMenuButtonClick = onMenuButtonClick,
                 currentDestination = currentDestination,
-                onMenuButtonClick = onMenuButtonClick
+                navSuiteType = navSuiteType
             )
         }
     }
