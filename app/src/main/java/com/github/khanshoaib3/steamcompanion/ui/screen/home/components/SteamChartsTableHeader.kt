@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.github.khanshoaib3.steamcompanion.R
 
 @Composable
-fun TableHeader(
+fun SteamChartsTableHeader(
     tableType: SteamChartsTableType,
     modifier: Modifier = Modifier,
 ) {

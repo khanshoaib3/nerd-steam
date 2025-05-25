@@ -59,22 +59,22 @@ fun <T : SteamChartsItem> SteamChartsTable(
             ),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
         ) {
-            TableTitle(
+            SteamChartsTableTitle(
                 tableType = tableType,
                 isTableExpanded = isTableExpanded,
                 onCollapseButtonClick = onCollapseButtonClick
             )
             AnimatedVisibility(visible = isTableExpanded) {
                 Column {
-                    TableHeader(tableType = tableType)
-                    TableBody(
+                    SteamChartsTableHeader(tableType = tableType)
+                    SteamChartsTableBody(
                         modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_small)),
                         gamesList = gamesList,
                         imageWidth = imageWidth,
                         imageHeight = imageHeight,
                         onRowClick = onGameRowClick
                     )
-                    TableFooter(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_very_small)))
+                    SteamChartsTableFooter(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_very_small)))
                 }
             }
         }

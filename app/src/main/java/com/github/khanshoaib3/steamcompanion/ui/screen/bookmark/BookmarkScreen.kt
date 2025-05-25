@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -92,20 +91,20 @@ fun BookmarkScreen(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header()
+            BookmarkTableHeader()
             HorizontalDivider(
                 Modifier.padding(
                     horizontal = dimensionResource(R.dimen.padding_medium),
                     vertical = dimensionResource(R.dimen.padding_very_small)
                 )
             )
-            Body(bookmarks = bookmarks, imageWidth = imageWidth, imageHeight = imageHeight)
+            BookmarkTableBody(bookmarks = bookmarks, imageWidth = imageWidth, imageHeight = imageHeight)
         }
     }
 }
 
 @Composable
-private fun Body(
+fun BookmarkTableBody(
     modifier: Modifier = Modifier,
     bookmarks: List<Bookmark>,
     imageWidth: Dp,
@@ -155,7 +154,7 @@ private fun Body(
 }
 
 @Composable
-private fun Header(modifier: Modifier = Modifier) {
+fun BookmarkTableHeader(modifier: Modifier = Modifier) {
     Row(modifier) {
         Row(
             Modifier.weight(0.6f),

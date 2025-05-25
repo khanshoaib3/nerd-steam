@@ -35,7 +35,7 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
 
 @Composable
-fun <T : SteamChartsItem> TableRow(
+fun <T : SteamChartsItem> SteamChartsTableRow(
     modifier: Modifier = Modifier,
     item: T,
     imageWidth: Dp,
@@ -187,7 +187,7 @@ private fun TrendingGameRowPreview() {
         imageHeight = 225.toDp()
     }
     SteamCompanionTheme {
-        TableRow(
+        SteamChartsTableRow(
             item = TrendingGame(
                 id = 10,
                 appId = 12150,
@@ -213,7 +213,7 @@ private fun TopGameRowPreview() {
         imageHeight = 225.toDp()
     }
     SteamCompanionTheme {
-        TableRow(
+        SteamChartsTableRow(
             item = TopGame(
                 id = 10,
                 appId = 12150,
@@ -240,7 +240,7 @@ private fun TopRecordRowPreview() {
         imageHeight = 225.toDp()
     }
     SteamCompanionTheme {
-        TableRow(
+        SteamChartsTableRow(
             item = TopRecord(
                 id = 10,
                 appId = 12150,

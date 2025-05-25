@@ -14,11 +14,11 @@ import androidx.compose.ui.text.style.TextAlign
 import com.github.khanshoaib3.steamcompanion.ui.components.CollapseButton
 
 @Composable
-fun TableTitle(
+fun SteamChartsTableTitle(
     tableType: SteamChartsTableType,
-    isTableExpanded: Boolean = true,
-    onCollapseButtonClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    isTableExpanded: Boolean = true,
+    onCollapseButtonClick: () -> Unit = {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

@@ -10,7 +10,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.SteamChartsI
 import com.github.khanshoaib3.steamcompanion.R
 
 @Composable
-fun <T : SteamChartsItem> TableBody(
+fun <T : SteamChartsItem> SteamChartsTableBody(
     modifier: Modifier = Modifier,
     gamesList: List<T>,
     imageWidth: Dp,
@@ -22,7 +22,7 @@ fun <T : SteamChartsItem> TableBody(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
     ) {
         gamesList.forEach { item ->
-            TableRow(
+            SteamChartsTableRow(
                 modifier = Modifier,
                 item = item,
                 imageWidth = imageWidth,

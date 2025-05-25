@@ -18,9 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
 
 @Composable
-fun TableFooter(
-    modifier: Modifier = Modifier,
-) {
+fun SteamChartsTableFooter(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
