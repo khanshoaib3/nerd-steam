@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark
 
 import android.content.res.Configuration
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -48,13 +50,22 @@ fun BookmarkScreenRoot(
     currentDestination: NavDestination?,
     onMenuButtonClick: () -> Unit
 ) {
-    val bookmarkDataState by bookmarkViewModel.bookmarkDataState.collectAsState()
+    val localView = LocalView.current
+    val sortedBookmarks by bookmarkViewModel.sortedBookmarks.collectAsState()
+
     BookmarkScreen(
         modifier = modifier,
-        bookmarks = bookmarkDataState.bookmarks,
+        bookmarks = sortedBookmarks,
         currentDestination = currentDestination,
-
-        onMenuButtonClick = onMenuButtonClick
+        onMenuButtonClick = onMenuButtonClick,
+        onGameHeaderClick = {
+            bookmarkViewModel.toggleSortOrderOfTypeName()
+            localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+        },
+        onTimeHeaderClick = {
+            bookmarkViewModel.toggleSortOrderOfTypeTime()
+            localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+        }
     )
 }
 
@@ -62,9 +73,11 @@ fun BookmarkScreenRoot(
 @Composable
 fun BookmarkScreen(
     modifier: Modifier = Modifier,
-    bookmarks: List<Bookmark>,
+    bookmarks: List<BookmarkDisplay>,
     currentDestination: NavDestination?,
-    onMenuButtonClick: () -> Unit
+    onMenuButtonClick: () -> Unit,
+    onGameHeaderClick: () -> Unit,
+    onTimeHeaderClick: () -> Unit
 ) {
     val density: Density = LocalDensity.current
     val imageWidth: Dp
@@ -91,14 +104,21 @@ fun BookmarkScreen(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BookmarkTableHeader()
+            BookmarkTableHeader(
+                onGameHeaderClick = onGameHeaderClick,
+                onTimeHeaderClick = onTimeHeaderClick
+            )
             HorizontalDivider(
                 Modifier.padding(
                     horizontal = dimensionResource(R.dimen.padding_medium),
                     vertical = dimensionResource(R.dimen.padding_very_small)
                 )
             )
-            BookmarkTableBody(bookmarks = bookmarks, imageWidth = imageWidth, imageHeight = imageHeight)
+            BookmarkTableBody(
+                bookmarks = bookmarks,
+                imageWidth = imageWidth,
+                imageHeight = imageHeight
+            )
         }
     }
 }
@@ -106,7 +126,7 @@ fun BookmarkScreen(
 @Composable
 fun BookmarkTableBody(
     modifier: Modifier = Modifier,
-    bookmarks: List<Bookmark>,
+    bookmarks: List<BookmarkDisplay>,
     imageWidth: Dp,
     imageHeight: Dp
 ) {
@@ -138,13 +158,13 @@ fun BookmarkTableBody(
                 }
                 CenterAlignedSelectableText(
                     modifier = Modifier.weight(0.2f),
-                    text = bookmark.appId.toString(),
+                    text = bookmark.appId,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
                 CenterAlignedSelectableText(
                     modifier = Modifier.weight(0.2f),
-                    text = bookmark.timeStamp.toString(),
+                    text = bookmark.formattedTime,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -154,10 +174,17 @@ fun BookmarkTableBody(
 }
 
 @Composable
-fun BookmarkTableHeader(modifier: Modifier = Modifier) {
+fun BookmarkTableHeader(
+    onGameHeaderClick: () -> Unit,
+    onTimeHeaderClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // TODO Add a11y indication of sorting order
     Row(modifier) {
         Row(
-            Modifier.weight(0.6f),
+            Modifier
+                .weight(0.6f)
+                .clickable(true, onClick = onGameHeaderClick, role = Role.Button),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -181,7 +208,9 @@ fun BookmarkTableHeader(modifier: Modifier = Modifier) {
             )
         }
         Row(
-            Modifier.weight(0.2f),
+            Modifier
+                .weight(0.2f)
+                .clickable(true, onClick = onTimeHeaderClick, role = Role.Button),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -203,24 +232,16 @@ private fun BookmarkScreenPreview() {
     SteamCompanionTheme {
         BookmarkScreen(
             bookmarks = listOf(
-                Bookmark(
-                    appId = 1231,
+                BookmarkDisplay(
+                    appId = "1231",
                     name = "Max Payne: The Fall of Max Payne",
-                    timeStamp = 12341321
-                ),
-                Bookmark(
-                    appId = 1231,
-                    name = "Max Payne",
-                    timeStamp = 12341321
-                ),
-                Bookmark(
-                    appId = 1231,
-                    name = "Max Payne: The Fall of Max Payne",
-                    timeStamp = 12341321
+                    formattedTime = "dd MMM yyyy"
                 )
             ),
             currentDestination = null,
-            onMenuButtonClick = {}
+            onMenuButtonClick = {},
+            onGameHeaderClick = {},
+            onTimeHeaderClick = {}
         )
     }
 }
