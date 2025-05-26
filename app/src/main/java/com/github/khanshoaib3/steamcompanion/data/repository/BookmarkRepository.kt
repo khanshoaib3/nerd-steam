@@ -6,7 +6,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-private const val TAG = "SteamChartsRepository"
+private const val TAG = "BookmarkRepository"
 
 interface BookmarkRepository {
     fun getAllBookmarks(): Flow<List<Bookmark>>

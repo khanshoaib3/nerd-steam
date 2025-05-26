@@ -1,9 +1,11 @@
 package com.github.khanshoaib3.steamcompanion.di
 
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.SearchRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.LocalBookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineGameDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.RemoteSearchRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.ScraperSteamChartsRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
 import dagger.Binds
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindBookmarkRepository(
         bookmarkRepository: LocalBookmarkRepository
     ): BookmarkRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSearchRepository(
+        searchRepository: RemoteSearchRepository
+    ): SearchRepository
 }

@@ -14,7 +14,7 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
-import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreenRoot
 
 @Composable
 fun SteamCompanionNavHost(
@@ -37,7 +37,11 @@ fun SteamCompanionNavHost(
             )
         }
         composable<Route.Search> {
-            SearchScreen()
+            SearchScreenRoot(
+                currentDestination = currentDestination,
+                navSuiteType = navSuiteType,
+                onMenuButtonClick = onMenuButtonClick
+            )
         }
         composable<Route.AppDetail> {
             AppDetailsScreen(
