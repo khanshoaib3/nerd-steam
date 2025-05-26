@@ -2,6 +2,8 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
@@ -104,13 +108,18 @@ fun AppDetailsScreen(
             }
         ) { innerPadding ->
             AppDetailsCard(
-                modifier = modifier
-                    .padding(innerPadding)
-                    .verticalScroll(scrollState),
                 gameData = gameData,
                 onBookmarkClick = toggleBookmarkStatus,
                 isBookmarkActive = isBookmarked,
-                showHeader = false
+                showHeader = false,
+                modifier = modifier
+                    .verticalScroll(scrollState)
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                        bottom = 0.dp,
+                        start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    )
             )
         }
     } else {

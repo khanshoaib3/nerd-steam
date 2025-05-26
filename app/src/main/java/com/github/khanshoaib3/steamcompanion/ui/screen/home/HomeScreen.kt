@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
@@ -120,7 +124,6 @@ fun HomeScreenRoot(
             )
         }) { innerPadding ->
             HomeListDetailScaffold(
-                modifier = modifier.padding(innerPadding),
                 navSuiteType = navSuiteType,
                 navigator = navigator,
                 paneExpansionState = paneExpansionState,
@@ -133,7 +136,13 @@ fun HomeScreenRoot(
                 homeDataState = homeDataState,
                 homeViewState = homeViewState,
                 topAppBarScrollBehavior = scrollBehavior,
-                currentDestination = currentDestination
+                currentDestination = currentDestination,
+                modifier = modifier.padding(
+                    top = innerPadding.calculateTopPadding(),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = 0.dp,
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                )
             )
         }
     }
@@ -229,13 +238,18 @@ fun HomeScreenWithScaffold(
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         HomeScreen(
-            modifier = modifier.padding(innerPadding),
             onGameClick = onGameClick,
             onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
             onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
             onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
             homeDataState = homeDataState,
-            homeViewState = homeViewState
+            homeViewState = homeViewState,
+            modifier = modifier.padding(
+                top = innerPadding.calculateTopPadding(),
+                end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = 0.dp,
+                start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+            )
         )
     }
 }

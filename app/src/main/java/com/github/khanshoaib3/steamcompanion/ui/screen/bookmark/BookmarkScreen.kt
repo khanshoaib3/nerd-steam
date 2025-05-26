@@ -3,6 +3,8 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -30,6 +32,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import com.github.khanshoaib3.steamcompanion.R
@@ -134,7 +138,12 @@ fun BookmarkScreenRoot(
                 imageWidth = imageWidth,
                 imageHeight = imageHeight,
                 onListPaneUpButtonClick = {},
-                modifier = modifier.padding(innerPadding)
+                modifier = modifier.padding(
+                    top = innerPadding.calculateTopPadding(),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = 0.dp,
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                )
             )
         }
     }
@@ -236,7 +245,12 @@ fun BookmarkScreenWithScaffold(
             onTimeHeaderClick,
             imageWidth,
             imageHeight,
-            modifier.padding(innerPadding)
+            modifier.padding(
+                top = innerPadding.calculateTopPadding(),
+                end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = 0.dp,
+                start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+            )
         )
     }
 }
@@ -262,6 +276,40 @@ fun BookmarkScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun BookmarkScreenWithScaffoldPreview() {
+    val density: Density = LocalDensity.current
+    val imageWidth: Dp
+    val imageHeight: Dp
+    with(density) {
+        imageWidth = 150.toDp()
+        imageHeight = 225.toDp()
+    }
+
+    SteamCompanionTheme {
+        BookmarkScreenWithScaffold(
+            bookmarks = listOf(
+                BookmarkDisplay(
+                    appId = 1231,
+                    name = "Max Payne: The Fall of Max Payne",
+                    formattedTime = "dd MMM yyyy"
+                )
+            ),
+            onGameClick = {},
+            onGameHeaderClick = {},
+            onTimeHeaderClick = {},
+            onMenuButtonClick = {},
+            topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+            currentDestination = null,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -281,7 +329,7 @@ private fun BookmarkScreenPreview() {
                     appId = 1231,
                     name = "Max Payne: The Fall of Max Payne",
                     formattedTime = "dd MMM yyyy"
-                )
+                ),
             ),
             onGameClick = {},
             onGameHeaderClick = {},
