@@ -3,8 +3,6 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -32,8 +30,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import com.github.khanshoaib3.steamcompanion.R
@@ -41,6 +37,7 @@ import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppB
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.components.BookmarkTable
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
@@ -138,12 +135,7 @@ fun BookmarkScreenRoot(
                 imageWidth = imageWidth,
                 imageHeight = imageHeight,
                 onListPaneUpButtonClick = {},
-                modifier = modifier.padding(
-                    top = innerPadding.calculateTopPadding(),
-                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
-                    bottom = 0.dp,
-                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
-                )
+                modifier = modifier.padding(innerPadding.removeBottomPadding())
             )
         }
     }
@@ -245,12 +237,7 @@ fun BookmarkScreenWithScaffold(
             onTimeHeaderClick,
             imageWidth,
             imageHeight,
-            modifier.padding(
-                top = innerPadding.calculateTopPadding(),
-                end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
-                bottom = 0.dp,
-                start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
-            )
+            modifier.padding(innerPadding.removeBottomPadding())
         )
     }
 }
