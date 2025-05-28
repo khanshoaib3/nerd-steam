@@ -3,20 +3,25 @@ package com.github.khanshoaib3.steamcompanion.data.repository
 import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.local.bookmark.BookmarkDao
 import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
+import com.github.khanshoaib3.steamcompanion.data.model.search.AppSearchResult
+import com.github.khanshoaib3.steamcompanion.data.remote.SteamCommunityApiService
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 private const val TAG = "SearchRepository"
 
 interface SearchRepository {
-    fun runSearchQuery(): Flow<List<Bookmark>>
+    suspend fun runSearchQuery(query: String): List<AppSearchResult>
 }
 
 class RemoteSearchRepository @Inject constructor(
-    private val bookmarkDao: BookmarkDao
+    private val bookmarkDao: BookmarkDao,
+    private val steamCommunityApiService: SteamCommunityApiService,
 ) : SearchRepository {
-    override fun runSearchQuery(): Flow<List<Bookmark>> {
+    override suspend fun runSearchQuery(query: String): List<AppSearchResult> {
         Log.d(TAG, "Fetching search results...")
-        return bookmarkDao.getAll()
+        val result = steamCommunityApiService.searchApp(query)
+        // TODO Add exception handling
+        return result
     }
 }

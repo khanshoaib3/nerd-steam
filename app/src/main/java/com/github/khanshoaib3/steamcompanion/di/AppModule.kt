@@ -12,6 +12,7 @@ import com.github.khanshoaib3.steamcompanion.data.local.bookmark.BookmarkDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopRecordDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGameDao
+import com.github.khanshoaib3.steamcompanion.data.remote.SteamCommunityApiService
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -60,6 +61,17 @@ class AppModule {
     @Singleton
     fun provideLocalDatastoreRepository(@ApplicationContext context: Context): LocalDataStoreRepository {
         return LocalDataStoreRepository(context.dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSteamCommunityService(): SteamCommunityApiService {
+        val json = Json { ignoreUnknownKeys = true }
+        return Retrofit.Builder()
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .baseUrl("https://steamcommunity.com")
+            .build()
+            .create(SteamCommunityApiService::class.java)
     }
 
     @Provides
