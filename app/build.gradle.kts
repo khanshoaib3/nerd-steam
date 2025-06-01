@@ -99,6 +99,11 @@ dependencies {
     implementation(libs.okhttp)
     // Hil nav fragment
     implementation(libs.androidx.hilt.navigation.fragment)
+    // Worker
+    implementation("androidx.work:work-runtime:2.10.1")
+
+    //implementation("androidx.hilt:hilt-work:1.2.0")
+
 
     implementation(libs.androidx.foundation) // Added for AnnotatedString.fromHtml()
     implementation(libs.androidx.core.ktx)

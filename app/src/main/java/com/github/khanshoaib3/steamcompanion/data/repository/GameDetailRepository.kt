@@ -25,6 +25,8 @@ interface GameDetailRepository {
     suspend fun getPriceTrackingInfo(appId: Int) : PriceTracking?
 
     suspend fun stopTracking(appId: Int)
+
+    suspend fun getAllTrackedGames() : List<PriceTracking>
 }
 
 class OnlineGameDetailRepository @Inject constructor(
@@ -115,5 +117,9 @@ class OnlineGameDetailRepository @Inject constructor(
 
     override suspend fun stopTracking(appId: Int) {
         priceTrackingDao.deleteWithId(appId)
+    }
+
+    override suspend fun getAllTrackedGames(): List<PriceTracking> {
+        return priceTrackingDao.getAll()
     }
 }

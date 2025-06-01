@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PriceTrackingDao {
@@ -37,7 +36,7 @@ interface PriceTrackingDao {
     suspend fun getOne(appId: Int): PriceTracking
 
     @Query("SELECT * from price_tracking")
-    fun getAll(): Flow<List<PriceTracking>>
+    suspend fun getAll(): List<PriceTracking>
 
     @Query("SELECT COUNT(*) from price_tracking")
     suspend fun getCount(): Int
