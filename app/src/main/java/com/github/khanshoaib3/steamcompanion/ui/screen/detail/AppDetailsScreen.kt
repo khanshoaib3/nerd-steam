@@ -1,7 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -80,7 +79,6 @@ fun AppDetailsScreen(
         withContext(Dispatchers.IO) {
             viewModel.updateAppId(appId)
             storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
-            Log.d("AppDetailsScreen", storedPriceTrackingInfo.toString())
         }
     }
 

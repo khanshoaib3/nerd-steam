@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -84,14 +85,15 @@ fun CardUpper(
     val scope = rememberCoroutineScope()
 
     val notificationOptions = listOf("Everyday", "Once")
-    var selectedNotificationOptionIndex by remember {
-        mutableIntStateOf(if (storedPriceTrackingInfo?.notifyEveryDay == false) 1 else 0)
-    }
+    var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
 
     val maxPrice = gameData.content?.data?.priceOverview?.initial?.div(100f) ?: 0f
     val currentPrice = gameData.content?.data?.priceOverview?.finalPrice?.div(100f) ?: 1f
-    var targetPrice by remember {
-        mutableFloatStateOf(storedPriceTrackingInfo?.targetPrice ?: currentPrice)
+    var targetPrice by remember { mutableFloatStateOf(currentPrice) }
+    LaunchedEffect(storedPriceTrackingInfo) {
+        if (storedPriceTrackingInfo == null) return@LaunchedEffect
+        targetPrice = storedPriceTrackingInfo.targetPrice
+        selectedNotificationOptionIndex = if (storedPriceTrackingInfo.notifyEveryDay) 0 else 1
     }
 
     Surface(
