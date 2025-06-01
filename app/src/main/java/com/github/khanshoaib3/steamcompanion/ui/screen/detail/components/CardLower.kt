@@ -5,6 +5,7 @@ import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,7 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.semantics.Role.Companion.Carousel
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,8 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDet
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
+import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
 import kotlinx.serialization.json.Json
 
 data class TabItem(
@@ -118,7 +121,80 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
     TabItem(
         name = "Player Stats",
         content = { modifier, gameData ->
-            CenterAlignedSelectableText("Player Stats Tab")
+            Column(
+                modifier = Modifier.padding(
+                    vertical = dimensionResource(R.dimen.padding_small),
+                    horizontal = dimensionResource(R.dimen.padding_medium)
+                ),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CenterAlignedSelectableText(
+                        "Month",
+                        modifier = Modifier.weight(1.5f),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    CenterAlignedSelectableText(
+                        "Avg. Players",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    CenterAlignedSelectableText(
+                        "Gain",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    CenterAlignedSelectableText(
+                        "% Gain",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    CenterAlignedSelectableText(
+                        "Peak Players",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                HorizontalDivider()
+                gameData.playerStatsRows.forEach {
+                    Row( verticalAlignment = Alignment.CenterVertically ) {
+                        CenterAlignedSelectableText(
+                            it.month,
+                            modifier = Modifier.weight(1.5f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Left
+                        )
+                        CenterAlignedSelectableText(
+                            it.avgPlayers,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        CenterAlignedSelectableText(
+                            it.gain,
+                            modifier = Modifier.weight(1f),
+                            color = if (it.gain.first() != '-') steamChartsChangePositive else steamChartsChangeNegative,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        CenterAlignedSelectableText(
+                            it.percGain,
+                            modifier = Modifier.weight(1f),
+                            color = if (it.percGain.first() != '-') steamChartsChangePositive else steamChartsChangeNegative,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        CenterAlignedSelectableText(
+                            it.peakPlayers,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
         }
     ),
 //    TabItem(

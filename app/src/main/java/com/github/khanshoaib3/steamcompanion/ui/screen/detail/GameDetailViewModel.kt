@@ -7,6 +7,8 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRow
+import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 data class GameData(
     val content: SteamWebApiAppDetailsResponse? = null,
-    val isBookmarked: Boolean = false
+    val isBookmarked: Boolean = false,
+    val playerStatsRows: List<PlayerStatsRow> = listOf()
 )
 
 @HiltViewModel
@@ -35,7 +38,8 @@ class GameDetailViewModel @Inject constructor(
             val isBookmarked = bookmarkRepository.isBookmarked(content?.data?.steamAppId)
             GameData(
                 content = content,
-                isBookmarked = isBookmarked
+                isBookmarked = isBookmarked,
+                playerStatsRows = SteamChartsPerAppScraper(appId).scrape().playerStatsRows
             )
         }
     }
