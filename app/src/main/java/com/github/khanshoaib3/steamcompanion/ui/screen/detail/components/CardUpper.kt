@@ -129,9 +129,6 @@ fun Header(
                     contentDescription = "Bookmark app"
                 )
             }
-            IconButton(onClick = { /* TODO Add behaviour */ }) {
-                Icon(Icons.Default.Share, contentDescription = "Share app")
-            }
         }
     }
 }
