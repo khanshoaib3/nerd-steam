@@ -38,10 +38,34 @@ data class AppDetail(
     @SerialName("mac_requirements") val macRequirements: JsonElement? = null,
     @SerialName("linux_requirements") val linuxRequirements: JsonElement? = null,
     @SerialName("price_overview") val priceOverview: PriceOverview? = null,
-//    @SerialName("screenshots") val screenshots: List<Screenshot>? = null,
+    @SerialName("screenshots") val screenshots: List<Screenshot>? = null,
+    @SerialName("movies") val movies: List<Movie>? = null
 //    @SerialName("packages") val packages: List<Int>? = null,
 //    @SerialName("package_groups") val packageGroups: List<PackageGroup>? = null
 )
+
+@Serializable
+data class Movie(
+    @SerialName("id") val id: Int,
+    @SerialName("name") val name: String,
+    @SerialName("thumbnail") val thumbnail: String,
+    @SerialName("webm") val webm: Webm,
+    @SerialName("mp4") val mp4: Mp4,
+    @SerialName("highlight") val highlight: Boolean
+)
+
+@Serializable
+data class Webm(
+    @SerialName("480") val low: String,
+    @SerialName("max") val max: String
+)
+
+@Serializable
+data class Mp4(
+    @SerialName("480") val low: String,
+    @SerialName("max") val max: String
+)
+
 
 @Serializable
 data class Platforms(

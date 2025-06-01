@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -117,9 +116,6 @@ fun AppDetailsScreen(
                                 if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                                 contentDescription = "Bookmark app"
                             )
-                        }
-                        IconButton(onClick = { /* TODO Add behaviour */ }) {
-                            Icon(Icons.Default.Share, contentDescription = "Share app")
                         }
                     },
                     scrollBehavior = scrollBehavior

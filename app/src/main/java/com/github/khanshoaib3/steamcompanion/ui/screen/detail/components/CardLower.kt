@@ -2,23 +2,38 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.semantics.Role.Companion.Carousel
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
@@ -31,6 +46,7 @@ data class TabItem(
     val content: @Composable (Modifier, GameData) -> Unit,
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 fun getDefaultTabItems(): List<TabItem> = listOf(
     TabItem(
         name = "About",
@@ -47,15 +63,52 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
     TabItem(
         name = "Media",
         content = { modifier, gameData ->
-            CenterAlignedSelectableText("Media Tab")
+            Column(
+                modifier = Modifier.padding(
+                    vertical = dimensionResource(R.dimen.padding_small),
+                    horizontal = dimensionResource(R.dimen.padding_medium)
+                ),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if ((gameData.content?.data?.screenshots?.size ?: 0) <= 0)
+                    return@TabItem
+                Text(
+                    "Screenshots",
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                HorizontalDivider()
+
+                HorizontalMultiBrowseCarousel(
+                    state = rememberCarouselState {
+                        gameData.content?.data?.screenshots?.size ?: 0
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    preferredItemWidth = 421.dp,
+                    itemSpacing = 8.dp,
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    AsyncImage(
+                        model = gameData.content?.data?.screenshots?.get(it)?.pathFull ?: "",
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                }
+            }
         }
     ),
-    TabItem(
-        name = "Deals",
-        content = { modifier, gameData ->
-            CenterAlignedSelectableText("Deals Tab")
-        }
-    ),
+//    TabItem(
+//        name = "Deals",
+//        content = { modifier, gameData ->
+//            CenterAlignedSelectableText("Deals Tab")
+//        }
+//    ),
     TabItem(
         name = "Completion",
         content = { modifier, gameData ->
@@ -68,24 +121,24 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
             CenterAlignedSelectableText("Player Stats Tab")
         }
     ),
-    TabItem(
-        name = "DLCs",
-        content = { modifier, gameData ->
-            CenterAlignedSelectableText("DLCs Tab")
-        }
-    ),
-    TabItem(
-        name = "Achievements",
-        content = { modifier, gameData ->
-            CenterAlignedSelectableText("Achievements Tab")
-        }
-    ),
-    TabItem(
-        name = "External Links",
-        content = { modifier, gameData ->
-            CenterAlignedSelectableText("External Links")
-        }
-    )
+//    TabItem(
+//        name = "DLCs",
+//        content = { modifier, gameData ->
+//            CenterAlignedSelectableText("DLCs Tab")
+//        }
+//    ),
+//    TabItem(
+//        name = "Achievements",
+//        content = { modifier, gameData ->
+//            CenterAlignedSelectableText("Achievements Tab")
+//        }
+//    ),
+//    TabItem(
+//        name = "External Links",
+//        content = { modifier, gameData ->
+//            CenterAlignedSelectableText("External Links")
+//        }
+//    )
 )
 
 @Composable
@@ -117,7 +170,10 @@ fun CardLower(modifier: Modifier = Modifier, gameData: GameData) {
                 }
             }
 
-            tabItems[selectedTabIndex].content(Modifier.padding(dimensionResource(R.dimen.padding_medium)), gameData)
+            tabItems[selectedTabIndex].content(
+                Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                gameData
+            )
         }
     }
 }
