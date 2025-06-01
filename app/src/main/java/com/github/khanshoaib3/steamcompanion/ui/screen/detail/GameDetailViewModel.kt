@@ -3,6 +3,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import androidx.lifecycle.ViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
+import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
@@ -64,5 +65,30 @@ class GameDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    suspend fun getPriceTrackingInfo() : PriceTracking? {
+        if (gameData.value.content?.data?.steamAppId == null) return null
+
+        return gameDetailRepository.getPriceTrackingInfo(appId = gameData.value.content!!.data!!.steamAppId)
+    }
+
+    suspend fun startPriceTracking(targetPrice: Float, notifyEveryDay: Boolean) {
+        if (gameData.value.content?.data?.steamAppId == null) return
+
+        gameDetailRepository.trackPrice(
+            PriceTracking(
+                appId = gameData.value.content!!.data!!.steamAppId,
+                gameName = gameData.value.content!!.data!!.name,
+                targetPrice = targetPrice,
+                notifyEveryDay = notifyEveryDay,
+            )
+        )
+    }
+
+    suspend fun stopPriceTracking() {
+        if (gameData.value.content?.data?.steamAppId == null) return
+
+        gameDetailRepository.stopTracking(appId = gameData.value.content!!.data!!.steamAppId)
     }
 }

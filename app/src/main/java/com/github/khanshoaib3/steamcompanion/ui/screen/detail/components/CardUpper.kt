@@ -9,27 +9,46 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,22 +57,43 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Category
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Platforms
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceOverview
+import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.util.Currency
+import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardUpper(
     modifier: Modifier = Modifier,
     gameData: GameData,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
-    showHeader: Boolean = true,
+    storedPriceTrackingInfo: PriceTracking?,
+    startPriceTracking: (Float, Boolean) -> Unit,
+    stopPriceTracking: () -> Unit,
+    showHeader: Boolean = true
 ) {
     val data = gameData.content?.data
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+
+    val notificationOptions = listOf("Everyday", "Once")
+    var selectedNotificationOptionIndex by remember {
+        mutableIntStateOf(if (storedPriceTrackingInfo?.notifyEveryDay == false) 1 else 0)
+    }
+
+    val maxPrice = gameData.content?.data?.priceOverview?.initial?.div(100f) ?: 0f
+    val currentPrice = gameData.content?.data?.priceOverview?.finalPrice?.div(100f) ?: 1f
+    var targetPrice by remember {
+        mutableFloatStateOf(storedPriceTrackingInfo?.targetPrice ?: currentPrice)
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier
     ) {
@@ -95,11 +135,197 @@ fun CardUpper(
                 modifier = Modifier.fillMaxWidth(),
                 description = data?.shortDescription ?: "Description not found"
             )
-            TrackingButtons(
-                modifier = Modifier.fillMaxWidth(),
-                isFree = data?.isFree == true,
-                isComingSoon = data?.releaseDate?.comingSoon == true
+
+            if (data?.isFree == false && data.releaseDate.comingSoon == false) {
+                TrackingButtons(
+                    onClick = { scope.launch { sheetState.show() } },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (sheetState.isVisible) {
+            PriceTrackingSheet(
+                sheetState = sheetState,
+                targetPrice = targetPrice,
+                maxPrice = maxPrice,
+                onPriceChange = {
+                    targetPrice = (it * 100).roundToInt() / 100f
+                },
+                selectedNotificationOptionIndex = selectedNotificationOptionIndex,
+                notificationOptions = notificationOptions,
+                onSelectedNotificationOptionIndexChange = { selectedNotificationOptionIndex = it },
+                onCancel = { scope.launch { sheetState.hide() } },
+                onConfirm = {
+                    startPriceTracking(
+                        targetPrice,
+                        selectedNotificationOptionIndex == 0
+                    )
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                },
+                priceAlreadyTracked = storedPriceTrackingInfo != null,
+                onStop = {
+                    stopPriceTracking()
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PriceTrackingSheet(
+    sheetState: SheetState,
+    targetPrice: Float,
+    maxPrice: Float,
+    onPriceChange: (Float) -> Unit,
+    selectedNotificationOptionIndex: Int,
+    notificationOptions: List<String>,
+    onSelectedNotificationOptionIndexChange: (Int) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    priceAlreadyTracked: Boolean,
+    onStop: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCancel,
+        sheetState = sheetState,
+    ) {
+        PriceTrackingSheetContent(
+            targetPrice = targetPrice,
+            maxPrice = maxPrice,
+            onPriceChange = onPriceChange,
+            selectedNotificationOptionIndex = selectedNotificationOptionIndex,
+            notificationOptions = notificationOptions,
+            onSelectedNotificationOptionIndexChange = onSelectedNotificationOptionIndexChange,
+            onCancel = onCancel,
+            onConfirm = onConfirm,
+            priceAlreadyTracked = priceAlreadyTracked,
+            onStop = onStop,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+fun PriceTrackingSheetContent(
+    targetPrice: Float,
+    maxPrice: Float,
+    onPriceChange: (Float) -> Unit,
+    selectedNotificationOptionIndex: Int,
+    notificationOptions: List<String>,
+    onSelectedNotificationOptionIndexChange: (Int) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    priceAlreadyTracked: Boolean,
+    onStop: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Target Price",
+                    modifier = Modifier.weight(0.75f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                TextField(
+                    targetPrice.toString(),
+                    onValueChange = { onPriceChange(it.toFloat()) },
+                    modifier = Modifier.weight(0.25f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+            Slider(
+                value = targetPrice,
+                onValueChange = onPriceChange,
+                valueRange = 0f..maxPrice,
+//                steps = (maxPrice / 20).toInt()
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Frequency",
+                    modifier = Modifier.weight(0.75f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                SingleChoiceSegmentedButtonRow {
+                    notificationOptions.forEachIndexed { index, label ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = notificationOptions.size
+                            ),
+                            onClick = { onSelectedNotificationOptionIndexChange(index) },
+                            selected = index == selectedNotificationOptionIndex,
+                            label = { Text(label) }
+                        )
+                    }
+                }
+            }
+        }
+        if (priceAlreadyTracked) {
+            Spacer(Modifier.height(32.dp))
+            Button(onClick = onStop, modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text(
+                    "Stop Price Tracking",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(Modifier.height(24.dp))
+        } else {
+            Spacer(Modifier.height(64.dp))
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.padding_large)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text(
+                    "Cancel",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text(
+                    if (priceAlreadyTracked) "Update" else "Start Tracking",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
@@ -283,23 +509,24 @@ fun ShortDescription(modifier: Modifier = Modifier, description: String) {
 }
 
 @Composable
-fun TrackingButtons(modifier: Modifier = Modifier, isFree: Boolean, isComingSoon: Boolean) {
-    if (!isFree && !isComingSoon) {
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+fun TrackingButtons(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FilledIconButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(0.8f)
         ) {
-            FilledIconButton(
-                onClick = { /* TODO Add tracking functionality */ },
-                modifier = Modifier.fillMaxWidth(0.8f)
-            ) {
-                Text(
-                    text = "Track Price",
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
+            Text(
+                text = "Price Tracking",
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
@@ -316,7 +543,29 @@ private fun GameDetailScreenPreview() {
         CardUpper(
             gameData = GameData(content = gameData),
             onBookmarkClick = {},
-            isBookmarkActive = false
+            isBookmarkActive = false,
+            storedPriceTrackingInfo = null,
+            startPriceTracking = { _, _ -> },
+            stopPriceTracking = {}
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PriceTrackingSheetPreview() {
+    PriceTrackingSheetContent(
+        targetPrice = 45.0f,
+        maxPrice = 199.99f,
+        onPriceChange = {},
+        selectedNotificationOptionIndex = 1,
+        notificationOptions = listOf("Everyday", "Once"),
+        onSelectedNotificationOptionIndexChange = {},
+        onCancel = {},
+        onConfirm = {},
+        priceAlreadyTracked = true,
+        onStop = {}
+    )
 }

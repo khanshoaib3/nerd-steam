@@ -79,7 +79,6 @@ dependencies {
     implementation(libs.androidx.material.adaptive)
     implementation(libs.androidx.material.adaptive.layout)
     implementation(libs.androidx.material.adaptive.navigation)
-    implementation("androidx.compose.material3:material3:1.4.0-alpha15")
     // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)

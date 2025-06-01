@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -25,7 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
@@ -34,6 +38,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardLower
@@ -57,9 +62,25 @@ fun AppDetailsScreen(
     val scope = rememberCoroutineScope()
     val currentLocalView = LocalView.current
 
+    var storedPriceTrackingInfo: PriceTracking? by remember { mutableStateOf(null) }
+    val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
+        scope.launch(context = Dispatchers.IO) {
+            viewModel.startPriceTracking(targetPrice, notifyEveryDay)
+            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+        }
+    }
+    val stopPriceTracking: () -> Unit = {
+        scope.launch(context = Dispatchers.IO) {
+            viewModel.stopPriceTracking()
+            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+        }
+    }
+
     LaunchedEffect(appId) {
         withContext(Dispatchers.IO) {
             viewModel.updateAppId(appId)
+            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+            Log.d("AppDetailsScreen", storedPriceTrackingInfo.toString())
         }
     }
 
@@ -111,7 +132,10 @@ fun AppDetailsScreen(
                 gameData = gameData,
                 onBookmarkClick = toggleBookmarkStatus,
                 isBookmarkActive = isBookmarked,
+                storedPriceTrackingInfo = storedPriceTrackingInfo,
                 showHeader = false,
+                startPriceTracking = startPriceTracking,
+                stopPriceTracking = stopPriceTracking,
                 modifier = modifier
                     .verticalScroll(scrollState)
                     .padding(
@@ -128,6 +152,9 @@ fun AppDetailsScreen(
             gameData = gameData,
             onBookmarkClick = toggleBookmarkStatus,
             isBookmarkActive = isBookmarked,
+            storedPriceTrackingInfo = storedPriceTrackingInfo,
+            startPriceTracking = startPriceTracking,
+            stopPriceTracking = stopPriceTracking,
             showHeader = true
         )
     }
@@ -139,7 +166,10 @@ fun AppDetailsCard(
     gameData: GameData,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
-    showHeader: Boolean = true,
+    storedPriceTrackingInfo: PriceTracking?,
+    startPriceTracking: (Float, Boolean) -> Unit,
+    stopPriceTracking: () -> Unit,
+    showHeader: Boolean = true
 ) {
     Box(modifier = modifier) {
         OutlinedCard {
@@ -148,6 +178,9 @@ fun AppDetailsCard(
                 gameData = gameData,
                 onBookmarkClick = onBookmarkClick,
                 isBookmarkActive = isBookmarkActive,
+                storedPriceTrackingInfo = storedPriceTrackingInfo,
+                startPriceTracking = startPriceTracking,
+                stopPriceTracking = stopPriceTracking,
                 showHeader = showHeader
             )
             CardLower(modifier = Modifier.fillMaxWidth(), gameData = gameData)
@@ -167,6 +200,9 @@ private fun GameDetailScreenPreview() {
         AppDetailsCard(
             gameData = GameData(content = gameData),
             onBookmarkClick = {},
+            storedPriceTrackingInfo = null,
+            startPriceTracking = { _, _ -> },
+            stopPriceTracking = {},
             isBookmarkActive = true
         )
     }
