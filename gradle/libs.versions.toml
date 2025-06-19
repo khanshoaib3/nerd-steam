@@ -1,81 +1,112 @@
 [versions]
-adaptiveLayout = "1.1.0"
-coilGif = "3.1.0"
-foundation = "1.8.0-rc01"
-hiltAndroid = "2.51.1"
-hiltAndroidCompiler = "2.51.1"
-hiltNavigationCompose = "1.2.0"
-material3-adaptive-navigation-suite = "1.3.1"
-agp = "8.10.0"
-datastorePreferences = "1.1.3"
+agp = "8.10.1"
 kotlin = "2.1.10"
-coreKtx = "1.15.0"
-junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-kotlinxDatetime = "0.6.2"
-kotlinxSerializationJson = "1.7.3"
-lifecycleRuntimeKtx = "2.8.7"
+composeBom = "2025.06.01"
+
+# Compose / UI
+foundation = "1.8.3"
 activityCompose = "1.10.1"
-composeBom = "2025.03.00"
-navigationCompose = "2.8.9"
-okhttp = "4.12.0"
+material3Adaptive = "1.1.0"
+material3NavigationSuite = "1.3.2"
+materialIconsExtended = "1.7.8" # optional if pinned
+navigationCompose = "2.9.0"
+
+# Hilt
+hilt = "2.51.1"
+hiltNavigation = "1.2.0"
+
+# Lifecycle & Datastore
+lifecycleRuntime = "2.9.1"
+datastorePreferences = "1.1.7"
+
+# Room
+room = "2.7.2"
+
+# WorkManager
+work = "2.10.2"
+
+# Networking
 retrofit = "2.9.0"
-retrofit2KotlinxSerializationConverter = "1.0.0"
-roomRuntime = "2.6.1"
-skrapeitDsl = "1.3.0-alpha.2"
-skrapeitHtmlParser = "1.3.0-alpha.2"
-skrapeitHttpFetcher = "1.3.0-alpha.2"
-uiTextGoogleFonts = "1.7.8"
+retrofitKotlinxConverter = "1.0.0"
+okhttp = "4.12.0"
+
+# Skrape-it
+skrape = "1.3.0-alpha.2"
+
+# Coil
+coil = "3.1.0"
+
+# Kotlinx
+kotlinxSerialization = "1.7.3"
+kotlinxDatetime = "0.6.2"
+
+# Testing
+junit = "4.13.2"
+androidxJunit = "1.2.1"
 
 [libraries]
+
+# Core Compose & UI
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
-androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltNavigationCompose" }
-androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltNavigationCompose" }
-androidx-material-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptiveLayout" }
-androidx-material-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "adaptiveLayout" }
-androidx-material-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptiveLayout" }
-androidx-compose-material-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3-adaptive-navigation-suite" }
+androidx-ui = { module = "androidx.compose.ui:ui" }
+androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+
+# Material Adaptive
+androidx-material-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "material3Adaptive" }
+androidx-material-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "material3Adaptive" }
+androidx-material-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "material3Adaptive" }
+androidx-compose-material-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3NavigationSuite" }
 androidx-compose-materialWindow = { module = "androidx.compose.material3:material3-window-size-class" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
-androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+
+# Navigation
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilGif" }
-coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coilGif" }
-coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilGif" }
-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+
+# Hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigation" }
+
+# Lifecycle, Datastore
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntime" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+
+# Room
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+# WorkManager
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
+
+# Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+
+# Skrape-it
+skrapeit-html-parser = { module = "it.skrape:skrapeit-html-parser", version.ref = "skrape" }
+skrapeit-http-fetcher = { module = "it.skrape:skrapeit-http-fetcher", version.ref = "skrape" }
+
+# Networking
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
-androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
-skrapeit-html-parser = { module = "it.skrape:skrapeit-html-parser", version.ref = "skrapeitHtmlParser" }
-skrapeit-dsl = { module = "it.skrape:skrapeit-dsl", version.ref = "skrapeitDsl" }
-skrapeit-http-fetcher = { module = "it.skrape:skrapeit-http-fetcher", version.ref = "skrapeitHttpFetcher" }
+retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxConverter" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+
+# Kotlinx
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# Testing
+junit = { module = "junit:junit", version.ref = "junit" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-

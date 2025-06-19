@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
     // Keep this at last (https://stackoverflow.com/questions/70550883/warning-the-following-options-were-not-recognized-by-any-processor-dagger-f)
     id("kotlin-kapt")
+    id("com.autonomousapps.dependency-analysis") version "2.18.0"
 }
 
 android {
@@ -58,56 +59,46 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
-    implementation(libs.coil.gif)
+    runtimeOnly(libs.coil.gif)
+
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+
     // Skrape-it
-    implementation(libs.skrapeit.dsl)
     implementation(libs.skrapeit.html.parser)
     implementation(libs.skrapeit.http.fetcher)
+
     // Datetime
     implementation(libs.kotlinx.datetime)
+
     // Preferences Datastore
     implementation(libs.androidx.datastore.preferences)
-    // Google Fonts
-    implementation(libs.androidx.ui.text.google.fonts)
-    // Material Icons
+
+    // Material Icons & Adaptive Layouts
     implementation(libs.material.icons.extended)
-    // Material Adaptive Layouts
     implementation(libs.androidx.material.adaptive)
     implementation(libs.androidx.material.adaptive.layout)
     implementation(libs.androidx.material.adaptive.navigation)
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.compose.material.adaptive.navigation.suite)
+    implementation(libs.androidx.navigation.compose)
+
+    // Compose Material Window Size Class
     implementation(libs.androidx.compose.materialWindow)
-    implementation("com.google.accompanist:accompanist-adaptive:0.26.2-beta")
+
     // Dagger-Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
-    kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    // Retrofit
+
+    // Retrofit & Serialization
     implementation(libs.retrofit)
-    // Kotlin serialization
-    implementation(libs.kotlinx.serialization.json)
-    // Retrofit with Kotlin serialization Converter
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.okhttp)
-    // Hil nav fragment
-    implementation(libs.androidx.hilt.navigation.fragment)
-    // Worker
-    implementation("androidx.work:work-runtime:2.10.1")
+    implementation(libs.kotlinx.serialization.json)
 
-    //implementation("androidx.hilt:hilt-work:1.2.0")
-
-
-    implementation(libs.androidx.foundation) // Added for AnnotatedString.fromHtml()
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    // AndroidX + Compose Core
+    implementation(libs.androidx.foundation)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -115,13 +106,18 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Debug-only tools
     debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    debugRuntimeOnly(libs.androidx.ui.test.manifest)
 }
 
 // Allow references to generated code
