@@ -7,20 +7,20 @@ plugins {
     id("com.google.devtools.ksp")
 //    kotlin("plugin.serialization") version "2.0.21"
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     // Keep this at last (https://stackoverflow.com/questions/70550883/warning-the-following-options-were-not-recognized-by-any-processor-dagger-f)
     id("kotlin-kapt")
-    id("com.autonomousapps.dependency-analysis") version "2.18.0"
+    id("com.autonomousapps.dependency-analysis") version "2.19.0"
 }
 
 android {
     namespace = "com.github.khanshoaib3.steamcompanion"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.github.khanshoaib3.steamcompanion"
         minSdk = 30
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -81,7 +81,6 @@ dependencies {
     implementation(libs.androidx.material.adaptive.layout)
     implementation(libs.androidx.material.adaptive.navigation)
     implementation(libs.androidx.compose.material.adaptive.navigation.suite)
-    implementation(libs.androidx.navigation.compose)
 
     // Compose Material Window Size Class
     implementation(libs.androidx.compose.materialWindow)
@@ -106,6 +105,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Navigation 3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.kotlinx.serialization.core)
 
     // WorkManager
     implementation(libs.androidx.work.runtime)

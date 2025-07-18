@@ -1,20 +1,24 @@
 package com.github.khanshoaib3.steamcompanion.ui.navigation
 
+import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -28,36 +32,27 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.PermanentDrawerSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.github.khanshoaib3.steamcompanion.R
 import kotlinx.coroutines.launch
-
-
-private fun WindowSizeClass.isCompact() =
-    windowWidthSizeClass == WindowWidthSizeClass.COMPACT ||
-            windowHeightSizeClass == WindowHeightSizeClass.COMPACT
 
 class SteamCompanionNavSuiteScope(
     val navSuiteType: NavigationSuiteType,
@@ -66,25 +61,27 @@ class SteamCompanionNavSuiteScope(
 
 @Composable
 fun SteamCompanionNavigationWrapper(
-    currentDestination: NavDestination?,
-    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
-    content: @Composable SteamCompanionNavSuiteScope.() -> Unit,
+    backStack: SnapshotStateList<Any>,
+    navigateTo: (Route) -> Unit,
+    content: @Composable (SteamCompanionNavSuiteScope.() -> Unit),
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
-    val windowSize = with(LocalDensity.current) {
-        currentWindowSize().toSize().toDpSize()
-    }
 
     val navLayoutType = when {
         adaptiveInfo.windowPosture.isTabletop -> NavigationSuiteType.NavigationBar
-        adaptiveInfo.windowSizeClass.isCompact() -> NavigationSuiteType.NavigationBar
-        adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED &&
-                windowSize.width >= 1200.dp -> NavigationSuiteType.NavigationDrawer
+        adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+            -> NavigationSuiteType.NavigationRail
 
-        else -> NavigationSuiteType.NavigationRail
+        else -> NavigationSuiteType.NavigationBar
     }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    if (backStack.lastOrNull() == Route.Bookmark) {
+        SteamCompanionNavSuiteScope(navLayoutType, drawerState).content()
+        return
+    }
+
     val coroutineScope = rememberCoroutineScope()
     // Avoid opening the modal drawer when there is a permanent drawer or a bottom nav bar,
     // but always allow closing an open drawer.
@@ -97,13 +94,14 @@ fun SteamCompanionNavigationWrapper(
         }
     }
 
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = gesturesEnabled,
         drawerContent = {
             ModalNavigationDrawerContent(
-                currentDestination = currentDestination,
-                navigateToTopLevelDestination = navigateToTopLevelDestination,
+                backStack = backStack,
+                navigateToTopLevelDestination = navigateTo,
                 onDrawerClicked = {
                     coroutineScope.launch {
                         drawerState.close()
@@ -117,23 +115,18 @@ fun SteamCompanionNavigationWrapper(
             navigationSuite = {
                 when (navLayoutType) {
                     NavigationSuiteType.NavigationBar -> SteamCompanionNavBar(
-                        currentDestination = currentDestination,
-                        navigateToTopLevelDestination = navigateToTopLevelDestination
+                        backStack = backStack,
+                        navigateToTopLevelDestination = navigateTo
                     )
 
                     NavigationSuiteType.NavigationRail -> SteamCompanionNavRail(
-                        currentDestination = currentDestination,
-                        navigateToTopLevelDestination = navigateToTopLevelDestination,
+                        backStack = backStack,
+                        navigateToTopLevelDestination = navigateTo,
                         onDrawerClicked = {
                             coroutineScope.launch {
                                 drawerState.open()
                             }
                         }
-                    )
-
-                    NavigationSuiteType.NavigationDrawer -> PermanentNavigationDrawerContent(
-                        currentDestination = currentDestination,
-                        navigateToTopLevelDestination = navigateToTopLevelDestination
                     )
                 }
             }
@@ -146,8 +139,8 @@ fun SteamCompanionNavigationWrapper(
 
 @Composable
 fun SteamCompanionNavRail(
-    currentDestination: NavDestination?,
-    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+    backStack: SnapshotStateList<Any>,
+    navigateToTopLevelDestination: (Route) -> Unit,
     onDrawerClicked: () -> Unit = {},
 ) {
     NavigationRail(
@@ -178,11 +171,11 @@ fun SteamCompanionNavRail(
         ) {
             NAV_BAR_ROUTES.forEach { topLevelRoute ->
                 NavigationRailItem(
-                    selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
+                    selected = backStack.lastOrNull() == topLevelRoute,
                     onClick = { navigateToTopLevelDestination(topLevelRoute) },
                     icon = {
                         Icon(
-                            imageVector = topLevelRoute.selectedIcon,
+                            imageVector = topLevelRoute.selectedIcon?: Icons.Default.QuestionMark,
                             contentDescription = topLevelRoute.name
                         )
                     }
@@ -192,20 +185,41 @@ fun SteamCompanionNavRail(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SteamCompanionNavBar(
-    currentDestination: NavDestination?,
-    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+    backStack: SnapshotStateList<Any>,
+    navigateToTopLevelDestination: (Route) -> Unit,
 ) {
-    NavigationBar(modifier = Modifier.fillMaxWidth()) {
-        NAV_BAR_ROUTES.forEach { topLevelRoutes ->
+    val density = LocalDensity.current
+    val view = LocalView.current
+    val customWindowInsets = WindowInsets(
+        top = 0,
+        left = WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current),
+        right = WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current),
+        bottom = WindowInsets.systemBars.getBottom(density) / 3
+    )
+    NavigationBar(
+        modifier = Modifier.fillMaxWidth(),
+        windowInsets = customWindowInsets
+    ) {
+        NAV_BAR_ROUTES.forEach { topLevelRoute ->
+            val isSelected = backStack.lastOrNull() == topLevelRoute
             NavigationBarItem(
-                selected = currentDestination?.hasRoute(topLevelRoutes.route::class) == true,
-                onClick = { navigateToTopLevelDestination(topLevelRoutes) },
+                selected = isSelected,
+                onClick = {
+                    navigateToTopLevelDestination(topLevelRoute)
+                    view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                },
                 icon = {
                     Icon(
-                        imageVector = topLevelRoutes.selectedIcon,
-                        contentDescription = topLevelRoutes.name
+                        imageVector = if (isSelected) topLevelRoute.selectedIcon
+                            ?: Icons.Default.QuestionMark else topLevelRoute.icon
+                            ?: Icons.Default.QuestionMark,
+                        contentDescription = topLevelRoute.name,
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .scale(1.25f)
                     )
                 }
             )
@@ -214,70 +228,9 @@ fun SteamCompanionNavBar(
 }
 
 @Composable
-fun PermanentNavigationDrawerContent(
-    currentDestination: NavDestination?,
-    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
-) {
-    PermanentDrawerSheet(
-        modifier = Modifier.sizeIn(minWidth = 200.dp, maxWidth = 300.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    ) {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxHeight()
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(16.dp),
-                        text = stringResource(id = R.string.app_name).uppercase(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    NAV_DRAWER_ROUTES.forEach { topLevelRoute ->
-                        NavigationDrawerItem(
-                            selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
-                            label = {
-                                Text(
-                                    text = topLevelRoute.name,
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                )
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = topLevelRoute.selectedIcon,
-                                    contentDescription = topLevelRoute.name
-                                )
-                            },
-//                            colors = NavigationDrawerItemDefaults.colors(
-//                                unselectedContainerColor = Color.Transparent
-//                            ),
-                            onClick = { navigateToTopLevelDestination(topLevelRoute) }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun ModalNavigationDrawerContent(
-    currentDestination: NavDestination?,
-    navigateToTopLevelDestination: (SteamCompanionTopLevelRoute) -> Unit,
+    backStack: SnapshotStateList<Any>,
+    navigateToTopLevelDestination: (Route) -> Unit,
     onDrawerClicked: () -> Unit = {},
 ) {
     ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.inverseOnSurface) {
@@ -311,9 +264,9 @@ fun ModalNavigationDrawerContent(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                NAV_DRAWER_ROUTES.forEach { topLevelRoute ->
+                NAV_RAIL_ROUTES.forEach { topLevelRoute ->
                     NavigationDrawerItem(
-                        selected = currentDestination?.hasRoute(topLevelRoute.route::class) == true,
+                        selected = backStack.lastOrNull() == topLevelRoute,
                         label = {
                             Text(
                                 text = topLevelRoute.name,
@@ -322,14 +275,18 @@ fun ModalNavigationDrawerContent(
                         },
                         icon = {
                             Icon(
-                                imageVector = topLevelRoute.selectedIcon,
+                                imageVector = topLevelRoute.selectedIcon
+                                    ?: Icons.Default.QuestionMark,
                                 contentDescription = topLevelRoute.name
                             )
                         },
                         colors = NavigationDrawerItemDefaults.colors(
                             unselectedContainerColor = Color.Transparent
                         ),
-                        onClick = { navigateToTopLevelDestination(topLevelRoute) }
+                        onClick = {
+                            onDrawerClicked()
+                            navigateToTopLevelDestination(topLevelRoute)
+                        }
                     )
                 }
             }

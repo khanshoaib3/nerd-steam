@@ -1,8 +1,10 @@
 package com.github.khanshoaib3.steamcompanion.ui.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,10 +17,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavDestination
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -31,12 +35,12 @@ fun SteamCompanionTopAppBar(
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?
+    backStack: SnapshotStateList<Any>
 ) {
-    val title: String = when(currentDestination?.route) {
-        Route.Home::class.qualifiedName -> stringResource(R.string.app_name)
-        Route.Search::class.qualifiedName -> "Search"
-        Route.Bookmark::class.qualifiedName -> "Bookmark"
+    val title: String = when (backStack.lastOrNull() as Route) {
+        Route.Home -> stringResource(R.string.app_name)
+        Route.Search -> "Search"
+        Route.Bookmark -> "Bookmark"
         else -> stringResource(R.string.app_name)
     }
 
@@ -44,7 +48,11 @@ fun SteamCompanionTopAppBar(
         title = { Text(title) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            if (showMenuButton) {
+            if (backStack.lastOrNull() is Route.Bookmark) {
+                IconButton(onClick = { backStack.removeLastOrNull() }) {
+                    Icon(Icons.Default.Close, contentDescription = "Close page")
+                }
+            } else if (showMenuButton) {
                 IconButton(onClick = onMenuButtonClick) {
                     Icon(Icons.Default.Menu, contentDescription = "Open app drawer")
                 }
@@ -55,6 +63,7 @@ fun SteamCompanionTopAppBar(
     )
 }
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
@@ -68,7 +77,7 @@ private fun TopAppBarPreview() {
                         scrollBehavior = scrollBehavior,
                         showMenuButton = true,
                         onMenuButtonClick = {},
-                        currentDestination = null
+                        backStack = mutableStateListOf(Route.Home)
                     )
                 }
             ) {

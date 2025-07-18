@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.search
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
@@ -37,7 +38,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -49,8 +52,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavDestination
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.ui.navigation.Route
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow
@@ -62,7 +66,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreenRoot(
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     navSuiteType: NavigationSuiteType,
     onMenuButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -127,7 +131,7 @@ fun SearchScreenRoot(
             onGameClick = onGameClick,
             onMenuButtonClick = onMenuButtonClick,
             topAppBarScrollBehavior = scrollBehavior,
-            currentDestination = currentDestination,
+            backStack = backStack,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             onListPaneUpButtonClick = {
@@ -146,7 +150,7 @@ fun SearchScreenRoot(
                 scrollBehavior = scrollBehavior,
                 showMenuButton = false,
                 onMenuButtonClick = onMenuButtonClick,
-                currentDestination = currentDestination
+                        backStack = backStack,
             )
         }) { innerPadding ->
             SearchListDetailScaffold(
@@ -160,7 +164,7 @@ fun SearchScreenRoot(
                 onGameClick = onGameClick,
                 onMenuButtonClick = onMenuButtonClick,
                 topAppBarScrollBehavior = scrollBehavior,
-                currentDestination = currentDestination,
+                backStack = backStack,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight,
                 onListPaneUpButtonClick = {},
@@ -183,7 +187,7 @@ fun SearchListDetailScaffold(
     onGameClick: (Int) -> Unit,
     onMenuButtonClick: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     imageWidth: Dp,
     imageHeight: Dp,
     onListPaneUpButtonClick: () -> Unit,
@@ -204,7 +208,7 @@ fun SearchListDetailScaffold(
                         showMenuButton = true,
                         onMenuButtonClick = onMenuButtonClick,
                         topAppBarScrollBehavior = topAppBarScrollBehavior,
-                        currentDestination = currentDestination,
+                        backStack = backStack,
                         imageWidth = imageWidth,
                         imageHeight = imageHeight,
                     )
@@ -249,7 +253,7 @@ fun SearchScreenWithScaffold(
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -260,7 +264,7 @@ fun SearchScreenWithScaffold(
                 showMenuButton = showMenuButton,
                 onMenuButtonClick = onMenuButtonClick,
                 scrollBehavior = topAppBarScrollBehavior,
-                currentDestination = currentDestination
+                backStack = backStack
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -339,6 +343,7 @@ fun SearchScreen(
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -361,7 +366,7 @@ private fun SearchScreenWithScaffoldPreview() {
             onGameClick = {},
             showMenuButton = true,
             onMenuButtonClick = {},
-            currentDestination = null,
+            backStack = mutableStateListOf(Route.Search),
             topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
             imageWidth = imageWidth,
             imageHeight = imageHeight

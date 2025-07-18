@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
@@ -21,7 +22,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
@@ -31,8 +34,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavDestination
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.github.khanshoaib3.steamcompanion.R
+import com.github.khanshoaib3.steamcompanion.ui.navigation.Route
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.components.BookmarkTable
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
@@ -43,11 +47,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreenRoot(
-    modifier: Modifier = Modifier,
-    bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     navSuiteType: NavigationSuiteType,
-    onMenuButtonClick: () -> Unit
+    onMenuButtonClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    bookmarkViewModel: BookmarkViewModel = hiltViewModel()
 ) {
     val localView = LocalView.current
     val sortedBookmarks by bookmarkViewModel.sortedBookmarks.collectAsState()
@@ -99,7 +103,7 @@ fun BookmarkScreenRoot(
             onTimeHeaderClick = onTimeHeaderClick,
             onMenuButtonClick = onMenuButtonClick,
             topAppBarScrollBehavior = scrollBehavior,
-            currentDestination = currentDestination,
+            backStack = backStack,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             onListPaneUpButtonClick = {
@@ -118,7 +122,7 @@ fun BookmarkScreenRoot(
                 scrollBehavior = scrollBehavior,
                 showMenuButton = false,
                 onMenuButtonClick = onMenuButtonClick,
-                currentDestination = currentDestination
+                backStack = backStack,
             )
         }) { innerPadding ->
             BookmarkListDetailScaffold(
@@ -131,7 +135,7 @@ fun BookmarkScreenRoot(
                 onTimeHeaderClick = onTimeHeaderClick,
                 onMenuButtonClick = onMenuButtonClick,
                 topAppBarScrollBehavior = scrollBehavior,
-                currentDestination = currentDestination,
+                backStack = backStack,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight,
                 onListPaneUpButtonClick = {},
@@ -153,7 +157,7 @@ fun BookmarkListDetailScaffold(
     onTimeHeaderClick: () -> Unit,
     onMenuButtonClick: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     imageWidth: Dp,
     imageHeight: Dp,
     onListPaneUpButtonClick: () -> Unit,
@@ -166,24 +170,24 @@ fun BookmarkListDetailScaffold(
             AnimatedPane {
                 if (navSuiteType == NavigationSuiteType.NavigationBar) {
                     BookmarkScreenWithScaffold(
-                        bookmarks,
-                        onGameClick,
-                        onGameHeaderClick,
-                        onTimeHeaderClick,
-                        onMenuButtonClick,
-                        topAppBarScrollBehavior,
-                        currentDestination,
-                        imageWidth,
-                        imageHeight
+                        bookmarks = bookmarks,
+                        onGameClick = onGameClick,
+                        onGameHeaderClick = onGameHeaderClick,
+                        onTimeHeaderClick = onTimeHeaderClick,
+                        onMenuButtonClick = onMenuButtonClick,
+                        topAppBarScrollBehavior = topAppBarScrollBehavior,
+                        backStack = backStack,
+                        imageWidth = imageWidth,
+                        imageHeight = imageHeight
                     )
                 } else {
                     BookmarkScreen(
-                        bookmarks,
-                        onGameClick,
-                        onGameHeaderClick,
-                        onTimeHeaderClick,
-                        imageWidth,
-                        imageHeight,
+                        bookmarks = bookmarks,
+                        onGameClick = onGameClick,
+                        onGameHeaderClick = onGameHeaderClick,
+                        onTimeHeaderClick = onTimeHeaderClick,
+                        imageWidth = imageWidth,
+                        imageHeight = imageHeight,
                     )
                 }
             }
@@ -214,7 +218,7 @@ fun BookmarkScreenWithScaffold(
     onTimeHeaderClick: () -> Unit,
     onMenuButtonClick: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -225,7 +229,7 @@ fun BookmarkScreenWithScaffold(
                 scrollBehavior = topAppBarScrollBehavior,
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
-                currentDestination = currentDestination
+                backStack = backStack
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -263,6 +267,7 @@ fun BookmarkScreen(
     )
 }
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -290,7 +295,7 @@ private fun BookmarkScreenWithScaffoldPreview() {
             onTimeHeaderClick = {},
             onMenuButtonClick = {},
             topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-            currentDestination = null,
+            backStack = mutableStateListOf(Route.Bookmark),
             imageWidth = imageWidth,
             imageHeight = imageHeight
         )

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
@@ -34,8 +35,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavDestination
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
@@ -47,11 +47,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenRoot(
-    modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    currentDestination: NavDestination?,
+    backStack: SnapshotStateList<Any>,
     navSuiteType: NavigationSuiteType,
     onMenuButtonClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
@@ -108,7 +108,7 @@ fun HomeScreenRoot(
             homeDataState = homeDataState,
             homeViewState = homeViewState,
             topAppBarScrollBehavior = scrollBehavior,
-            currentDestination = currentDestination
+            backStack = backStack
         )
     } else {
         // https://stackoverflow.com/a/79314221/12026423
@@ -120,7 +120,7 @@ fun HomeScreenRoot(
                 scrollBehavior = scrollBehavior,
                 showMenuButton = false,
                 onMenuButtonClick = onMenuButtonClick,
-                currentDestination = currentDestination
+                backStack = backStack
             )
         }) { innerPadding ->
             HomeListDetailScaffold(
@@ -136,7 +136,7 @@ fun HomeScreenRoot(
                 homeDataState = homeDataState,
                 homeViewState = homeViewState,
                 topAppBarScrollBehavior = scrollBehavior,
-                currentDestination = currentDestination,
+                backStack = backStack,
                 modifier = modifier.padding(
                     top = innerPadding.calculateTopPadding(),
                     end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
@@ -155,7 +155,7 @@ fun HomeListDetailScaffold(
     navSuiteType: NavigationSuiteType,
     navigator: ThreePaneScaffoldNavigator<Any>,
     paneExpansionState: PaneExpansionState?,
-    onGameClick: (appId: Int) -> Unit,
+    onGameClick: (Int) -> Unit,
     onTrendingGamesCollapseButtonClick: () -> Unit,
     onTopGamesCollapseButtonClick: () -> Unit,
     onTopRecordsCollapseButtonClick: () -> Unit,
@@ -164,7 +164,7 @@ fun HomeListDetailScaffold(
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?
+    backStack: SnapshotStateList<Any>
 ) {
     NavigableListDetailPaneScaffold(
         navigator = navigator,
@@ -181,7 +181,7 @@ fun HomeListDetailScaffold(
                         homeDataState = homeDataState,
                         homeViewState = homeViewState,
                         topAppBarScrollBehavior = topAppBarScrollBehavior,
-                        currentDestination = currentDestination
+                        backStack = backStack
                     )
                 } else {
                     HomeScreen(
@@ -216,7 +216,7 @@ fun HomeListDetailScaffold(
 @Composable
 fun HomeScreenWithScaffold(
     modifier: Modifier = Modifier,
-    onGameClick: (appId: Int) -> Unit,
+    onGameClick: (Int) -> Unit,
     onTrendingGamesCollapseButtonClick: () -> Unit,
     onTopGamesCollapseButtonClick: () -> Unit,
     onTopRecordsCollapseButtonClick: () -> Unit,
@@ -224,7 +224,7 @@ fun HomeScreenWithScaffold(
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    currentDestination: NavDestination?
+    backStack: SnapshotStateList<Any>
 ) {
     Scaffold(
         topBar = {
@@ -232,7 +232,7 @@ fun HomeScreenWithScaffold(
                 scrollBehavior = topAppBarScrollBehavior,
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
-                currentDestination = currentDestination
+                backStack = backStack
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
