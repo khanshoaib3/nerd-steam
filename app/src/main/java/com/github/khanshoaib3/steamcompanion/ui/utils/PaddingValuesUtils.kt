@@ -12,3 +12,10 @@ fun PaddingValues.removeBottomPadding(layoutDirection: LayoutDirection = LayoutD
     val end = this.calculateEndPadding(layoutDirection)
     return PaddingValues(start = start, top = top, end = end, bottom = 0.dp)
 }
+
+fun PaddingValues.removeTopPadding(layoutDirection: LayoutDirection = LayoutDirection.Ltr): PaddingValues {
+    val start = this.calculateStartPadding(layoutDirection)
+    val end = this.calculateEndPadding(layoutDirection)
+    val bottom = this.calculateBottomPadding()
+    return PaddingValues(start = start, top = 0.dp, end = end, bottom = bottom)
+}

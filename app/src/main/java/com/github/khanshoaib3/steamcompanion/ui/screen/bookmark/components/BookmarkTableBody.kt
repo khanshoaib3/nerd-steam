@@ -31,7 +31,10 @@ fun BookmarkTableBody(
     imageWidth: Dp,
     imageHeight: Dp
 ) {
-    LazyColumn(modifier) {
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+    ) {
         items(bookmarks) { bookmark ->
             Row(
                 Modifier.clickable(true, onClick = { onGameClick(bookmark.appId) }),

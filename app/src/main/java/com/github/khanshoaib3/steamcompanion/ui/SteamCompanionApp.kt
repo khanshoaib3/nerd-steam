@@ -1,9 +1,11 @@
 package com.github.khanshoaib3.steamcompanion.ui
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.khanshoaib3.steamcompanion.ui.navigation.Route
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavDisplay
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 fun SteamCompanionApp() {
     val topLevelBackStack = remember { TopLevelBackStack<Any>(Route.Home) }
     val scope = rememberCoroutineScope()
+    val view = LocalView.current
 
     Surface {
         SteamCompanionNavigationWrapper(
@@ -30,9 +33,11 @@ fun SteamCompanionApp() {
                 navSuiteType = navSuiteType,
                 onMenuButtonClick = {
                     scope.launch {
-                        drawerState.open()
+                        railState.expand()
+                        view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                     }
-                }
+                },
+                modifier = modifier
             )
         }
     }

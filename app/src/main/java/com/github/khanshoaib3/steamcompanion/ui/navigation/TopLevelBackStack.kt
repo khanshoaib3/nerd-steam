@@ -29,7 +29,6 @@ class TopLevelBackStack<T : Any>(startKey: T) {
         }
 
     fun addTopLevel(key: T) {
-
         // If the top level doesn't exist, add it
         if (topLevelStacks[key] == null) {
             topLevelStacks.put(key, mutableStateListOf(key))

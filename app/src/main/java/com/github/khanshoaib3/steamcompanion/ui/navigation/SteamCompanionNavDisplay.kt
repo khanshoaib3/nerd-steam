@@ -60,7 +60,7 @@ fun SteamCompanionNavDisplay(
 
             entry<Route.Bookmark> {
                 BookmarkScreenRoot(
-                    onMenuButtonClick = onMenuButtonClick,
+                    onMenuButtonClick = { topLevelBackStack.removeLast() },
                     backStack = topLevelBackStack.backStack,
                     navSuiteType = navSuiteType
                 )
