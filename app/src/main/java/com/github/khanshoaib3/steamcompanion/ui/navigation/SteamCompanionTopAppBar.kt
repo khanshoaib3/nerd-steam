@@ -22,10 +22,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation3.runtime.rememberNavBackStack
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 
 // https://developer.android.com/develop/ui/compose/components/app-bars
 @OptIn(ExperimentalMaterial3Api::class)

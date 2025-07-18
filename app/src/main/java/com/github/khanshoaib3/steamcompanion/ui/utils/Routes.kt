@@ -1,16 +1,20 @@
-package com.github.khanshoaib3.steamcompanion.ui.navigation
+package com.github.khanshoaib3.steamcompanion.ui.utils
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessAlarm
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.AccessAlarm
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
-import com.github.khanshoaib3.steamcompanion.ui.navigation.Route.Home
-import com.github.khanshoaib3.steamcompanion.ui.navigation.Route.Search
 import kotlinx.serialization.Serializable
 
 sealed interface Route : NavKey {
@@ -40,9 +44,33 @@ sealed interface Route : NavKey {
 
     @Serializable
     data object Bookmark : Route {
-        override val name = "Bookmark"
+        override val name = "Bookmarks"
         override val icon = Icons.Outlined.BookmarkBorder
         override val selectedIcon = Icons.Filled.Bookmark
+        override val isTopLevel = false
+    }
+
+    @Serializable
+    data object Tracked : Route {
+        override val name = "Tracked"
+        override val icon = Icons.Outlined.AccessAlarm
+        override val selectedIcon = Icons.Filled.AccessAlarm
+        override val isTopLevel = false
+    }
+
+    @Serializable
+    data object Settings : Route {
+        override val name = "Settings"
+        override val icon = Icons.Outlined.Settings
+        override val selectedIcon = Icons.Filled.Settings
+        override val isTopLevel = false
+    }
+
+    @Serializable
+    data object AboutNFeedback : Route {
+        override val name = "About and Feedback"
+        override val icon = Icons.Outlined.Feedback
+        override val selectedIcon = Icons.Filled.Feedback
         override val isTopLevel = false
     }
 
@@ -52,5 +80,5 @@ sealed interface Route : NavKey {
     val isTopLevel: Boolean
 }
 
-val NAV_BAR_ROUTES = listOf(Home, Search)
-val NAV_RAIL_ROUTES = listOf(Home, Search, Route.Bookmark)
+val NAV_TOP_LEVEL_ROUTES = listOf(Route.Home, Route.Search)
+val NAV_OTHER_ROUTES = listOf(Route.Bookmark, Route.Tracked, Route.Settings, Route.AboutNFeedback)

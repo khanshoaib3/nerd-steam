@@ -52,9 +52,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation3.runtime.rememberNavBackStack
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.navigation.Route
+import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow

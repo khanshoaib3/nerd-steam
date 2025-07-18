@@ -1,11 +1,10 @@
-package com.github.khanshoaib3.steamcompanion.ui.navigation
+package com.github.khanshoaib3.steamcompanion.utils
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import kotlin.collections.remove
 
 // Ref: https://github.com/android/nav3-recipes/blob/main/app/src/main/java/com/example/nav3recipes/commonui/CommonUiActivity.kt
 class TopLevelBackStack<T : Any>(startKey: T) {

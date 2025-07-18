@@ -16,6 +16,8 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRo
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreenRoot
+import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 
 @Composable
 fun SteamCompanionNavDisplay(
