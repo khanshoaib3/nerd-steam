@@ -3,7 +3,6 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.search
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,13 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.AnimatedPane
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.layout.PaneExpansionState
-import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
-import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneScaffold
-import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
-import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -53,25 +45,26 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
+import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreenRoot(
-    backStack: SnapshotStateList<Any>,
+    topLevelBackStack: TopLevelBackStack<Route>,
     navSuiteType: NavigationSuiteType,
     onMenuButtonClick: () -> Unit,
+    addAppDetailPane: (Int) -> Unit,
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
-    val searchDataState by searchViewModel.searchDataState.collectAsState()
+    val searchDataState by searchViewModel.searchDataStateFlow.collectAsState()
 
     val localView = LocalView.current
 
@@ -83,19 +76,9 @@ fun SearchScreenRoot(
         imageHeight = 225.toDp()
     }
 
-    val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     val scope = rememberCoroutineScope()
-
-    val onGameClick: (Int) -> Unit = {
-        scope.launch {
-            navigator.navigateTo(
-                pane = ListDetailPaneScaffoldRole.Detail,
-                contentKey = it
-            )
-        }
-    }
 
     val focusManager = LocalFocusManager.current
 
@@ -111,132 +94,18 @@ fun SearchScreenRoot(
         searchViewModel.updateSearchQuery(it)
     }
 
-    BackHandler(navigator.canNavigateBack()) {
-        scope.launch {
-            navigator.navigateBack()
-        }
-    }
-
-
-    if (navSuiteType == NavigationSuiteType.NavigationBar) {
-        SearchListDetailScaffold(
-            onSearch = onSearch,
-            searchResults = searchDataState.searchResults,
-            searchQuery = searchDataState.searchQuery,
-            onSearchQueryChange = onSearchQueryChange,
-            navSuiteType = navSuiteType,
-            navigator = navigator,
-            paneExpansionState = null,
-            onGameClick = onGameClick,
-            onMenuButtonClick = onMenuButtonClick,
-            topAppBarScrollBehavior = scrollBehavior,
-            backStack = backStack,
-            imageWidth = imageWidth,
-            imageHeight = imageHeight,
-            onListPaneUpButtonClick = {
-                scope.launch {
-                    navigator.navigateBack()
-                }
-            },
-        )
-    } else {
-        // https://stackoverflow.com/a/79314221/12026423
-        val paneExpansionState = rememberPaneExpansionState()
-        paneExpansionState.setFirstPaneProportion(0.45f)
-
-        Scaffold(topBar = {
-            SteamCompanionTopAppBar(
-                scrollBehavior = scrollBehavior,
-                showMenuButton = false,
-                onMenuButtonClick = onMenuButtonClick,
-                        backStack = backStack,
-            )
-        }) { innerPadding ->
-            SearchListDetailScaffold(
-                onSearch = onSearch,
-                searchResults = searchDataState.searchResults,
-                searchQuery = searchDataState.searchQuery,
-                onSearchQueryChange = onSearchQueryChange,
-                navSuiteType = navSuiteType,
-                navigator = navigator,
-                paneExpansionState = paneExpansionState,
-                onGameClick = onGameClick,
-                onMenuButtonClick = onMenuButtonClick,
-                topAppBarScrollBehavior = scrollBehavior,
-                backStack = backStack,
-                imageWidth = imageWidth,
-                imageHeight = imageHeight,
-                onListPaneUpButtonClick = {},
-                modifier = modifier.padding(innerPadding.removeBottomPadding())
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun SearchListDetailScaffold(
-    onSearch: (String) -> Unit,
-    searchResults: List<AppSearchResultDisplay>,
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-    navSuiteType: NavigationSuiteType,
-    navigator: ThreePaneScaffoldNavigator<Any>,
-    paneExpansionState: PaneExpansionState?,
-    onGameClick: (Int) -> Unit,
-    onMenuButtonClick: () -> Unit,
-    topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Any>,
-    imageWidth: Dp,
-    imageHeight: Dp,
-    onListPaneUpButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    NavigableListDetailPaneScaffold(
-        navigator = navigator,
-        paneExpansionState = paneExpansionState,
-        listPane = {
-            AnimatedPane {
-                if (navSuiteType == NavigationSuiteType.NavigationBar) {
-                    SearchScreenWithScaffold(
-                        onSearch = onSearch,
-                        searchResults = searchResults,
-                        searchQuery = searchQuery,
-                        onSearchQueryChange = onSearchQueryChange,
-                        onGameClick = onGameClick,
-                        showMenuButton = true,
-                        onMenuButtonClick = onMenuButtonClick,
-                        topAppBarScrollBehavior = topAppBarScrollBehavior,
-                        backStack = backStack,
-                        imageWidth = imageWidth,
-                        imageHeight = imageHeight,
-                    )
-                } else {
-                    SearchScreen(
-                        onSearch = onSearch,
-                        searchResults = searchResults,
-                        searchQuery = searchQuery,
-                        onSearchQueryChange = onSearchQueryChange,
-                        onGameClick = onGameClick,
-                        imageWidth = imageWidth,
-                        imageHeight = imageHeight,
-                    )
-                }
-            }
-        },
-        detailPane = {
-            AnimatedPane {
-                // Show the detail pane content if selected item is available
-                navigator.currentDestination?.contentKey.let {
-                    AppDetailsScreen(
-                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-                        appId = it as Int?,
-                        showTopBar = navSuiteType == NavigationSuiteType.NavigationBar,
-                        onUpButtonClick = onListPaneUpButtonClick
-                    )
-                }
-            }
-        },
+    SearchScreenWithScaffold(
+        onSearch = onSearch,
+        searchResults = searchDataState.searchResults,
+        searchQuery = searchDataState.searchQuery,
+        onSearchQueryChange = onSearchQueryChange,
+        onGameClick = addAppDetailPane,
+        showMenuButton = navSuiteType == NavigationSuiteType.NavigationBar,
+        onMenuButtonClick = onMenuButtonClick,
+        topAppBarScrollBehavior = scrollBehavior,
+        backStack = topLevelBackStack.backStack,
+        imageWidth = imageWidth,
+        imageHeight = imageHeight,
         modifier = modifier
     )
 }
@@ -252,7 +121,7 @@ fun SearchScreenWithScaffold(
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Any>,
+    backStack: SnapshotStateList<Route>,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier

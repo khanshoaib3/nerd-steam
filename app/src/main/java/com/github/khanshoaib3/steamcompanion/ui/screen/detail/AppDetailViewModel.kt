@@ -8,12 +8,14 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDet
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
 import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRow
-import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
+import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
 data class GameData(
     val content: SteamWebApiAppDetailsResponse? = null,
@@ -21,25 +23,32 @@ data class GameData(
     val playerStatsRows: List<PlayerStatsRow> = listOf()
 )
 
-@HiltViewModel
-class GameDetailViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = GameDetailViewModel.Factory::class)
+class GameDetailViewModel @AssistedInject constructor(
     private val gameDetailRepository: GameDetailRepository,
-    private val bookmarkRepository: BookmarkRepository
+    private val bookmarkRepository: BookmarkRepository,
+    @Assisted val key: Route.AppDetail
 ) : ViewModel() {
     private val _gameData = MutableStateFlow(GameData())
     val gameData: StateFlow<GameData> = _gameData
 
-    suspend fun updateAppId(appId: Int?) {
-        if (appId == null) return
-        if (appId == 0) return
+    @AssistedFactory
+    interface Factory {
+        fun create(navKey: Route.AppDetail): GameDetailViewModel
+    }
+
+    suspend fun updateAppId() {
+        val realAppId = key.appId
+        if (realAppId == null) return
+        if (realAppId == 0) return
 
         _gameData.update {
-            val content = gameDetailRepository.fetchDataForAppId(appId = appId)
+            val content = gameDetailRepository.fetchDataForAppId(appId = realAppId)
             val isBookmarked = bookmarkRepository.isBookmarked(content?.data?.steamAppId)
             GameData(
                 content = content,
                 isBookmarked = isBookmarked,
-                playerStatsRows = SteamChartsPerAppScraper(appId).scrape().playerStatsRows
+//                playerStatsRows = SteamChartsPerAppScraper(realAppId).scrape().playerStatsRows
             )
         }
     }
@@ -71,7 +80,7 @@ class GameDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun getPriceTrackingInfo() : PriceTracking? {
+    suspend fun getPriceTrackingInfo(): PriceTracking? {
         if (gameData.value.content?.data?.steamAppId == null) return null
 
         return gameDetailRepository.getPriceTrackingInfo(appId = gameData.value.content!!.data!!.steamAppId)

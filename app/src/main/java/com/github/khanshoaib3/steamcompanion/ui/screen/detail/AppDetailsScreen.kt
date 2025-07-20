@@ -2,8 +2,6 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
@@ -42,6 +39,10 @@ import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectab
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardLower
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardUpper
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.ui.utils.Side
+import com.github.khanshoaib3.steamcompanion.ui.utils.plus
+import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
+import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,15 +51,14 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDetailsScreen(
-    modifier: Modifier = Modifier,
-    appId: Int?,
-    showTopBar: Boolean,
+    navSuiteType: NavigationSuiteType,
     onUpButtonClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: GameDetailViewModel = hiltViewModel(),
 ) {
-    val viewModel = hiltViewModel<GameDetailViewModel>()
     val gameData by viewModel.gameData.collectAsState()
     val scope = rememberCoroutineScope()
-    val currentLocalView = LocalView.current
+    val view = LocalView.current
 
     var storedPriceTrackingInfo: PriceTracking? by remember { mutableStateOf(null) }
     val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
@@ -74,15 +74,15 @@ fun AppDetailsScreen(
         }
     }
 
-    LaunchedEffect(appId) {
+    LaunchedEffect(viewModel) {
         withContext(Dispatchers.IO) {
-            viewModel.updateAppId(appId)
+            viewModel.updateAppId()
             storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
         }
     }
 
     if (gameData.content == null || gameData.content?.data == null || gameData.content?.success != true) {
-        if (appId != null && appId != 0) CenterAlignedSelectableText("Unable to get data for app with id $appId")
+        CenterAlignedSelectableText("Unable to get data for current app")
         return
     }
 
@@ -93,11 +93,11 @@ fun AppDetailsScreen(
         scope.launch(context = Dispatchers.IO) {
             viewModel.toggleBookmarkStatus()
         }
-        currentLocalView.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
+        view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
     }
     val isBookmarked = gameData.isBookmarked
 
-    if (showTopBar) {
+    if (navSuiteType == NavigationSuiteType.NavigationBar) {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
@@ -133,10 +133,8 @@ fun AppDetailsScreen(
                 modifier = modifier
                     .verticalScroll(scrollState)
                     .padding(
-                        top = innerPadding.calculateTopPadding(),
-                        end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
-                        bottom = 0.dp,
-                        start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                        if (navSuiteType == NavigationSuiteType.NavigationBar) innerPadding.removeBottomPadding()
+                        else innerPadding.removePaddings(Side.End + Side.Start + Side.End)
                     )
             )
         }

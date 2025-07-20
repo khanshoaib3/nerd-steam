@@ -8,6 +8,7 @@ plugins {
 //    kotlin("plugin.serialization") version "2.0.21"
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    id("kotlin-parcelize")
     // Keep this at last (https://stackoverflow.com/questions/70550883/warning-the-following-options-were-not-recognized-by-any-processor-dagger-f)
     id("kotlin-kapt")
     id("com.autonomousapps.dependency-analysis") version "2.19.0"

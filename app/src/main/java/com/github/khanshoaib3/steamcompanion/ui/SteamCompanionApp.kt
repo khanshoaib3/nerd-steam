@@ -3,20 +3,21 @@ package com.github.khanshoaib3.steamcompanion.ui
 import android.view.HapticFeedbackConstants
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
-import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavDisplay
 import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavigationWrapper
-import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun SteamCompanionApp() {
-    val topLevelBackStack = remember { TopLevelBackStack<Any>(Route.Home) }
+    val viewModel = hiltViewModel<SteamCompanionViewModel>()
+    val topLevelBackStack by viewModel.topLevelBackStackState.collectAsState()
     val scope = rememberCoroutineScope()
     val view = LocalView.current
 

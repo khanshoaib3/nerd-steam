@@ -33,7 +33,7 @@ class SearchViewModel @Inject constructor(
     private val searchRepository: SearchRepository
 ) : ViewModel() {
     private val _searchDataState = MutableStateFlow(SearchDataState())
-    val searchDataState: StateFlow<SearchDataState> = _searchDataState
+    val searchDataStateFlow: StateFlow<SearchDataState> = _searchDataState
 
     suspend fun runSearchQuery(query: String){
         val result = searchRepository.runSearchQuery(query).map { it.toDisplayData() }

@@ -42,7 +42,7 @@ import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 
 @Composable
 fun SteamCompanionNavRail(
-    backStack: SnapshotStateList<Any>,
+    backStack: SnapshotStateList<Route>,
     navigateTo: (Route) -> Unit,
     railState: WideNavigationRailState,
     onRailButtonClicked: () -> Unit,

@@ -5,9 +5,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 
 // Ref: https://github.com/android/nav3-recipes/blob/main/app/src/main/java/com/example/nav3recipes/commonui/CommonUiActivity.kt
-class TopLevelBackStack<T : Any>(startKey: T) {
+class TopLevelBackStack<T : Route>(startKey: T) {
 
     // Maintain a stack for each top level route
     private var topLevelStacks: LinkedHashMap<T, SnapshotStateList<T>> = linkedMapOf(
@@ -47,6 +48,8 @@ class TopLevelBackStack<T : Any>(startKey: T) {
         topLevelStacks[topLevelKey]?.add(key)
         updateBackStack()
     }
+
+    fun getLast() = topLevelStacks[topLevelKey]?.lastOrNull()
 
     fun removeLast() {
         val removedKey = topLevelStacks[topLevelKey]?.removeLastOrNull()

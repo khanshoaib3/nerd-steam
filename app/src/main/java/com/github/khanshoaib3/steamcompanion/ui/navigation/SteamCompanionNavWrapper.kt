@@ -31,7 +31,7 @@ class SteamCompanionNavSuiteScope(
 
 @Composable
 fun SteamCompanionNavigationWrapper(
-    backStack: SnapshotStateList<Any>,
+    backStack: SnapshotStateList<Route>,
     navigateTo: (Route) -> Unit,
     content: @Composable (SteamCompanionNavSuiteScope.() -> Unit),
 ) {

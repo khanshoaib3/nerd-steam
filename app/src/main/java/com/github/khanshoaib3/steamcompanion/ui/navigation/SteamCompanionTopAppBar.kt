@@ -35,7 +35,7 @@ fun SteamCompanionTopAppBar(
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Any>
+    backStack: SnapshotStateList<Route>
 ) {
     val title: String = when (backStack.lastOrNull() as Route) {
         Route.Home -> stringResource(R.string.app_name)

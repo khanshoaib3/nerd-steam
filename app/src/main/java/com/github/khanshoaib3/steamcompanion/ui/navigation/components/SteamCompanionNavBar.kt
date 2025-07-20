@@ -29,7 +29,7 @@ import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SteamCompanionNavBar(
-    backStack: SnapshotStateList<Any>,
+    backStack: SnapshotStateList<Route>,
     navigateTo: (Route) -> Unit,
 ) {
     val density = LocalDensity.current
