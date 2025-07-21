@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,7 +44,6 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardUpp
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Side
 import com.github.khanshoaib3.steamcompanion.ui.utils.plus
-import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
 import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -1,6 +1,8 @@
 package com.github.khanshoaib3.steamcompanion.ui
 
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,6 +15,7 @@ import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionNavigat
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SteamCompanionApp() {
     val viewModel = hiltViewModel<SteamCompanionViewModel>()

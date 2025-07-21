@@ -52,117 +52,115 @@ fun SteamCompanionNavDisplay(
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
 
-    val localNavSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope> =
-        compositionLocalOf {
-            throw IllegalStateException(
-                "Unexpected access to LocalNavSharedTransitionScope. You must provide a " +
-                        "SharedTransitionScope from a call to SharedTransitionLayout() or " +
-                        "SharedTransitionScope()"
-            )
-        }
-
-    /**
-     * A [NavEntryDecorator] that wraps each entry in a shared element that is controlled by the
-     * [Scene].
-     */
-    val sharedEntryInSceneNavEntryDecorator = navEntryDecorator<NavKey> { entry ->
-        with(localNavSharedTransitionScope.current) {
-            Box(
-                Modifier.sharedElement(
-                    rememberSharedContentState(entry.contentKey),
-                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                ),
-            ) {
-                entry.Content()
+    SharedTransitionLayout {
+        /**
+         * A [NavEntryDecorator] that wraps each entry in a shared element that is controlled by the
+         * [Scene].
+         */
+        val sharedEntryInSceneNavEntryDecorator = navEntryDecorator<NavKey> { entry ->
+            with(this) {
+                Box(
+                    Modifier.sharedElement(
+                        rememberSharedContentState(entry.contentKey),
+                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                    ),
+                ) {
+                    entry.Content()
+                }
             }
         }
-    }
 
-
-    SharedTransitionLayout {
-        CompositionLocalProvider(localNavSharedTransitionScope provides this) {
-            NavDisplay(
-                backStack = topLevelBackStack.backStack,
-                modifier = modifier,
-                onBack = { topLevelBackStack.removeLast() },
-                sceneStrategy = twoPaneStrategy,
-                entryDecorators = listOf(
-                    rememberSceneSetupNavEntryDecorator(),
-                    rememberSavedStateNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
-                entryProvider = entryProvider {
-                    entry<Route.Home>(
-                        metadata = TwoPaneScene.setAsFirst()
-                    ) {
-                        HomeScreenRoot(
-                            onMenuButtonClick = onMenuButtonClick,
-                            addAppDetailPane = addAppDetailPane,
-                            isWideScreen = isWideScreen,
-                            topLevelBackStack = topLevelBackStack
-                        )
-                    }
-                    entry<Route.Search>(
-                        metadata = TwoPaneScene.setAsFirst()
-                    ) {
-                        SearchScreenRoot(
-                            topLevelBackStack = topLevelBackStack,
-                            isWideScreen = isWideScreen,
-                            onMenuButtonClick = onMenuButtonClick,
-                            addAppDetailPane = addAppDetailPane,
-                        )
-                    }
-
-                    entry<Route.Bookmark>(
-                        metadata = TwoPaneScene.setAsFirst()
-                    ) {
-                        BookmarkScreenRoot(
-                            topLevelBackStack = topLevelBackStack,
-                            onMenuButtonClick = { topLevelBackStack.removeLast() },
-                            addAppDetailPane = addAppDetailPane
-                        )
-                    }
-
-                    entry<Route.AppDetail>(
-                        metadata = TwoPaneScene.setAsSecond()
-                    ) { key ->
-                        val viewModel =
-                            hiltViewModel<GameDetailViewModel, GameDetailViewModel.Factory>(
-                                // Note: We need a new ViewModel for every new RouteB instance. Usually
-                                // we would need to supply a `key` String that is unique to the
-                                // instance, however, the ViewModelStoreNavEntryDecorator (supplied
-                                // above) does this for us, using `NavEntry.contentKey` to uniquely
-                                // identify the viewModel.
-                                //
-                                // tl;dr: Make sure you use rememberViewModelStoreNavEntryDecorator()
-                                // if you want a new ViewModel for each new navigation key instance.
-                                creationCallback = { factory ->
-                                    factory.create(key)
-                                }
-                            )
-                        AppDetailsScreen(
-                            isWideScreen = isWideScreen,
-                            onUpButtonClick = { topLevelBackStack.removeLast() },
-                            viewModel = viewModel
-                        )
-                    }
-                },
-                transitionSpec = {
-                    // Slide in from right when navigating forward
-                    slideInHorizontally( initialOffsetX = { it }, animationSpec = tween(1000)) togetherWith
-                            slideOutHorizontally(targetOffsetX = { -it })
-                },
-                popTransitionSpec = {
-                    // Slide in from left when navigating back
-                    slideInHorizontally( initialOffsetX = { -it/2 }, animationSpec = tween(1000)) togetherWith
-                            slideOutHorizontally(targetOffsetX = { it })
-                },
-                predictivePopTransitionSpec = {
-                    // Slide in from left when navigating back
-                    slideInHorizontally( initialOffsetX = { -it/2 }, animationSpec = tween(1000)) togetherWith
-                            slideOutHorizontally(targetOffsetX = { it })
+        NavDisplay(
+            backStack = topLevelBackStack.backStack,
+            modifier = modifier,
+            onBack = { topLevelBackStack.removeLast() },
+            sceneStrategy = twoPaneStrategy,
+            entryDecorators = listOf(
+                sharedEntryInSceneNavEntryDecorator,
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
+            entryProvider = entryProvider {
+                entry<Route.Home>(
+                    metadata = TwoPaneScene.setAsFirst()
+                ) {
+                    HomeScreenRoot(
+                        onMenuButtonClick = onMenuButtonClick,
+                        addAppDetailPane = addAppDetailPane,
+                        isWideScreen = isWideScreen,
+                        topLevelBackStack = topLevelBackStack
+                    )
                 }
-            )
-        }
+                entry<Route.Search>(
+                    metadata = TwoPaneScene.setAsFirst()
+                ) {
+                    SearchScreenRoot(
+                        topLevelBackStack = topLevelBackStack,
+                        isWideScreen = isWideScreen,
+                        onMenuButtonClick = onMenuButtonClick,
+                        addAppDetailPane = addAppDetailPane,
+                    )
+                }
+
+                entry<Route.Bookmark>(
+                    metadata = TwoPaneScene.setAsFirst()
+                ) {
+                    BookmarkScreenRoot(
+                        topLevelBackStack = topLevelBackStack,
+                        onMenuButtonClick = { topLevelBackStack.removeLast() },
+                        addAppDetailPane = addAppDetailPane
+                    )
+                }
+
+                entry<Route.AppDetail>(
+                    metadata = TwoPaneScene.setAsSecond()
+                ) { key ->
+                    val viewModel =
+                        hiltViewModel<GameDetailViewModel, GameDetailViewModel.Factory>(
+                            // Note: We need a new ViewModel for every new RouteB instance. Usually
+                            // we would need to supply a `key` String that is unique to the
+                            // instance, however, the ViewModelStoreNavEntryDecorator (supplied
+                            // above) does this for us, using `NavEntry.contentKey` to uniquely
+                            // identify the viewModel.
+                            //
+                            // tl;dr: Make sure you use rememberViewModelStoreNavEntryDecorator()
+                            // if you want a new ViewModel for each new navigation key instance.
+                            creationCallback = { factory ->
+                                factory.create(key)
+                            }
+                        )
+                    AppDetailsScreen(
+                        isWideScreen = isWideScreen,
+                        onUpButtonClick = { topLevelBackStack.removeLast() },
+                        viewModel = viewModel
+                    )
+                }
+            },
+            transitionSpec = {
+                // Slide in from right when navigating forward
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(1000)
+                ) togetherWith
+                        slideOutHorizontally(targetOffsetX = { -it })
+            },
+            popTransitionSpec = {
+                // Slide in from left when navigating back
+                slideInHorizontally(
+                    initialOffsetX = { -it / 2 },
+                    animationSpec = tween(1000)
+                ) togetherWith
+                        slideOutHorizontally(targetOffsetX = { it })
+            },
+            predictivePopTransitionSpec = {
+                // Slide in from left when navigating back
+                slideInHorizontally(
+                    initialOffsetX = { -it / 2 },
+                    animationSpec = tween(1000)
+                ) togetherWith
+                        slideOutHorizontally(targetOffsetX = { it })
+            }
+        )
     }
 }
