@@ -2,6 +2,8 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -30,9 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
@@ -51,7 +55,7 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDetailsScreen(
-    navSuiteType: NavigationSuiteType,
+    isWideScreen: Boolean,
     onUpButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GameDetailViewModel = hiltViewModel(),
@@ -97,7 +101,7 @@ fun AppDetailsScreen(
     }
     val isBookmarked = gameData.isBookmarked
 
-    if (navSuiteType == NavigationSuiteType.NavigationBar) {
+    if (!isWideScreen) {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
@@ -118,7 +122,8 @@ fun AppDetailsScreen(
                             )
                         }
                     },
-                    scrollBehavior = scrollBehavior
+                    scrollBehavior = scrollBehavior,
+                    windowInsets = WindowInsets()
                 )
             }
         ) { innerPadding ->
@@ -131,11 +136,9 @@ fun AppDetailsScreen(
                 startPriceTracking = startPriceTracking,
                 stopPriceTracking = stopPriceTracking,
                 modifier = modifier
+                    .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(
-                        if (navSuiteType == NavigationSuiteType.NavigationBar) innerPadding.removeBottomPadding()
-                        else innerPadding.removePaddings(Side.End + Side.Start + Side.End)
-                    )
+                    .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
             )
         }
     } else {
@@ -163,7 +166,7 @@ fun AppDetailsCard(
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true
 ) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.padding(dimensionResource(R.dimen.padding_small))) {
         OutlinedCard {
             CardUpper(
                 modifier = Modifier.fillMaxWidth(),

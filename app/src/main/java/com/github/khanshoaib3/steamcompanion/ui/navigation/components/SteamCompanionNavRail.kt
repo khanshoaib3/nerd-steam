@@ -2,11 +2,13 @@ package com.github.khanshoaib3.steamcompanion.ui.navigation.components
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +20,8 @@ import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRailItem
@@ -25,8 +29,6 @@ import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -42,10 +44,11 @@ import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 
 @Composable
 fun SteamCompanionNavRail(
-    backStack: SnapshotStateList<Route>,
+    currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
     railState: WideNavigationRailState,
     onRailButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
     hideOnCollapse: Boolean = false,
 ) {
     ModalWideNavigationRail(
@@ -75,15 +78,18 @@ fun SteamCompanionNavRail(
                 }
             }
         },
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.inverseOnSurface)
+            .offset(x = (-1).dp)
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .requiredWidth(IntrinsicSize.Max)
         ) {
-            Column() {
+            Column {
                 NAV_TOP_LEVEL_ROUTES.forEach { route ->
-                    val isSelected = backStack.lastOrNull() == route
+                    val isSelected = currentTopLevelRoute == route
                     WideNavigationRailItem(
                         railExpanded = railState.targetValue == WideNavigationRailValue.Expanded,
                         icon = {
@@ -136,7 +142,7 @@ private fun NavRailExpandedPreview() {
     SteamCompanionTheme {
         Column {
             SteamCompanionNavRail(
-                backStack = mutableStateListOf(Route.Search),
+                currentTopLevelRoute = Route.Search,
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
                 onRailButtonClicked = {},
@@ -154,7 +160,7 @@ private fun NavRailCollapsedPreview() {
     SteamCompanionTheme {
         Column {
             SteamCompanionNavRail(
-                backStack = mutableStateListOf(Route.Search),
+                currentTopLevelRoute = Route.Search,
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Collapsed),
                 onRailButtonClicked = {},

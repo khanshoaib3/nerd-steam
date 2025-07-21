@@ -3,8 +3,6 @@ package com.github.khanshoaib3.steamcompanion.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -14,9 +12,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
-import com.github.khanshoaib3.steamcompanion.ui.utils.Side
-import com.github.khanshoaib3.steamcompanion.ui.utils.plus
-import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 
 
 // --- TwoPaneScene ---
@@ -32,30 +27,29 @@ class TwoPaneScene<T : Any>(
 ) : Scene<T> {
     override val entries: List<NavEntry<T>> = listOf(firstEntry, secondEntry)
     override val content: @Composable (() -> Unit) = {
-        Scaffold { innerPadding ->
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding.removePaddings(Side.Start + Side.End))
-            ) {
-                Column(modifier = Modifier.weight(0.45f)) {
-                    firstEntry.Content()
-                }
-                Column(modifier = Modifier.weight(0.55f)) {
-                    secondEntry.Content()
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Column(modifier = Modifier.weight(0.45f)) {
+                firstEntry.Content()
+            }
+            Column(modifier = Modifier.weight(0.55f)) {
+                secondEntry.Content()
             }
         }
     }
 
     companion object {
-        internal const val TWO_PANE_KEY = "TwoPane"
+        internal const val TWO_PANE_FIRST_KEY = "TwoPaneFirst"
+        internal const val TWO_PANE_SECOND_KEY = "TwoPaneSecond"
 
         /**
          * Helper function to add metadata to a [NavEntry] indicating it can be displayed
          * in a two-pane layout.
          */
-        fun twoPane() = mapOf(TWO_PANE_KEY to true)
+        fun setAsFirst() = mapOf(TWO_PANE_FIRST_KEY to true)
+        fun setAsSecond() = mapOf(TWO_PANE_SECOND_KEY to true)
     }
 }
 
@@ -88,7 +82,8 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
         // Condition 2: Only return a Scene if there are two entries, and both have declared
         // they can be displayed in a two pane scene.
         return if (lastTwoEntries.size == 2
-            && lastTwoEntries.all { it.metadata.containsKey(TwoPaneScene.TWO_PANE_KEY) }
+            && lastTwoEntries.first().metadata.containsKey(TwoPaneScene.TWO_PANE_FIRST_KEY)
+            && lastTwoEntries.last().metadata.containsKey(TwoPaneScene.TWO_PANE_SECOND_KEY)
         ) {
             val firstEntry = lastTwoEntries.first()
             val secondEntry = lastTwoEntries.last()

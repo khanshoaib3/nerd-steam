@@ -1,8 +1,10 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.home
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,12 +13,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
@@ -30,16 +30,16 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChar
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.Side
 import com.github.khanshoaib3.steamcompanion.ui.utils.plus
-import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
 import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 
 // https://www.youtube.com/watch?v=W3R_ETKMj0E
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenRoot(
     topLevelBackStack: TopLevelBackStack<Route>,
-    navSuiteType: NavigationSuiteType,
+    isWideScreen: Boolean,
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -65,49 +65,59 @@ fun HomeScreenRoot(
         view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
     }
 
-    HomeScreenWithScaffold(
-        modifier = modifier,
-        navSuiteType = navSuiteType,
-        onGameClick = addAppDetailPane,
-        onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
-        onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
-        onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
-        showMenuButton = navSuiteType == NavigationSuiteType.NavigationBar,
-        onMenuButtonClick = onMenuButtonClick,
-        homeDataState = homeDataState,
-        homeViewState = homeViewState,
-        topAppBarScrollBehavior = scrollBehavior,
-        backStack = topLevelBackStack.backStack
-    )
+    if (isWideScreen) {
+        HomeScreen(
+            onGameClick = addAppDetailPane,
+            onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+            onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+            onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+            homeDataState = homeDataState,
+            homeViewState = homeViewState,
+            modifier = modifier
+        )
+    } else {
+        HomeScreenWithScaffold(
+            onGameClick = addAppDetailPane,
+            onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+            onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+            onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+            onMenuButtonClick = onMenuButtonClick,
+            homeDataState = homeDataState,
+            homeViewState = homeViewState,
+            topAppBarScrollBehavior = scrollBehavior,
+            navigateBackCallback = { topLevelBackStack.removeLast() }
+        )
+    }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenWithScaffold(
     modifier: Modifier = Modifier,
-    navSuiteType: NavigationSuiteType,
     onGameClick: (Int) -> Unit,
     onTrendingGamesCollapseButtonClick: () -> Unit,
     onTopGamesCollapseButtonClick: () -> Unit,
     onTopRecordsCollapseButtonClick: () -> Unit,
-    showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
+    navigateBackCallback: () -> Unit,
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
-    topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Route>
+    topAppBarScrollBehavior: TopAppBarScrollBehavior
 ) {
     Scaffold(
         topBar = {
             SteamCompanionTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
-                showMenuButton = showMenuButton,
+                showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
-                backStack = backStack
+                navigateBackCallback = navigateBackCallback,
+                forRoute = Route.Home,
+                windowInsets = WindowInsets()
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-    ) { innerPadding ->
+    ) {
         HomeScreen(
             onGameClick = onGameClick,
             onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
@@ -115,11 +125,7 @@ fun HomeScreenWithScaffold(
             onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
             homeDataState = homeDataState,
             homeViewState = homeViewState,
-            modifier = modifier
-                .padding(
-                    if (navSuiteType == NavigationSuiteType.NavigationBar) innerPadding.removeBottomPadding()
-                    else innerPadding.removePaddings(Side.End + Side.Start + Side.End)
-                )
+            modifier = modifier.padding(it.removePaddings(Side.End + Side.Start + Side.Bottom))
         )
     }
 }

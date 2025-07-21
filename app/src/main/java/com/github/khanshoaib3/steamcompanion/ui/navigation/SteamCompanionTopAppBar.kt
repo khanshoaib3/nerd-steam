@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,8 +18,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,13 +30,15 @@ import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SteamCompanionTopAppBar(
-    modifier: Modifier = Modifier,
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
+    navigateBackCallback: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Route>
+    forRoute: Route,
+    modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
 ) {
-    val title: String = when (backStack.lastOrNull() as Route) {
+    val title: String = when (forRoute) {
         Route.Home -> stringResource(R.string.app_name)
         Route.Search -> "Search"
         Route.Bookmark -> "Bookmark"
@@ -48,8 +49,8 @@ fun SteamCompanionTopAppBar(
         title = { Text(title) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            if (backStack.lastOrNull() is Route.Bookmark) {
-                IconButton(onClick = { backStack.removeLastOrNull() }) {
+            if (forRoute is Route.Bookmark) {
+                IconButton(onClick = navigateBackCallback) {
                     Icon(Icons.Default.Close, contentDescription = "Close page")
                 }
             } else if (showMenuButton) {
@@ -58,7 +59,7 @@ fun SteamCompanionTopAppBar(
                 }
             }
         },
-        expandedHeight = TopAppBarDefaults.TopAppBarExpandedHeight,
+        windowInsets = windowInsets,
         modifier = modifier
     )
 }
@@ -77,7 +78,8 @@ private fun TopAppBarPreview() {
                         scrollBehavior = scrollBehavior,
                         showMenuButton = true,
                         onMenuButtonClick = {},
-                        backStack = mutableStateListOf(Route.Home)
+                        navigateBackCallback = {},
+                        forRoute = Route.Bookmark
                     )
                 }
             ) {

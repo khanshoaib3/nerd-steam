@@ -5,7 +5,7 @@ composeBom = "2025.07.00"
 
 # Compose / UI
 foundation = "1.8.3"
-activityCompose = "1.10.1"
+activityCompose = "1.12.0-alpha04"
 material3Adaptive = "1.2.0-alpha09"
 material3NavigationSuite = "1.4.0-alpha18"
 materialIconsExtended = "1.7.8" # optional if pinned

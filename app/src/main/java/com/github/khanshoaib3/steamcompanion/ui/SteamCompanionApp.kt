@@ -1,7 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.ui
 
 import android.view.HapticFeedbackConstants
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,27 +20,26 @@ fun SteamCompanionApp() {
     val scope = rememberCoroutineScope()
     val view = LocalView.current
 
-    Surface {
-        SteamCompanionNavigationWrapper(
-            backStack = topLevelBackStack.backStack,
-            navigateTo = {
-                if (it.isTopLevel) topLevelBackStack.addTopLevel(it)
-                else topLevelBackStack.add(it)
-                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    SteamCompanionNavigationWrapper(
+        currentRoute = topLevelBackStack.getLast() ?: error("Current route is null!!"),
+        currentTopLevelRoute = topLevelBackStack.topLevelKey,
+        navigateTo = {
+            if (it.isTopLevel) topLevelBackStack.addTopLevel(it)
+            else topLevelBackStack.add(it)
+            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        },
+    ) {
+        SteamCompanionNavDisplay(
+            topLevelBackStack = topLevelBackStack,
+            isWideScreen = isWideScreen,
+            onMenuButtonClick = {
+                scope.launch {
+                    railState.expand()
+                    view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                }
             },
-        ) {
-            SteamCompanionNavDisplay(
-                topLevelBackStack = topLevelBackStack,
-                navSuiteType = navSuiteType,
-                onMenuButtonClick = {
-                    scope.launch {
-                        railState.expand()
-                        view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                    }
-                },
-                modifier = modifier
-            )
-        }
+            modifier = modifier
+        )
     }
 }
 

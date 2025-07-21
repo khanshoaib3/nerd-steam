@@ -13,8 +13,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
@@ -68,7 +66,7 @@ fun BookmarkScreenRoot(
         onTimeHeaderClick = onTimeHeaderClick,
         onMenuButtonClick = onMenuButtonClick,
         topAppBarScrollBehavior = scrollBehavior,
-        backStack = topLevelBackStack.backStack,
+        navigateBackCallback = { topLevelBackStack.removeLast() },
         imageWidth = imageWidth,
         imageHeight = imageHeight,
         modifier = modifier
@@ -84,7 +82,7 @@ fun BookmarkScreenWithScaffold(
     onTimeHeaderClick: () -> Unit,
     onMenuButtonClick: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Route>,
+    navigateBackCallback: () -> Unit,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -95,7 +93,8 @@ fun BookmarkScreenWithScaffold(
                 scrollBehavior = topAppBarScrollBehavior,
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
-                backStack = backStack
+                navigateBackCallback = navigateBackCallback,
+                forRoute = Route.Bookmark
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -161,7 +160,7 @@ private fun BookmarkScreenWithScaffoldPreview() {
             onTimeHeaderClick = {},
             onMenuButtonClick = {},
             topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-            backStack = mutableStateListOf(Route.Bookmark),
+            navigateBackCallback = {},
             imageWidth = imageWidth,
             imageHeight = imageHeight
         )

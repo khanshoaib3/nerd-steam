@@ -6,6 +6,7 @@ import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,14 +26,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -49,7 +47,9 @@ import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppB
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
-import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
+import com.github.khanshoaib3.steamcompanion.ui.utils.Side
+import com.github.khanshoaib3.steamcompanion.ui.utils.plus
+import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchScreenRoot(
     topLevelBackStack: TopLevelBackStack<Route>,
-    navSuiteType: NavigationSuiteType,
+    isWideScreen: Boolean,
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -94,20 +94,32 @@ fun SearchScreenRoot(
         searchViewModel.updateSearchQuery(it)
     }
 
-    SearchScreenWithScaffold(
-        onSearch = onSearch,
-        searchResults = searchDataState.searchResults,
-        searchQuery = searchDataState.searchQuery,
-        onSearchQueryChange = onSearchQueryChange,
-        onGameClick = addAppDetailPane,
-        showMenuButton = navSuiteType == NavigationSuiteType.NavigationBar,
-        onMenuButtonClick = onMenuButtonClick,
-        topAppBarScrollBehavior = scrollBehavior,
-        backStack = topLevelBackStack.backStack,
-        imageWidth = imageWidth,
-        imageHeight = imageHeight,
-        modifier = modifier
-    )
+    if (isWideScreen) {
+        SearchScreen(
+            onSearch = onSearch,
+            searchResults = searchDataState.searchResults,
+            searchQuery = searchDataState.searchQuery,
+            onSearchQueryChange = onSearchQueryChange,
+            onGameClick = addAppDetailPane,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            modifier = modifier
+        )
+    } else {
+        SearchScreenWithScaffold(
+            onSearch = onSearch,
+            searchResults = searchDataState.searchResults,
+            searchQuery = searchDataState.searchQuery,
+            onSearchQueryChange = onSearchQueryChange,
+            onGameClick = addAppDetailPane,
+            onMenuButtonClick = onMenuButtonClick,
+            navigateBackCallback = { topLevelBackStack.removeLast() },
+            topAppBarScrollBehavior = scrollBehavior,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            modifier = modifier
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,10 +130,9 @@ fun SearchScreenWithScaffold(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onGameClick: (Int) -> Unit,
-    showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
+    navigateBackCallback: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    backStack: SnapshotStateList<Route>,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier
@@ -129,14 +140,16 @@ fun SearchScreenWithScaffold(
     Scaffold(
         topBar = {
             SteamCompanionTopAppBar(
-                showMenuButton = showMenuButton,
+                showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
                 scrollBehavior = topAppBarScrollBehavior,
-                backStack = backStack
+                navigateBackCallback = navigateBackCallback,
+                forRoute = Route.Search,
+                windowInsets = WindowInsets()
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-    ) { innerPadding ->
+    ) {
         SearchScreen(
             onSearch = onSearch,
             searchResults = searchResults,
@@ -145,7 +158,7 @@ fun SearchScreenWithScaffold(
             onGameClick = onGameClick,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
-            modifier = modifier.padding(innerPadding.removeBottomPadding())
+            modifier = modifier.padding(it.removePaddings(Side.End + Side.Start + Side.Bottom))
         )
     }
 }
@@ -232,9 +245,8 @@ private fun SearchScreenWithScaffoldPreview() {
             searchQuery = "Ello",
             onSearchQueryChange = {},
             onGameClick = {},
-            showMenuButton = true,
             onMenuButtonClick = {},
-            backStack = mutableStateListOf(Route.Search),
+            navigateBackCallback = {},
             topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
             imageWidth = imageWidth,
             imageHeight = imageHeight

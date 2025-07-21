@@ -49,6 +49,8 @@ class TopLevelBackStack<T : Route>(startKey: T) {
         updateBackStack()
     }
 
+    fun getCurrentBackstack() = topLevelStacks[topLevelKey]
+
     fun getLast() = topLevelStacks[topLevelKey]?.lastOrNull()
 
     fun removeLast() {
