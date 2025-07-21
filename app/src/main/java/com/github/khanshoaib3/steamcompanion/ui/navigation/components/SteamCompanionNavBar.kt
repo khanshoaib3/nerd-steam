@@ -45,8 +45,8 @@ fun SteamCompanionNavBar(
     NavigationBar(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.inverseOnSurface)
-            .offset(y = (1).dp),
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .offset(y = 1.dp),
         windowInsets = customWindowInsets
     ) {
         NAV_TOP_LEVEL_ROUTES.forEach { route ->
