@@ -43,6 +43,7 @@ class TwoPaneScene<T : Any>(
     companion object {
         internal const val TWO_PANE_FIRST_KEY = "TwoPaneFirst"
         internal const val TWO_PANE_SECOND_KEY = "TwoPaneSecond"
+        internal var InTwoPaneScene = false
 
         /**
          * Helper function to add metadata to a [NavEntry] indicating it can be displayed
@@ -74,6 +75,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
         // Condition 1: Only return a Scene if the window is sufficiently wide to render two panes.
         // We use isWidthAtLeastBreakpoint with WIDTH_DP_MEDIUM_LOWER_BOUND (600dp).
         if (!windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+            TwoPaneScene.InTwoPaneScene = false
             return null
         }
 
@@ -90,10 +92,10 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
 
             // The scene key must uniquely represent the state of the scene.
             // A Pair of the first and second entry keys ensures uniqueness.
-            val sceneKey = Pair(firstEntry.contentKey, secondEntry.contentKey)
+            TwoPaneScene.InTwoPaneScene = true
 
             TwoPaneScene(
-                key = sceneKey,
+                key = secondEntry.contentKey,
                 // Where we go back to is a UX decision. In this case, we only remove the top
                 // entry from the back stack, despite displaying two entries in this scene.
                 // This is because in this app we only ever add one entry to the
@@ -105,6 +107,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
             )
 
         } else {
+            TwoPaneScene.InTwoPaneScene = false
             null
         }
     }

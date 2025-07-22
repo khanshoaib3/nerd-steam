@@ -1,20 +1,25 @@
 package com.github.khanshoaib3.steamcompanion.ui.navigation
 
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -60,9 +65,10 @@ fun SteamCompanionNavDisplay(
         val sharedEntryInSceneNavEntryDecorator = navEntryDecorator<NavKey> { entry ->
             with(this) {
                 Box(
-                    Modifier.sharedElement(
+                    Modifier.sharedBounds(
                         rememberSharedContentState(entry.contentKey),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(contentScale = ContentScale.FillBounds)
                     ),
                 ) {
                     entry.Content()
@@ -83,13 +89,13 @@ fun SteamCompanionNavDisplay(
             ),
             entryProvider = entryProvider {
                 entry<Route.Home>(
-                    metadata = TwoPaneScene.setAsFirst()
+                    metadata = TwoPaneScene.setAsFirst(),
                 ) {
                     HomeScreenRoot(
                         onMenuButtonClick = onMenuButtonClick,
                         addAppDetailPane = addAppDetailPane,
                         isWideScreen = isWideScreen,
-                        topLevelBackStack = topLevelBackStack
+                        topLevelBackStack = topLevelBackStack,
                     )
                 }
                 entry<Route.Search>(
@@ -138,28 +144,63 @@ fun SteamCompanionNavDisplay(
                 }
             },
             transitionSpec = {
-                // Slide in from right when navigating forward
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(1000)
-                ) togetherWith
-                        slideOutHorizontally(targetOffsetX = { -it })
+                if (TwoPaneScene.InTwoPaneScene) {
+                    ContentTransform(
+                        fadeIn(animationSpec = tween(700)),
+                        fadeOut(animationSpec = tween(700)),
+                    )
+                } else {
+                    // Slide in from right when navigating forward
+                    slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = spring(stiffness = Spring.StiffnessLow)
+                    ) togetherWith
+                            slideOutHorizontally(
+                                targetOffsetX = { -it },
+                                animationSpec = tween(easing = LinearOutSlowInEasing)
+                            )
+                }
             },
             popTransitionSpec = {
-                // Slide in from left when navigating back
-                slideInHorizontally(
-                    initialOffsetX = { -it / 2 },
-                    animationSpec = tween(1000)
-                ) togetherWith
-                        slideOutHorizontally(targetOffsetX = { it })
+                if (TwoPaneScene.InTwoPaneScene) {
+                    ContentTransform(
+                        fadeIn(animationSpec = tween(700)),
+                        fadeOut(animationSpec = tween(700)),
+                    )
+                } else {
+                    // Slide in from left when navigating back
+                    slideInHorizontally(
+                        initialOffsetX = { -it / 3 },
+                        animationSpec = spring(stiffness = Spring.StiffnessLow)
+                    ) togetherWith
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(easing = LinearOutSlowInEasing)
+                            )
+                }
             },
             predictivePopTransitionSpec = {
-                // Slide in from left when navigating back
-                slideInHorizontally(
-                    initialOffsetX = { -it / 2 },
-                    animationSpec = tween(1000)
-                ) togetherWith
-                        slideOutHorizontally(targetOffsetX = { it })
+                if (TwoPaneScene.InTwoPaneScene) {
+                    ContentTransform(
+                        fadeIn(
+                            spring(
+                                dampingRatio = 1.0f, // reflects material3 motionScheme.defaultEffectsSpec()
+                                stiffness = 1600.0f, // reflects material3 motionScheme.defaultEffectsSpec()
+                            )
+                        ),
+                        scaleOut(targetScale = 0.7f),
+                    )
+                } else {
+                    // Slide in from left when navigating back
+                    slideInHorizontally(
+                        initialOffsetX = { -it / 3 },
+                        animationSpec = spring(stiffness = Spring.StiffnessLow)
+                    ) togetherWith
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(easing = LinearOutSlowInEasing)
+                            )
+                }
             }
         )
     }
