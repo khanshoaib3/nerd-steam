@@ -48,11 +48,11 @@ fun SteamCompanionNavRail(
     railState: WideNavigationRailState,
     onRailButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    hideOnCollapse: Boolean = false,
+    isWideScreen: Boolean,
 ) {
     ModalWideNavigationRail(
         state = railState,
-        hideOnCollapse = hideOnCollapse,
+        hideOnCollapse = isWideScreen,
         header = {
             IconButton(
                 modifier =
@@ -77,7 +77,7 @@ fun SteamCompanionNavRail(
                 }
             }
         },
-        modifier = modifier
+        modifier = if (isWideScreen) modifier else modifier
             .background(MaterialTheme.colorScheme.inverseOnSurface)
             .offset(x = (-1).dp)
     ) {
@@ -145,7 +145,7 @@ private fun NavRailExpandedPreview() {
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
                 onRailButtonClicked = {},
-                hideOnCollapse = false
+                isWideScreen = false
             )
         }
     }
@@ -163,7 +163,7 @@ private fun NavRailCollapsedPreview() {
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Collapsed),
                 onRailButtonClicked = {},
-                hideOnCollapse = false
+                isWideScreen = false
             )
         }
     }

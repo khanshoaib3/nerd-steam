@@ -27,10 +27,7 @@ class TwoPaneScene<T : Any>(
 ) : Scene<T> {
     override val entries: List<NavEntry<T>> = listOf(firstEntry, secondEntry)
     override val content: @Composable (() -> Unit) = {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Row(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.weight(0.45f)) {
                 firstEntry.Content()
             }
@@ -95,7 +92,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
             TwoPaneScene.InTwoPaneScene = true
 
             TwoPaneScene(
-                key = secondEntry.contentKey,
+                key = firstEntry.contentKey,
                 // Where we go back to is a UX decision. In this case, we only remove the top
                 // entry from the back stack, despite displaying two entries in this scene.
                 // This is because in this app we only ever add one entry to the

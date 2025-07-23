@@ -125,6 +125,6 @@ fun SteamCompanionNavigationWrapper(
                 }
             }
         },
-        hideOnCollapse = !isWideScreen
+        isWideScreen = !isWideScreen
     )
 }
