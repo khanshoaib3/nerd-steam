@@ -3,11 +3,11 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -26,7 +26,9 @@ import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopA
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.components.BookmarkTable
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
-import com.github.khanshoaib3.steamcompanion.ui.utils.removeBottomPadding
+import com.github.khanshoaib3.steamcompanion.ui.utils.Side
+import com.github.khanshoaib3.steamcompanion.ui.utils.plus
+import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -59,54 +61,28 @@ fun BookmarkScreenRoot(
         localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
     }
 
-    BookmarkScreenWithScaffold(
-        bookmarks = sortedBookmarks,
-        onGameClick = addAppDetailPane,
-        onGameHeaderClick = onGameHeaderClick,
-        onTimeHeaderClick = onTimeHeaderClick,
-        onMenuButtonClick = onMenuButtonClick,
-        topAppBarScrollBehavior = scrollBehavior,
-        navigateBackCallback = { backStack.removeLast() },
-        imageWidth = imageWidth,
-        imageHeight = imageHeight,
-        modifier = modifier
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BookmarkScreenWithScaffold(
-    bookmarks: List<BookmarkDisplay>,
-    onGameClick: (Int) -> Unit,
-    onGameHeaderClick: () -> Unit,
-    onTimeHeaderClick: () -> Unit,
-    onMenuButtonClick: () -> Unit,
-    topAppBarScrollBehavior: TopAppBarScrollBehavior,
-    navigateBackCallback: () -> Unit,
-    imageWidth: Dp,
-    imageHeight: Dp,
-    modifier: Modifier = Modifier
-) {
     Scaffold(
         topBar = {
             CommonTopAppBar(
-                scrollBehavior = topAppBarScrollBehavior,
+                scrollBehavior = scrollBehavior,
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
-                navigateBackCallback = navigateBackCallback,
-                forRoute = Route.Bookmark
+                navigateBackCallback = { backStack.removeLastOrNull() },
+                forRoute = Route.Bookmark,
+                windowInsets = WindowInsets()
             )
         },
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         BookmarkScreen(
-            bookmarks,
-            onGameClick,
-            onGameHeaderClick,
-            onTimeHeaderClick,
-            imageWidth,
-            imageHeight,
-            modifier.padding(innerPadding.removeBottomPadding())
+            bookmarks = sortedBookmarks,
+            onGameClick = addAppDetailPane,
+            onGameHeaderClick = onGameHeaderClick,
+            onTimeHeaderClick = onTimeHeaderClick,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            modifier = Modifier
+                .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
         )
     }
 }
@@ -147,23 +123,36 @@ private fun BookmarkScreenWithScaffoldPreview() {
     }
 
     SteamCompanionTheme {
-        BookmarkScreenWithScaffold(
-            bookmarks = listOf(
-                BookmarkDisplay(
-                    appId = 1231,
-                    name = "Max Payne: The Fall of Max Payne",
-                    formattedTime = "dd MMM yyyy"
+        val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+        Scaffold(
+            topBar = {
+                CommonTopAppBar(
+                    scrollBehavior = topAppBarScrollBehavior,
+                    showMenuButton = true,
+                    onMenuButtonClick = {},
+                    navigateBackCallback = {},
+                    forRoute = Route.Bookmark
                 )
-            ),
-            onGameClick = {},
-            onGameHeaderClick = {},
-            onTimeHeaderClick = {},
-            onMenuButtonClick = {},
-            topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-            navigateBackCallback = {},
-            imageWidth = imageWidth,
-            imageHeight = imageHeight
-        )
+            },
+            modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+        ) { innerPadding ->
+            BookmarkScreen(
+                bookmarks = listOf(
+                    BookmarkDisplay(
+                        appId = 1231,
+                        name = "Max Payne: The Fall of Max Payne",
+                        formattedTime = "dd MMM yyyy"
+                    )
+                ),
+                onGameClick = { it: Int -> },
+                onGameHeaderClick = {},
+                onTimeHeaderClick = {},
+                imageWidth = imageWidth,
+                imageHeight = imageHeight,
+                modifier = Modifier
+                    .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
+            )
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppDetailsScreen(
@@ -121,7 +123,8 @@ fun AppDetailsScreen(
 
     if (!isWideScreen) {
         Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
+            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
                 TopAppBar(
                     title = { Text(gameData.content?.data?.name ?: "No Name") },
                     navigationIcon = {
@@ -151,7 +154,7 @@ fun AppDetailsScreen(
                 showHeader = false,
                 startPriceTracking = startPriceTracking,
                 stopPriceTracking = stopPriceTracking,
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
                     .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
