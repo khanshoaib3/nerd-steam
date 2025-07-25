@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.dp
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.NAV_TOP_LEVEL_ROUTES
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SteamCompanionNavBar(
+fun NavBar(
     currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
     modifier: Modifier = Modifier
@@ -78,8 +79,8 @@ fun SteamCompanionNavBar(
 private fun NavBarPreview() {
     SteamCompanionTheme {
         Column {
-            SteamCompanionNavBar(
-                currentTopLevelRoute = Route.Home,
+            NavBar(
+                currentTopLevelRoute = TopLevelRoute.Home,
                 navigateTo = {},
             )
         }

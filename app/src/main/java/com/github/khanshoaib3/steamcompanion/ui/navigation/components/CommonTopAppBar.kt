@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.navigation
+package com.github.khanshoaib3.steamcompanion.ui.navigation.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.WindowInsets
@@ -25,11 +25,12 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 
 // https://developer.android.com/develop/ui/compose/components/app-bars
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SteamCompanionTopAppBar(
+fun CommonTopAppBar(
     showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     navigateBackCallback: () -> Unit,
@@ -39,8 +40,8 @@ fun SteamCompanionTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
 ) {
     val title: String = when (forRoute) {
-        Route.Home -> stringResource(R.string.app_name)
-        Route.Search -> "Search"
+        TopLevelRoute.Home -> stringResource(R.string.app_name)
+        TopLevelRoute.Search -> "Search"
         Route.Bookmark -> "Bookmark"
         else -> stringResource(R.string.app_name)
     }
@@ -74,7 +75,7 @@ private fun TopAppBarPreview() {
         Surface {
             Scaffold(
                 topBar = {
-                    SteamCompanionTopAppBar(
+                    CommonTopAppBar(
                         scrollBehavior = scrollBehavior,
                         showMenuButton = true,
                         onMenuButtonClick = {},

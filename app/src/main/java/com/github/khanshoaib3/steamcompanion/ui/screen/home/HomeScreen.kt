@@ -24,11 +24,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
+import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTable
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTableType
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.Side
+import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.ui.utils.plus
 import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
@@ -107,12 +108,12 @@ fun HomeScreenWithScaffold(
 ) {
     Scaffold(
         topBar = {
-            SteamCompanionTopAppBar(
+            CommonTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
                 navigateBackCallback = navigateBackCallback,
-                forRoute = Route.Home,
+                forRoute = TopLevelRoute.Home,
                 windowInsets = WindowInsets()
             )
         },

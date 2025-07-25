@@ -33,17 +33,17 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneSceneStrategy
-import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailViewModel
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SteamCompanionNavDisplay(
+fun TopLevelNavDisplay(
     topLevelBackStack: TopLevelBackStack<Route>,
     isWideScreen: Boolean,
     onMenuButtonClick: () -> Unit,
@@ -88,7 +88,7 @@ fun SteamCompanionNavDisplay(
                 rememberViewModelStoreNavEntryDecorator(),
             ),
             entryProvider = entryProvider {
-                entry<Route.Home>(
+                entry<TopLevelRoute.Home>(
                     metadata = TwoPaneScene.setAsFirst(),
                 ) {
                     HomeScreenRoot(
@@ -98,7 +98,7 @@ fun SteamCompanionNavDisplay(
                         topLevelBackStack = topLevelBackStack,
                     )
                 }
-                entry<Route.Search>(
+                entry<TopLevelRoute.Search>(
                     metadata = TwoPaneScene.setAsFirst()
                 ) {
                     SearchScreenRoot(
@@ -106,16 +106,6 @@ fun SteamCompanionNavDisplay(
                         isWideScreen = isWideScreen,
                         onMenuButtonClick = onMenuButtonClick,
                         addAppDetailPane = addAppDetailPane,
-                    )
-                }
-
-                entry<Route.Bookmark>(
-                    metadata = TwoPaneScene.setAsFirst()
-                ) {
-                    BookmarkScreenRoot(
-                        topLevelBackStack = topLevelBackStack,
-                        onMenuButtonClick = { topLevelBackStack.removeLast() },
-                        addAppDetailPane = addAppDetailPane
                     )
                 }
 

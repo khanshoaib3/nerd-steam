@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.navigation
+package com.github.khanshoaib3.steamcompanion.ui.navigation.components
 
 import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
@@ -20,11 +20,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
-import com.github.khanshoaib3.steamcompanion.ui.navigation.components.SteamCompanionNavBar
-import com.github.khanshoaib3.steamcompanion.ui.navigation.components.SteamCompanionNavRail
-import com.github.khanshoaib3.steamcompanion.ui.utils.NAV_OTHER_ROUTES
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
-import com.github.khanshoaib3.steamcompanion.ui.utils.removeTopPadding
 import kotlinx.coroutines.launch
 
 class SteamCompanionNavSuiteScope(
@@ -35,7 +31,7 @@ class SteamCompanionNavSuiteScope(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SteamCompanionNavigationWrapper(
+fun NavWrapper(
     currentRoute: Route,
     currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
@@ -51,17 +47,6 @@ fun SteamCompanionNavigationWrapper(
         else -> false
     }
     val railState = rememberWideNavigationRailState()
-
-    if (currentRoute in NAV_OTHER_ROUTES) {
-        Scaffold {
-            SteamCompanionNavSuiteScope(
-                isWideScreen = isWideScreen,
-                railState = railState,
-                modifier = Modifier.padding(it.removeTopPadding())
-            ).content()
-        }
-        return
-    }
 
     val coroutineScope = rememberCoroutineScope()
     val view = LocalView.current
@@ -80,7 +65,7 @@ fun SteamCompanionNavigationWrapper(
     Scaffold(
         topBar = {
             if (isWideScreen) {
-                SteamCompanionTopAppBar(
+                CommonTopAppBar(
                     showMenuButton = false,
                     onMenuButtonClick = {},
                     navigateBackCallback = {},
@@ -91,7 +76,7 @@ fun SteamCompanionNavigationWrapper(
         },
         bottomBar = {
             if (!isWideScreen) {
-                SteamCompanionNavBar(
+                NavBar(
                     currentTopLevelRoute = currentTopLevelRoute,
                     navigateTo = navigateTo
                 )
@@ -106,7 +91,7 @@ fun SteamCompanionNavigationWrapper(
         ).content()
     }
 
-    SteamCompanionNavRail(
+    NavRail(
         currentTopLevelRoute = currentTopLevelRoute,
         railState = railState,
         navigateTo = {

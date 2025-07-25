@@ -40,9 +40,10 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.NAV_OTHER_ROUTES
 import com.github.khanshoaib3.steamcompanion.ui.utils.NAV_TOP_LEVEL_ROUTES
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 
 @Composable
-fun SteamCompanionNavRail(
+fun NavRail(
     currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
     railState: WideNavigationRailState,
@@ -140,8 +141,8 @@ fun SteamCompanionNavRail(
 private fun NavRailExpandedPreview() {
     SteamCompanionTheme {
         Column {
-            SteamCompanionNavRail(
-                currentTopLevelRoute = Route.Search,
+            NavRail(
+                currentTopLevelRoute = TopLevelRoute.Search,
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
                 onRailButtonClicked = {},
@@ -158,8 +159,8 @@ private fun NavRailExpandedPreview() {
 private fun NavRailCollapsedPreview() {
     SteamCompanionTheme {
         Column {
-            SteamCompanionNavRail(
-                currentTopLevelRoute = Route.Search,
+            NavRail(
+                currentTopLevelRoute = TopLevelRoute.Search,
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Collapsed),
                 onRailButtonClicked = {},

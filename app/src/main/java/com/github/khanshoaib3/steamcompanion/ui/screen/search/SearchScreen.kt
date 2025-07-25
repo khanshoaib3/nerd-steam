@@ -43,11 +43,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.navigation.SteamCompanionTopAppBar
+import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.Side
+import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.ui.utils.plus
 import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
@@ -139,12 +140,12 @@ fun SearchScreenWithScaffold(
 ) {
     Scaffold(
         topBar = {
-            SteamCompanionTopAppBar(
+            CommonTopAppBar(
                 showMenuButton = true,
                 onMenuButtonClick = onMenuButtonClick,
                 scrollBehavior = topAppBarScrollBehavior,
                 navigateBackCallback = navigateBackCallback,
-                forRoute = Route.Search,
+                forRoute = TopLevelRoute.Search,
                 windowInsets = WindowInsets()
             )
         },
