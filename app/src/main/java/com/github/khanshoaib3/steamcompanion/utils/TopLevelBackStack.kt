@@ -5,10 +5,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 
 // Ref: https://github.com/android/nav3-recipes/blob/main/app/src/main/java/com/example/nav3recipes/commonui/CommonUiActivity.kt
-class TopLevelBackStack<T : Route>(startKey: T) {
+class TopLevelBackStack<T>(startKey: T) {
 
     // Maintain a stack for each top level route
     private var topLevelStacks: LinkedHashMap<T, SnapshotStateList<T>> = linkedMapOf(
@@ -18,6 +17,8 @@ class TopLevelBackStack<T : Route>(startKey: T) {
     // Expose the current top level route for consumers
     var topLevelKey by mutableStateOf(startKey)
         private set
+
+    var lastTopLevelKey: T? = null
 
     // Expose the back stack so it can be rendered by the NavDisplay
     val backStack = mutableStateListOf(startKey)
@@ -40,6 +41,7 @@ class TopLevelBackStack<T : Route>(startKey: T) {
                 }
             }
         }
+        lastTopLevelKey = topLevelKey
         topLevelKey = key
         updateBackStack()
     }
@@ -57,6 +59,7 @@ class TopLevelBackStack<T : Route>(startKey: T) {
         val removedKey = topLevelStacks[topLevelKey]?.removeLastOrNull()
         // If the removed key was a top level key, remove the associated top level stack
         topLevelStacks.remove(removedKey)
+        lastTopLevelKey = topLevelKey
         topLevelKey = topLevelStacks.keys.last()
         updateBackStack()
     }

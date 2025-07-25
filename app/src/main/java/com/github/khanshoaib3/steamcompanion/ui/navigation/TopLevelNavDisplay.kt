@@ -11,7 +11,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -46,6 +45,7 @@ import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 fun TopLevelNavDisplay(
     topLevelBackStack: TopLevelBackStack<Route>,
     isWideScreen: Boolean,
+    isShowingNavRail: Boolean,
     onMenuButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -58,15 +58,12 @@ fun TopLevelNavDisplay(
     }
 
     SharedTransitionLayout {
-        /**
-         * A [NavEntryDecorator] that wraps each entry in a shared element that is controlled by the
-         * [Scene].
-         */
+        // Ref: https://github.com/android/nav3-recipes/blob/6982b0fd0ff6a5e409df9ec7d7c00bcbc1c04785/app/src/main/java/com/example/nav3recipes/scenes/twopane/TwoPaneActivity.kt#L89
         val sharedEntryInSceneNavEntryDecorator = navEntryDecorator<NavKey> { entry ->
             with(this) {
                 Box(
                     Modifier.sharedBounds(
-                        rememberSharedContentState(entry.contentKey),
+                        sharedContentState = rememberSharedContentState(entry.contentKey),
                         animatedVisibilityScope = LocalNavAnimatedContentScope.current,
                         resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(contentScale = ContentScale.FillBounds)
                     ),
@@ -94,8 +91,9 @@ fun TopLevelNavDisplay(
                     HomeScreenRoot(
                         onMenuButtonClick = onMenuButtonClick,
                         addAppDetailPane = addAppDetailPane,
-                        isWideScreen = isWideScreen,
                         topLevelBackStack = topLevelBackStack,
+                        isWideScreen = isWideScreen,
+                        isShowingNavRail = isShowingNavRail
                     )
                 }
                 entry<TopLevelRoute.Search>(
@@ -104,6 +102,7 @@ fun TopLevelNavDisplay(
                     SearchScreenRoot(
                         topLevelBackStack = topLevelBackStack,
                         isWideScreen = isWideScreen,
+                        isShowingNavRail = isShowingNavRail,
                         onMenuButtonClick = onMenuButtonClick,
                         addAppDetailPane = addAppDetailPane,
                     )
@@ -134,62 +133,39 @@ fun TopLevelNavDisplay(
                 }
             },
             transitionSpec = {
-                if (TwoPaneScene.InTwoPaneScene) {
+                if (TwoPaneScene.InTwoPaneScene && topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
+                    // When changing between app details in two pane screen view (performs the default fade transitions)
                     ContentTransform(
                         fadeIn(animationSpec = tween(700)),
                         fadeOut(animationSpec = tween(700)),
                     )
+                } else if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
+                    // When changing between top level screens only do minimal transitions
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (it * 0.2).toInt() } + fadeIn() togetherWith fadeOut()
                 } else {
                     // Slide in from right when navigating forward
-                    slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = spring(stiffness = Spring.StiffnessLow)
-                    ) togetherWith
-                            slideOutHorizontally(
-                                targetOffsetX = { -it },
-                                animationSpec = tween(easing = LinearOutSlowInEasing)
-                            )
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { it } togetherWith
+                            slideOutHorizontally(tween(easing = LinearOutSlowInEasing)) { -it }
                 }
             },
             popTransitionSpec = {
-                if (TwoPaneScene.InTwoPaneScene) {
-                    ContentTransform(
-                        fadeIn(animationSpec = tween(700)),
-                        fadeOut(animationSpec = tween(700)),
-                    )
+                if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
+                    // When changing between top level screens only do minimal transitions
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith fadeOut()
                 } else {
                     // Slide in from left when navigating back
-                    slideInHorizontally(
-                        initialOffsetX = { -it / 3 },
-                        animationSpec = spring(stiffness = Spring.StiffnessLow)
-                    ) togetherWith
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(easing = LinearOutSlowInEasing)
-                            )
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith
+                            slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
                 }
             },
             predictivePopTransitionSpec = {
-                if (TwoPaneScene.InTwoPaneScene) {
-                    ContentTransform(
-                        fadeIn(
-                            spring(
-                                dampingRatio = 1.0f, // reflects material3 motionScheme.defaultEffectsSpec()
-                                stiffness = 1600.0f, // reflects material3 motionScheme.defaultEffectsSpec()
-                            )
-                        ),
-                        scaleOut(targetScale = 0.7f),
-                    )
+                if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
+                    // When changing between top level screens only do minimal transitions
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith fadeOut()
                 } else {
                     // Slide in from left when navigating back
-                    slideInHorizontally(
-                        initialOffsetX = { -it / 3 },
-                        animationSpec = spring(stiffness = Spring.StiffnessLow)
-                    ) togetherWith
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(easing = LinearOutSlowInEasing)
-                            )
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith
+                            slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
                 }
             }
         )

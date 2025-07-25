@@ -13,7 +13,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,16 +39,17 @@ import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 @Composable
 fun HomeScreenRoot(
     topLevelBackStack: TopLevelBackStack<Route>,
-    isWideScreen: Boolean,
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
+    isWideScreen: Boolean,
+    isShowingNavRail: Boolean,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val view = LocalView.current
 
@@ -82,6 +82,7 @@ fun HomeScreenRoot(
             onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
             onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
             onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+            showMenuButton = !isShowingNavRail,
             onMenuButtonClick = onMenuButtonClick,
             homeDataState = homeDataState,
             homeViewState = homeViewState,
@@ -100,6 +101,7 @@ fun HomeScreenWithScaffold(
     onTrendingGamesCollapseButtonClick: () -> Unit,
     onTopGamesCollapseButtonClick: () -> Unit,
     onTopRecordsCollapseButtonClick: () -> Unit,
+    showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     navigateBackCallback: () -> Unit,
     homeDataState: HomeDataState,
@@ -110,7 +112,7 @@ fun HomeScreenWithScaffold(
         topBar = {
             CommonTopAppBar(
                 scrollBehavior = topAppBarScrollBehavior,
-                showMenuButton = true,
+                showMenuButton = showMenuButton,
                 onMenuButtonClick = onMenuButtonClick,
                 navigateBackCallback = navigateBackCallback,
                 forRoute = TopLevelRoute.Home,

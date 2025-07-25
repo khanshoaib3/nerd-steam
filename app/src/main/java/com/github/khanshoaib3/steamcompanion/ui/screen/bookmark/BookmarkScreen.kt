@@ -21,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation3.runtime.NavBackStack
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.components.BookmarkTable
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -33,8 +32,7 @@ import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreenRoot(
-    backStack: NavBackStack,
-    onMenuButtonClick: () -> Unit,
+    navigateBackCallback: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
     modifier: Modifier = Modifier,
     bookmarkViewModel: BookmarkViewModel = hiltViewModel()
@@ -65,9 +63,9 @@ fun BookmarkScreenRoot(
         topBar = {
             CommonTopAppBar(
                 scrollBehavior = scrollBehavior,
-                showMenuButton = true,
-                onMenuButtonClick = onMenuButtonClick,
-                navigateBackCallback = { backStack.removeLastOrNull() },
+                showMenuButton = false,
+                onMenuButtonClick = {},
+                navigateBackCallback = navigateBackCallback,
                 forRoute = Route.Bookmark,
                 windowInsets = WindowInsets()
             )
@@ -82,7 +80,7 @@ fun BookmarkScreenRoot(
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             modifier = Modifier
-                .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
+                .padding(top = innerPadding.calculateTopPadding())
         )
     }
 }

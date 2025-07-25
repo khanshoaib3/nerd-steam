@@ -49,11 +49,11 @@ fun NavRail(
     railState: WideNavigationRailState,
     onRailButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    isWideScreen: Boolean,
+    showNavRail: Boolean,
 ) {
     ModalWideNavigationRail(
         state = railState,
-        hideOnCollapse = isWideScreen,
+        hideOnCollapse = !showNavRail,
         header = {
             IconButton(
                 modifier =
@@ -78,7 +78,7 @@ fun NavRail(
                 }
             }
         },
-        modifier = if (isWideScreen) modifier else modifier
+        modifier = if (!showNavRail) modifier else modifier
             .background(MaterialTheme.colorScheme.inverseOnSurface)
             .offset(x = (-1).dp)
     ) {
@@ -146,7 +146,7 @@ private fun NavRailExpandedPreview() {
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
                 onRailButtonClicked = {},
-                isWideScreen = false
+                showNavRail = true
             )
         }
     }
@@ -164,7 +164,7 @@ private fun NavRailCollapsedPreview() {
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Collapsed),
                 onRailButtonClicked = {},
-                isWideScreen = false
+                showNavRail = true
             )
         }
     }

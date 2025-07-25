@@ -1,6 +1,17 @@
 package com.github.khanshoaib3.steamcompanion.ui.navigation
 
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -47,8 +58,7 @@ fun RootNavDisplay(
                     metadata = TwoPaneScene.setAsFirst()
                 ) {
                     BookmarkScreenRoot(
-                        backStack = rootBackStack,
-                        onMenuButtonClick = { rootBackStack.removeLastOrNull() },
+                        navigateBackCallback = { rootBackStack.removeLastOrNull() },
                         addAppDetailPane = { rootBackStack.add(Route.AppDetail(it)) },
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -81,8 +91,6 @@ fun RootNavDisplay(
 
                 entry<TopLevelRoute.Dummy> {
                     NavWrapper(
-                        currentRoute = topLevelBackStack.getLast()
-                            ?: error("Current route is null!!"),
                         currentTopLevelRoute = topLevelBackStack.topLevelKey,
                         navigateTo = {
                             if (it is TopLevelRoute) topLevelBackStack.addTopLevel(it)
@@ -93,6 +101,7 @@ fun RootNavDisplay(
                         TopLevelNavDisplay(
                             topLevelBackStack = topLevelBackStack,
                             isWideScreen = isWideScreen,
+                            isShowingNavRail = isShowingNavRail,
                             onMenuButtonClick = {
                                 scope.launch {
                                     railState.expand()
@@ -102,6 +111,36 @@ fun RootNavDisplay(
                             modifier = modifier
                         )
                     }
+                }
+            },
+            transitionSpec = {
+                if (rootBackStack.lastOrNull() is Route.AppDetail) {
+                    // Slide in from right when navigating forward
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { it } togetherWith
+                            slideOutHorizontally(tween(easing = LinearOutSlowInEasing)) { -it }
+                } else {
+                    scaleIn(spring(stiffness = Spring.StiffnessLow)) + fadeIn() togetherWith fadeOut()
+                }
+            },
+
+            popTransitionSpec = {
+                if (rootBackStack.lastOrNull() is Route.AppDetail) {
+                    // Slide in from left when navigating back
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith
+                            slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
+                } else {
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith
+                            scaleOut(animationSpec = tween(easing = LinearOutSlowInEasing)) + fadeOut()
+                }
+            },
+            predictivePopTransitionSpec = {
+                if (rootBackStack.lastOrNull() is Route.AppDetail) {
+                    // Slide in from left when navigating back
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith
+                            slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
+                } else {
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith
+                            scaleOut(animationSpec = tween(easing = LinearOutSlowInEasing)) + fadeOut()
                 }
             }
         )

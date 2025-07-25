@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -60,6 +60,7 @@ import kotlinx.coroutines.launch
 fun SearchScreenRoot(
     topLevelBackStack: TopLevelBackStack<Route>,
     isWideScreen: Boolean,
+    isShowingNavRail: Boolean,
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -77,7 +78,7 @@ fun SearchScreenRoot(
         imageHeight = 225.toDp()
     }
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val scope = rememberCoroutineScope()
 
@@ -113,6 +114,7 @@ fun SearchScreenRoot(
             searchQuery = searchDataState.searchQuery,
             onSearchQueryChange = onSearchQueryChange,
             onGameClick = addAppDetailPane,
+            showMenuButton = !isShowingNavRail,
             onMenuButtonClick = onMenuButtonClick,
             navigateBackCallback = { topLevelBackStack.removeLast() },
             topAppBarScrollBehavior = scrollBehavior,
@@ -131,6 +133,7 @@ fun SearchScreenWithScaffold(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onGameClick: (Int) -> Unit,
+    showMenuButton: Boolean,
     onMenuButtonClick: () -> Unit,
     navigateBackCallback: () -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
@@ -141,7 +144,7 @@ fun SearchScreenWithScaffold(
     Scaffold(
         topBar = {
             CommonTopAppBar(
-                showMenuButton = true,
+                showMenuButton = showMenuButton,
                 onMenuButtonClick = onMenuButtonClick,
                 scrollBehavior = topAppBarScrollBehavior,
                 navigateBackCallback = navigateBackCallback,
@@ -176,52 +179,54 @@ fun SearchScreen(
     imageHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        SearchBarDefaults.InputField(
-            query = searchQuery,
-            onQueryChange = { onSearchQueryChange(it) },
-            onSearch = { onSearch(it) },
-            placeholder = { Text("Search..") },
-            expanded = false,
-            onExpandedChange = {},
-            leadingIcon = {
-                IconButton(onClick = { onSearchQueryChange("") }) {
-                    Icon(
-                        if (searchQuery.isEmpty()) Icons.Default.Search else Icons.Default.Clear,
-                        contentDescription = if (searchQuery.isEmpty()) "Enter search query" else "Clear input text"
-                    )
-                }
-            },
-            trailingIcon = {
-                if (!searchQuery.isEmpty())
-                    IconButton(onClick = { onSearch(searchQuery) }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Send search query"
-                        )
-                    }
-            }
-        )
-        Spacer(Modifier.height(dimensionResource(R.dimen.padding_large)))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(0.8f),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+    Card(modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(searchResults) {
-                SearchResultRow(
-                    it,
-                    onClick = onGameClick,
-                    imageWidth = imageWidth,
-                    imageHeight = imageHeight
-                )
+            SearchBarDefaults.InputField(
+                query = searchQuery,
+                onQueryChange = { onSearchQueryChange(it) },
+                onSearch = { onSearch(it) },
+                placeholder = { Text("Search..") },
+                expanded = false,
+                onExpandedChange = {},
+                leadingIcon = {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(
+                            if (searchQuery.isEmpty()) Icons.Default.Search else Icons.Default.Clear,
+                            contentDescription = if (searchQuery.isEmpty()) "Enter search query" else "Clear input text"
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (!searchQuery.isEmpty())
+                        IconButton(onClick = { onSearch(searchQuery) }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Send,
+                                contentDescription = "Send search query"
+                            )
+                        }
+                }
+            )
+            Spacer(Modifier.height(dimensionResource(R.dimen.padding_large)))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(0.8f),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(searchResults) {
+                    SearchResultRow(
+                        it,
+                        onClick = onGameClick,
+                        imageWidth = imageWidth,
+                        imageHeight = imageHeight
+                    )
+                }
             }
+            Spacer(Modifier.height(dimensionResource(R.dimen.padding_large)))
         }
-        Spacer(Modifier.height(dimensionResource(R.dimen.padding_large)))
     }
 }
 
@@ -246,6 +251,7 @@ private fun SearchScreenWithScaffoldPreview() {
             searchQuery = "Ello",
             onSearchQueryChange = {},
             onGameClick = {},
+            showMenuButton = true,
             onMenuButtonClick = {},
             navigateBackCallback = {},
             topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),

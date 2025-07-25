@@ -19,12 +19,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import kotlinx.coroutines.launch
 
 class SteamCompanionNavSuiteScope(
     val isWideScreen: Boolean,
+    val isShowingNavRail: Boolean,
     val railState: WideNavigationRailState,
     val modifier: Modifier = Modifier
 )
@@ -32,16 +36,27 @@ class SteamCompanionNavSuiteScope(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavWrapper(
-    currentRoute: Route,
     currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
     content: @Composable (SteamCompanionNavSuiteScope.() -> Unit),
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
+    val windowSizeClass = adaptiveInfo.windowSizeClass
 
-    val isWideScreen = when {
+    val showNavRail = when {
         adaptiveInfo.windowPosture.isTabletop -> false
-        adaptiveInfo.windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
+        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+            -> true
+
+        else -> false
+    }
+    val isWideScreen = when {
+        !showNavRail -> false
+        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
+                && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
+            -> true
+        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+                && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
             -> true
 
         else -> false
@@ -60,7 +75,8 @@ fun NavWrapper(
     val density = LocalDensity.current
     var leftInsetInDp = 0.dp
     with(density) {
-        leftInsetInDp = WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current).toDp()
+        leftInsetInDp =
+            WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current).toDp()
     }
     Scaffold(
         topBar = {
@@ -75,17 +91,18 @@ fun NavWrapper(
             }
         },
         bottomBar = {
-            if (!isWideScreen) {
+            if (!showNavRail) {
                 NavBar(
                     currentTopLevelRoute = currentTopLevelRoute,
                     navigateTo = navigateTo
                 )
             }
         },
-        modifier = Modifier.padding(start = if (isWideScreen) leftInsetInDp + 96.dp else 0.dp)
+        modifier = Modifier.padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp)
     ) { innerPaddings ->
         SteamCompanionNavSuiteScope(
             isWideScreen,
+            isShowingNavRail = showNavRail,
             railState,
             modifier = Modifier.padding(innerPaddings)
         ).content()
@@ -110,6 +127,6 @@ fun NavWrapper(
                 }
             }
         },
-        isWideScreen = !isWideScreen
+        showNavRail = showNavRail
     )
 }
