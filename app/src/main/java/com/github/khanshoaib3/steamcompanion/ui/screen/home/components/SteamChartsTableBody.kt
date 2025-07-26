@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.runtime.Composable
@@ -30,16 +31,16 @@ fun <T : SteamChartsItem> SteamChartsTableBody(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 LoadingIndicator()
             }
-        }
-        gamesList.forEach { item ->
-            SteamChartsTableRow(
-                modifier = Modifier,
-                item = item,
-                imageWidth = imageWidth,
-                imageHeight = imageHeight,
-                onClick = onRowClick
-            )
+        } else {
+            gamesList.forEach { gameItem ->
+                SteamChartsTableRow(
+                    modifier = Modifier,
+                    item = gameItem,
+                    imageWidth = imageWidth,
+                    imageHeight = imageHeight,
+                    onClick = onRowClick
+                )
+            }
         }
     }
 }
-

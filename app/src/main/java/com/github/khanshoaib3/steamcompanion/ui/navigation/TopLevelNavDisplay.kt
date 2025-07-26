@@ -141,7 +141,7 @@ fun TopLevelNavDisplay(
                     )
                 } else if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between top level screens only do minimal transitions
-                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (it * 0.2).toInt() } + fadeIn() togetherWith fadeOut()
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (it * 0.2).toInt() } togetherWith fadeOut()
                 } else {
                     // Slide in from right when navigating forward
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { it } togetherWith
@@ -151,7 +151,7 @@ fun TopLevelNavDisplay(
             popTransitionSpec = {
                 if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between top level screens only do minimal transitions
-                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith fadeOut()
+                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } togetherWith fadeOut()
                 } else {
                     // Slide in from left when navigating back
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith

@@ -42,7 +42,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse

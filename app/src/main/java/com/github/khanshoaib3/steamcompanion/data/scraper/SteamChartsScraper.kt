@@ -37,9 +37,9 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
                 it.httpStatusCode = status { code }
                 it.httpStatusMessage = status { message }
                 htmlDocument {
-                    var trendingGames = mutableListOf<List<String>>()
-                    var topGames = mutableListOf<List<String>>()
-                    var topRecords = mutableListOf<List<String>>()
+                    val trendingGames = mutableListOf<List<String>>()
+                    val topGames = mutableListOf<List<String>>()
+                    val topRecords = mutableListOf<List<String>>()
 
                     table {
                         withId = "trending-recent"

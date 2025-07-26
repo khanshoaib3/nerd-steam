@@ -18,10 +18,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.components.SteamChartsTable
@@ -44,7 +46,7 @@ fun HomeScreenRoot(
     isWideScreen: Boolean,
     isShowingNavRail: Boolean,
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()

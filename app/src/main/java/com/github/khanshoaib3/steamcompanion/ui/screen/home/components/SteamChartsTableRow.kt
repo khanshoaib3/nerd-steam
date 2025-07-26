@@ -45,7 +45,7 @@ fun <T : SteamChartsItem> SteamChartsTableRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .fillMaxWidth()
+//            .fillMaxWidth()
             .clickable(true, onClick = { onClick(item.appId) })
     ) {
         Row(

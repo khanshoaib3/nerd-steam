@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
@@ -41,7 +42,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow
@@ -64,7 +66,7 @@ fun SearchScreenRoot(
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    searchViewModel: SearchViewModel = hiltViewModel()
+    searchViewModel: SearchViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
 ) {
     val searchDataState by searchViewModel.searchDataStateFlow.collectAsState()
 

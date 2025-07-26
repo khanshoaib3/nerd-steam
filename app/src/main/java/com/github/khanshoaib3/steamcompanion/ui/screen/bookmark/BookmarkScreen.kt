@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.components.BookmarkTable
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
