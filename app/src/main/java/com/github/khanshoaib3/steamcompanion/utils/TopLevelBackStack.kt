@@ -47,10 +47,12 @@ class TopLevelBackStack<T>(startKey: T) {
     }
 
     fun add(key: T) {
+        lastTopLevelKey = topLevelKey
         topLevelStacks[topLevelKey]?.add(key)
         updateBackStack()
     }
 
+    @Suppress("unused")
     fun getCurrentBackstack() = topLevelStacks[topLevelKey]
 
     fun getLast() = topLevelStacks[topLevelKey]?.lastOrNull()
