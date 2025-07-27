@@ -19,7 +19,10 @@ import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 
 @Composable
-fun AboutTab(modifier: Modifier = Modifier, appData: AppData) {
+fun AboutTab(
+    appData: AppData,
+    modifier: Modifier = Modifier,
+) {
     val html = appData.content?.data?.detailedDescription ?: "<b>Empty</b>"
     // Memoize expensive parsing logic (to not recalculate on recomposition)
     val (annotatedString, imageTags) = remember(html) {

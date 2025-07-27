@@ -26,7 +26,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOW
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import kotlinx.coroutines.launch
 
-class SteamCompanionNavSuiteScope(
+class NavSuiteScope(
     val isWideScreen: Boolean,
     val isShowingNavRail: Boolean,
     val railState: WideNavigationRailState,
@@ -38,7 +38,7 @@ class SteamCompanionNavSuiteScope(
 fun NavWrapper(
     currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
-    content: @Composable (SteamCompanionNavSuiteScope.() -> Unit),
+    content: @Composable (NavSuiteScope.() -> Unit),
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val windowSizeClass = adaptiveInfo.windowSizeClass
@@ -100,7 +100,7 @@ fun NavWrapper(
         },
         modifier = Modifier.padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp)
     ) { innerPaddings ->
-        SteamCompanionNavSuiteScope(
+        NavSuiteScope(
             isWideScreen,
             isShowingNavRail = showNavRail,
             railState,

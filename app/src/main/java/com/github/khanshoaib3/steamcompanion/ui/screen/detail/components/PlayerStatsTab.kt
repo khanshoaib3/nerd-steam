@@ -15,9 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.steamcompanion.ui.components.StartAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.DataSourceType
@@ -85,11 +85,10 @@ fun PlayerStatsTab(
             HorizontalDivider()
             appData.playerStatsRowData.forEach {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    CenterAlignedSelectableText(
+                    StartAlignedSelectableText(
                         it.month,
-                        modifier = Modifier.weight(1.5f),
+                        modifier = Modifier.weight(1.5f).padding(start = dimensionResource(R.dimen.padding_large)),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Left
                     )
                     CenterAlignedSelectableText(
                         it.avgPlayers,
@@ -99,13 +98,13 @@ fun PlayerStatsTab(
                     CenterAlignedSelectableText(
                         it.gain,
                         modifier = Modifier.weight(1f),
-                        color = if (it.gain.first() != '-') steamChartsChangePositive else steamChartsChangeNegative,
+                        color = if (it.gain.isNotEmpty() && it.gain.first() != '-') steamChartsChangePositive else steamChartsChangeNegative,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     CenterAlignedSelectableText(
                         it.percGain,
                         modifier = Modifier.weight(1f),
-                        color = if (it.percGain.first() != '-') steamChartsChangePositive else steamChartsChangeNegative,
+                        color = if (it.percGain.isNotEmpty() && it.percGain.first() != '-') steamChartsChangePositive else steamChartsChangeNegative,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     CenterAlignedSelectableText(

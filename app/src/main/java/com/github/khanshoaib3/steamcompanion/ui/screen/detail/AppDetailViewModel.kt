@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 // Ref(assisted inject): https://medium.com/@cgaisl/how-to-pass-arguments-to-a-hiltviewmodel-from-compose-97c74a75f772
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
@@ -14,9 +15,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 enum class Progress {
     NOT_QUEUED, LOADING, LOADED, FAILED
@@ -51,6 +54,18 @@ class AppDetailViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(navKey: Route.AppDetail): AppDetailViewModel
+    }
+
+    fun fetchDataFromSource(dataSourceType: DataSourceType) {
+        when (dataSourceType) {
+            DataSourceType.STEAM_CHARTS -> if (appViewState.value.steamChartsFetchStatus == Progress.NOT_QUEUED) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    fetchSteamChartsData()
+                }
+            }
+
+            else -> {}
+        }
     }
 
     suspend fun updateAppId() {

@@ -4,11 +4,8 @@ import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -17,8 +14,6 @@ import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,14 +21,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
@@ -45,70 +35,45 @@ import kotlinx.serialization.json.Json
 
 data class TabItem(
     val name: String,
-    val content: @Composable (Modifier, AppData, AppViewState, (DataSourceType) -> Unit) -> Unit,
+    val content: @Composable TabScope.() -> Unit,
+)
+
+data class TabScope(
+    val modifier: Modifier,
+    val appData: AppData,
+    val appViewState: AppViewState,
+    val fetchDataFromSourceCallback: (DataSourceType) -> Unit,
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun getDefaultTabItems(): List<TabItem> = listOf(
     TabItem(
         name = "About",
-        content = { modifier, appData, _, _ ->
+        content = {
             AboutTab(modifier = modifier, appData = appData)
         },
     ),
     TabItem(
         name = "System Requirements",
-        content = { modifier, appData, _, _ ->
+        content = {
             SystemRequirementsTab(modifier = modifier, appData = appData)
         }
     ),
     TabItem(
         name = "Media",
-        content = { modifier, appData, _, _ ->
-            Column(
-                modifier = Modifier.padding(
-                    vertical = dimensionResource(R.dimen.padding_small),
-                    horizontal = dimensionResource(R.dimen.padding_medium)
-                ),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if ((appData.content?.data?.screenshots?.size ?: 0) <= 0)
-                    return@TabItem
-                Text(
-                    "Screenshots",
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                HorizontalDivider()
-
-                HorizontalMultiBrowseCarousel(
-                    state = rememberCarouselState {
-                        appData.content?.data?.screenshots?.size ?: 0
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    preferredItemWidth = 421.dp,
-                    itemSpacing = 8.dp,
-                    contentPadding = PaddingValues(horizontal = 16.dp)
-                ) {
-                    AsyncImage(
-                        model = appData.content?.data?.screenshots?.get(it)?.pathFull ?: "",
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                }
-            }
+        content = {
+            MediaTab(modifier = modifier, appData = appData)
         }
     ),
     TabItem(
         name = "Player Stats",
-        content = { modifier, appData, appViewState, fetchDataFromSourceCallback ->
-            PlayerStatsTab(modifier = modifier, appData = appData, appViewState = appViewState, fetchDataFromSourceCallback = fetchDataFromSourceCallback)
+        content = {
+            PlayerStatsTab(
+                modifier = modifier,
+                appData = appData,
+                appViewState = appViewState,
+                fetchDataFromSourceCallback = fetchDataFromSourceCallback
+            )
         }
     ),
 )
@@ -147,12 +112,25 @@ fun CardLower(
                 }
             }
 
-            tabItems[selectedTabIndex].content(
-                Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                appData,
-                appViewState,
-                fetchDataFromSourceCallback
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = dimensionResource(R.dimen.padding_small),
+                        horizontal = dimensionResource(R.dimen.padding_medium)
+                    ),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                tabItems[selectedTabIndex].content(
+                    TabScope(
+                        Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                        appData,
+                        appViewState,
+                        fetchDataFromSourceCallback
+                    )
+                )
+            }
         }
     }
 }

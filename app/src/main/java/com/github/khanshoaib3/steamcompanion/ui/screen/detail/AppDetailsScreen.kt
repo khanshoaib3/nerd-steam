@@ -92,17 +92,7 @@ fun AppDetailsScreen(
         }
     }
 
-    val fetchDataFromSourceCallback: (DataSourceType) -> Unit = {
-        when (it) {
-            DataSourceType.STEAM_CHARTS -> if (viewState.steamChartsFetchStatus == Progress.NOT_QUEUED) {
-                scope.launch {
-                    viewModel.fetchSteamChartsData()
-                }
-            }
-
-            else -> {}
-        }
-    }
+    val fetchDataFromSourceCallback: (DataSourceType) -> Unit = viewModel::fetchDataFromSource
 
     if (appData.content == null || appData.content?.data == null || appData.content?.success != true) {
         Column(
