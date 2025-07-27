@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 private const val TAG = "GameDetailRepository"
 
-interface GameDetailRepository {
+interface AppDetailRepository {
     suspend fun fetchDataForAppId(appId: Int): SteamWebApiAppDetailsResponse?
 
     suspend fun trackPrice(priceTracking: PriceTracking)
@@ -29,10 +29,10 @@ interface GameDetailRepository {
     suspend fun getAllTrackedGames() : List<PriceTracking>
 }
 
-class OnlineGameDetailRepository @Inject constructor(
+class OnlineAppDetailRepository @Inject constructor(
     private val steamInternalWebApiService: SteamInternalWebApiService,
     private val priceTrackingDao: PriceTrackingDao
-) : GameDetailRepository {
+) : AppDetailRepository {
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun fetchDataForAppId(appId: Int): SteamWebApiAppDetailsResponse? {
         var result = steamInternalWebApiService.getAppDetails(appId)

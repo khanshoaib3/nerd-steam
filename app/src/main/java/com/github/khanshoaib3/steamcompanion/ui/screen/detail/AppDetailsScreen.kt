@@ -64,9 +64,10 @@ fun AppDetailsScreen(
     isWideScreen: Boolean,
     onUpButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: GameDetailViewModel = hiltViewModel(),
+    viewModel: AppDetailViewModel = hiltViewModel(),
 ) {
-    val gameData by viewModel.gameData.collectAsState()
+    val appData by viewModel.appData.collectAsState()
+    val viewState by viewModel.appViewState.collectAsState()
     val scope = rememberCoroutineScope()
     val view = LocalView.current
 
@@ -91,13 +92,25 @@ fun AppDetailsScreen(
         }
     }
 
-    if (gameData.content == null || gameData.content?.data == null || gameData.content?.success != true) {
+    val fetchDataFromSourceCallback: (DataSourceType) -> Unit = {
+        when (it) {
+            DataSourceType.STEAM_CHARTS -> if (viewState.steamChartsFetchStatus == Progress.NOT_QUEUED) {
+                scope.launch {
+                    viewModel.fetchSteamChartsData()
+                }
+            }
+
+            else -> {}
+        }
+    }
+
+    if (appData.content == null || appData.content?.data == null || appData.content?.success != true) {
         Column(
             Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (gameData.content != null && !gameData.content!!.success) {
+            if (appData.content != null && !appData.content!!.success) {
                 Icon(Icons.Default.ErrorOutline, contentDescription = "Error icon")
                 Text(
                     "Unable to fetch data for the app!!",
@@ -119,14 +132,14 @@ fun AppDetailsScreen(
         }
         view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
     }
-    val isBookmarked = gameData.isBookmarked
+    val isBookmarked = appData.isBookmarked
 
     if (!isWideScreen) {
         Scaffold(
             modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
-                    title = { Text(gameData.content?.data?.name ?: "No Name") },
+                    title = { Text(appData.content?.data?.name ?: "No Name") },
                     navigationIcon = {
                         IconButton(onClick = onUpButtonClick) {
                             Icon(
@@ -147,7 +160,9 @@ fun AppDetailsScreen(
                 )
             }) { innerPadding ->
             AppDetailsCard(
-                gameData = gameData,
+                appData = appData,
+                appViewState = viewState,
+                fetchDataFromSourceCallback = fetchDataFromSourceCallback,
                 onBookmarkClick = toggleBookmarkStatus,
                 isBookmarkActive = isBookmarked,
                 storedPriceTrackingInfo = storedPriceTrackingInfo,
@@ -163,7 +178,9 @@ fun AppDetailsScreen(
     } else {
         AppDetailsCard(
             modifier = modifier.verticalScroll(scrollState),
-            gameData = gameData,
+            appData = appData,
+            appViewState = viewState,
+            fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
             isBookmarkActive = isBookmarked,
             storedPriceTrackingInfo = storedPriceTrackingInfo,
@@ -177,19 +194,21 @@ fun AppDetailsScreen(
 @Composable
 fun AppDetailsCard(
     modifier: Modifier = Modifier,
-    gameData: GameData,
+    appData: AppData,
+    appViewState: AppViewState,
+    fetchDataFromSourceCallback: (DataSourceType) -> Unit,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceTrackingInfo: PriceTracking?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
-    showHeader: Boolean = true
+    showHeader: Boolean = true,
 ) {
     Box(modifier = modifier.padding(dimensionResource(R.dimen.padding_small))) {
         OutlinedCard {
             CardUpper(
                 modifier = Modifier.fillMaxWidth(),
-                gameData = gameData,
+                appData = appData,
                 onBookmarkClick = onBookmarkClick,
                 isBookmarkActive = isBookmarkActive,
                 storedPriceTrackingInfo = storedPriceTrackingInfo,
@@ -197,7 +216,12 @@ fun AppDetailsCard(
                 stopPriceTracking = stopPriceTracking,
                 showHeader = showHeader
             )
-            CardLower(modifier = Modifier.fillMaxWidth(), gameData = gameData)
+            CardLower(
+                modifier = Modifier.fillMaxWidth(),
+                appData = appData,
+                appViewState = appViewState,
+                fetchDataFromSourceCallback = fetchDataFromSourceCallback
+            )
         }
     }
 }
@@ -212,7 +236,9 @@ private fun GameDetailScreenPreview() {
     val gameData = json.decodeFromString<SteamWebApiAppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
         AppDetailsCard(
-            gameData = GameData(content = gameData),
+            appData = AppData(content = gameData),
+            appViewState = AppViewState(),
+            fetchDataFromSourceCallback = {},
             onBookmarkClick = {},
             storedPriceTrackingInfo = null,
             startPriceTracking = { _, _ -> },

@@ -33,7 +33,7 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneSceneStrategy
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailViewModel
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailViewModel
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
@@ -112,7 +112,7 @@ fun TopLevelNavDisplay(
                     metadata = TwoPaneScene.setAsSecond()
                 ) { key ->
                     val viewModel =
-                        hiltViewModel<GameDetailViewModel, GameDetailViewModel.Factory>(
+                        hiltViewModel<AppDetailViewModel, AppDetailViewModel.Factory>(
                             // Note: We need a new ViewModel for every new RouteB instance. Usually
                             // we would need to supply a `key` String that is unique to the
                             // instance, however, the ViewModelStoreNavEntryDecorator (supplied

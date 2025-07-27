@@ -12,7 +12,7 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
-import com.github.khanshoaib3.steamcompanion.data.repository.OnlineGameDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.OnlineAppDetailRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -31,7 +31,7 @@ class PriceCheckWorker(
         .build()
         .create(SteamInternalWebApiService::class.java)
 
-    private val repository = OnlineGameDetailRepository(
+    private val repository = OnlineAppDetailRepository(
         steamInternalWebApiService = rer,
         priceTrackingDao = db.priceTrackingDao()
     )

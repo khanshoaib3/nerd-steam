@@ -61,7 +61,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceOverview
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -72,7 +72,7 @@ import kotlin.math.roundToInt
 @Composable
 fun CardUpper(
     modifier: Modifier = Modifier,
-    gameData: GameData,
+    appData: AppData,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceTrackingInfo: PriceTracking?,
@@ -80,15 +80,15 @@ fun CardUpper(
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true
 ) {
-    val data = gameData.content?.data
+    val data = appData.content?.data
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
     val notificationOptions = listOf("Everyday", "Once")
     var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
 
-    val maxPrice = gameData.content?.data?.priceOverview?.initial?.div(100f) ?: 0f
-    val currentPrice = gameData.content?.data?.priceOverview?.finalPrice?.div(100f) ?: 1f
+    val maxPrice = appData.content?.data?.priceOverview?.initial?.div(100f) ?: 0f
+    val currentPrice = appData.content?.data?.priceOverview?.finalPrice?.div(100f) ?: 1f
     var targetPrice by remember { mutableFloatStateOf(currentPrice) }
     LaunchedEffect(storedPriceTrackingInfo) {
         if (storedPriceTrackingInfo == null) return@LaunchedEffect
@@ -543,7 +543,7 @@ private fun GameDetailScreenPreview() {
     val gameData = json.decodeFromString<SteamWebApiAppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
         CardUpper(
-            gameData = GameData(content = gameData),
+            appData = AppData(content = gameData),
             onBookmarkClick = {},
             isBookmarkActive = false,
             storedPriceTrackingInfo = null,

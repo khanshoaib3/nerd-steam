@@ -16,11 +16,11 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.fromHtml
 import coil3.compose.AsyncImage
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 
 @Composable
-fun AboutTab(modifier: Modifier = Modifier, gameData: GameData) {
-    val html = gameData.content?.data?.detailedDescription ?: "<b>Empty</b>"
+fun AboutTab(modifier: Modifier = Modifier, appData: AppData) {
+    val html = appData.content?.data?.detailedDescription ?: "<b>Empty</b>"
     // Memoize expensive parsing logic (to not recalculate on recomposition)
     val (annotatedString, imageTags) = remember(html) {
         val processedHtml = prepareHtml(html)

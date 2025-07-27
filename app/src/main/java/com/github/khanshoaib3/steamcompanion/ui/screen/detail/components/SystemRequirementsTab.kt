@@ -18,7 +18,7 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Requirements
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameData
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -32,14 +32,14 @@ private data class RequirementItem(
     val recommendedRequirements: String?,
 )
 
-private fun getRequirementItems(gameData: GameData): List<RequirementItem> {
+private fun getRequirementItems(appData: AppData): List<RequirementItem> {
     var requirementItems = mutableListOf<RequirementItem>()
 
-    if (gameData.content?.data?.platforms?.windows == true
-        && gameData.content.data.pcRequirements is JsonObject
+    if (appData.content?.data?.platforms?.windows == true
+        && appData.content.data.pcRequirements is JsonObject
     ) {
         val pcRequirements =
-            Json.decodeFromJsonElement<Requirements>(gameData.content.data.pcRequirements)
+            Json.decodeFromJsonElement<Requirements>(appData.content.data.pcRequirements)
         requirementItems.add(
             RequirementItem(
                 systemType = "Windows",
@@ -49,11 +49,11 @@ private fun getRequirementItems(gameData: GameData): List<RequirementItem> {
         )
     }
 
-    if (gameData.content?.data?.platforms?.linux == true
-        && gameData.content.data.linuxRequirements is JsonObject
+    if (appData.content?.data?.platforms?.linux == true
+        && appData.content.data.linuxRequirements is JsonObject
     ) {
         val linuxRequirements =
-            Json.decodeFromJsonElement<Requirements>(gameData.content.data.linuxRequirements)
+            Json.decodeFromJsonElement<Requirements>(appData.content.data.linuxRequirements)
         requirementItems.add(
             RequirementItem(
                 systemType = "SteamOS + Linux",
@@ -63,11 +63,11 @@ private fun getRequirementItems(gameData: GameData): List<RequirementItem> {
         )
     }
 
-    if (gameData.content?.data?.platforms?.mac == true
-        && gameData.content.data.macRequirements is JsonObject
+    if (appData.content?.data?.platforms?.mac == true
+        && appData.content.data.macRequirements is JsonObject
     ) {
         val macRequirements =
-            Json.decodeFromJsonElement<Requirements>(gameData.content.data.macRequirements)
+            Json.decodeFromJsonElement<Requirements>(appData.content.data.macRequirements)
         requirementItems.add(
             RequirementItem(
                 systemType = "MacOS",
@@ -81,8 +81,8 @@ private fun getRequirementItems(gameData: GameData): List<RequirementItem> {
 }
 
 @Composable
-fun SystemRequirementsTab(modifier: Modifier = Modifier, gameData: GameData) {
-    val requirementItems = getRequirementItems(gameData)
+fun SystemRequirementsTab(modifier: Modifier = Modifier, appData: AppData) {
+    val requirementItems = getRequirementItems(appData)
     SelectionContainer {
         Column(
             modifier = modifier,
@@ -122,7 +122,7 @@ private fun SystemRequirementsPreview() {
     val gameData = json.decodeFromString<SteamWebApiAppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
-            SystemRequirementsTab(gameData = GameData(content = gameData))
+            SystemRequirementsTab(appData = AppData(content = gameData))
         }
     }
 }

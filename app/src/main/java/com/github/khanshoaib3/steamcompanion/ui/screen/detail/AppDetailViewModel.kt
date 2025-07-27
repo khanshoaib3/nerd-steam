@@ -6,8 +6,9 @@ import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.GameDetailRepository
-import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRow
+import com.github.khanshoaib3.steamcompanion.data.repository.AppDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRowData
+import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -17,24 +18,39 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-data class GameData(
+enum class Progress {
+    NOT_QUEUED, LOADING, LOADED, FAILED
+}
+
+enum class DataSourceType {
+    STEAM, IS_THERE_ANY_DEAL, STEAM_CHARTS
+}
+
+data class AppData(
     val content: SteamWebApiAppDetailsResponse? = null,
     val isBookmarked: Boolean = false,
-    val playerStatsRows: List<PlayerStatsRow> = listOf()
+    val playerStatsRowData: List<PlayerStatsRowData> = listOf(),
 )
 
-@HiltViewModel(assistedFactory = GameDetailViewModel.Factory::class)
-class GameDetailViewModel @AssistedInject constructor(
-    private val gameDetailRepository: GameDetailRepository,
+data class AppViewState(
+    val steamChartsFetchStatus: Progress = Progress.NOT_QUEUED,
+)
+
+@HiltViewModel(assistedFactory = AppDetailViewModel.Factory::class)
+class AppDetailViewModel @AssistedInject constructor(
+    private val appDetailRepository: AppDetailRepository,
     private val bookmarkRepository: BookmarkRepository,
-    @Assisted val key: Route.AppDetail
+    @Assisted val key: Route.AppDetail,
 ) : ViewModel() {
-    private val _gameData = MutableStateFlow(GameData())
-    val gameData: StateFlow<GameData> = _gameData
+    private val _appData = MutableStateFlow(AppData())
+    val appData: StateFlow<AppData> = _appData
+
+    private val _appViewState = MutableStateFlow(AppViewState())
+    val appViewState: StateFlow<AppViewState> = _appViewState
 
     @AssistedFactory
     interface Factory {
-        fun create(navKey: Route.AppDetail): GameDetailViewModel
+        fun create(navKey: Route.AppDetail): AppDetailViewModel
     }
 
     suspend fun updateAppId() {
@@ -42,10 +58,10 @@ class GameDetailViewModel @AssistedInject constructor(
         if (realAppId == null) return
         if (realAppId == 0) return
 
-        _gameData.update {
-            val content = gameDetailRepository.fetchDataForAppId(appId = realAppId)
+        _appData.update {
+            val content = appDetailRepository.fetchDataForAppId(appId = realAppId)
             val isBookmarked = bookmarkRepository.isBookmarked(content?.data?.steamAppId)
-            GameData(
+            AppData(
                 content = content,
                 isBookmarked = isBookmarked,
 //                playerStatsRows = SteamChartsPerAppScraper(realAppId).scrape().playerStatsRows
@@ -53,8 +69,24 @@ class GameDetailViewModel @AssistedInject constructor(
         }
     }
 
+    suspend fun fetchSteamChartsData() {
+        if (appViewState.value.steamChartsFetchStatus != Progress.NOT_QUEUED) return
+        if (key.appId == null) return
+        if (key.appId == 0) return
+
+        _appViewState.update { it.copy(steamChartsFetchStatus = Progress.LOADING) }
+        try {
+            _appData.update {
+                it.copy(playerStatsRowData = SteamChartsPerAppScraper(key.appId).scrape().playerStatsRowData)
+            }
+            _appViewState.update { it.copy(steamChartsFetchStatus = Progress.LOADED) }
+        } catch (_: Exception) {
+            _appViewState.update { it.copy(steamChartsFetchStatus = Progress.FAILED) }
+        }
+    }
+
     suspend fun toggleBookmarkStatus() {
-        gameData.value.apply {
+        appData.value.apply {
             if (content?.data?.steamAppId == null) return
 
             if (!isBookmarked) {
@@ -64,14 +96,14 @@ class GameDetailViewModel @AssistedInject constructor(
                         name = content.data.name,
                     )
                 )
-                _gameData.update {
+                _appData.update {
                     it.copy(
                         isBookmarked = true
                     )
                 }
             } else {
                 bookmarkRepository.removeBookmark(content.data.steamAppId)
-                _gameData.update {
+                _appData.update {
                     it.copy(
                         isBookmarked = false
                     )
@@ -81,18 +113,18 @@ class GameDetailViewModel @AssistedInject constructor(
     }
 
     suspend fun getPriceTrackingInfo(): PriceTracking? {
-        if (gameData.value.content?.data?.steamAppId == null) return null
+        if (appData.value.content?.data?.steamAppId == null) return null
 
-        return gameDetailRepository.getPriceTrackingInfo(appId = gameData.value.content!!.data!!.steamAppId)
+        return appDetailRepository.getPriceTrackingInfo(appId = appData.value.content!!.data!!.steamAppId)
     }
 
     suspend fun startPriceTracking(targetPrice: Float, notifyEveryDay: Boolean) {
-        if (gameData.value.content?.data?.steamAppId == null) return
+        if (appData.value.content?.data?.steamAppId == null) return
 
-        gameDetailRepository.trackPrice(
+        appDetailRepository.trackPrice(
             PriceTracking(
-                appId = gameData.value.content!!.data!!.steamAppId,
-                gameName = gameData.value.content!!.data!!.name,
+                appId = appData.value.content!!.data!!.steamAppId,
+                gameName = appData.value.content!!.data!!.name,
                 targetPrice = targetPrice,
                 notifyEveryDay = notifyEveryDay,
             )
@@ -100,8 +132,8 @@ class GameDetailViewModel @AssistedInject constructor(
     }
 
     suspend fun stopPriceTracking() {
-        if (gameData.value.content?.data?.steamAppId == null) return
+        if (appData.value.content?.data?.steamAppId == null) return
 
-        gameDetailRepository.stopTracking(appId = gameData.value.content!!.data!!.steamAppId)
+        appDetailRepository.stopTracking(appId = appData.value.content!!.data!!.steamAppId)
     }
 }

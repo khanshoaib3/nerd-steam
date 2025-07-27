@@ -30,7 +30,7 @@ import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.NavWrapper
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.GameDetailViewModel
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailViewModel
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
@@ -68,7 +68,7 @@ fun RootNavDisplay(
                     metadata = TwoPaneScene.setAsSecond()
                 ) { key ->
                     val viewModel =
-                        hiltViewModel<GameDetailViewModel, GameDetailViewModel.Factory>(
+                        hiltViewModel<AppDetailViewModel, AppDetailViewModel.Factory>(
                             // Note: We need a new ViewModel for every new RouteB instance. Usually
                             // we would need to supply a `key` String that is unique to the
                             // instance, however, the ViewModelStoreNavEntryDecorator (supplied
