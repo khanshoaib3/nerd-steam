@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +55,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.HapticFeedbackConstantsCompat
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.detail.Category
@@ -78,11 +81,12 @@ fun CardUpper(
     storedPriceTrackingInfo: PriceTracking?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
-    showHeader: Boolean = true
+    showHeader: Boolean = true,
 ) {
     val data = appData.content?.data
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val view = LocalView.current
 
     val notificationOptions = listOf("Everyday", "Once")
     var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
@@ -163,6 +167,7 @@ fun CardUpper(
                         targetPrice,
                         selectedNotificationOptionIndex == 0
                     )
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
                     scope.launch {
                         sheetState.hide()
                     }
@@ -170,6 +175,7 @@ fun CardUpper(
                 priceAlreadyTracked = storedPriceTrackingInfo != null,
                 onStop = {
                     stopPriceTracking()
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
                     scope.launch {
                         sheetState.hide()
                     }
@@ -193,7 +199,7 @@ fun PriceTrackingSheet(
     onConfirm: () -> Unit,
     priceAlreadyTracked: Boolean,
     onStop: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ModalBottomSheet(
         onDismissRequest = onCancel,
@@ -227,7 +233,7 @@ fun PriceTrackingSheetContent(
     onConfirm: () -> Unit,
     priceAlreadyTracked: Boolean,
     onStop: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier.padding(dimensionResource(R.dimen.padding_medium)),
@@ -289,11 +295,8 @@ fun PriceTrackingSheetContent(
         }
         if (priceAlreadyTracked) {
             Spacer(Modifier.height(32.dp))
-            Button(onClick = onStop, modifier = Modifier.fillMaxWidth(0.9f)) {
-                Text(
-                    "Stop Price Tracking",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            FilledTonalButton(onClick = onStop, modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text("Remove Alert")
             }
             Spacer(Modifier.height(24.dp))
         } else {
@@ -312,10 +315,7 @@ fun PriceTrackingSheetContent(
                     .weight(1f)
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
-                Text(
-                    "Cancel",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Text("Cancel")
             }
             Button(
                 onClick = onConfirm,
@@ -323,10 +323,7 @@ fun PriceTrackingSheetContent(
                     .weight(1f)
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
-                Text(
-                    if (priceAlreadyTracked) "Update" else "Start Tracking",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Text(if (priceAlreadyTracked) "Update" else "Start Tracking")
             }
         }
     }
@@ -337,7 +334,7 @@ fun Header(
     modifier: Modifier = Modifier,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
-    appName: String
+    appName: String,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -513,7 +510,7 @@ fun ShortDescription(modifier: Modifier = Modifier, description: String) {
 @Composable
 fun TrackingButtons(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
@@ -525,7 +522,7 @@ fun TrackingButtons(
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             Text(
-                text = "Price Tracking",
+                text = "Set Price Alert",
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.bodyLarge
             )

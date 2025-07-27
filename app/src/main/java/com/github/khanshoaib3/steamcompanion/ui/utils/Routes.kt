@@ -34,8 +34,8 @@ sealed interface Route : NavKey {
     }
 
     @Serializable
-    data object Tracked : Route {
-        override val name = "Tracked"
+    data object Alerts : Route {
+        override val name = "Alerts"
         override val icon = Icons.Outlined.AccessAlarm
         override val selectedIcon = Icons.Filled.AccessAlarm
     }
@@ -84,4 +84,4 @@ sealed interface TopLevelRoute : Route {
 }
 
 val NAV_TOP_LEVEL_ROUTES = listOf(TopLevelRoute.Home, TopLevelRoute.Search)
-val NAV_OTHER_ROUTES = listOf(Route.Bookmark, Route.Tracked, Route.Settings, Route.AboutNFeedback)
+val NAV_OTHER_ROUTES = listOf(Route.Bookmark, Route.Alerts, Route.Settings, Route.AboutNFeedback)

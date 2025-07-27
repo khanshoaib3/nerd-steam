@@ -36,6 +36,7 @@ data class AppData(
 )
 
 data class AppViewState(
+    val selectedTabIndex: Int = 0,
     val steamChartsFetchStatus: Progress = Progress.NOT_QUEUED,
 )
 

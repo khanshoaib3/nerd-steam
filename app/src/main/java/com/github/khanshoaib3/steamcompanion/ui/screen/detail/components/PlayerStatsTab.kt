@@ -17,7 +17,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
-import com.github.khanshoaib3.steamcompanion.ui.components.StartAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.detail.DataSourceType
@@ -85,9 +84,9 @@ fun PlayerStatsTab(
             HorizontalDivider()
             appData.playerStatsRowData.forEach {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    StartAlignedSelectableText(
+                    CenterAlignedSelectableText(
                         it.month,
-                        modifier = Modifier.weight(1.5f).padding(start = dimensionResource(R.dimen.padding_large)),
+                        modifier = Modifier.weight(1.5f),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     CenterAlignedSelectableText(

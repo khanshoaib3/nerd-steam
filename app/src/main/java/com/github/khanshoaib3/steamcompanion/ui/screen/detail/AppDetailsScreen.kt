@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,18 +72,31 @@ fun AppDetailsScreen(
     val viewState by viewModel.appViewState.collectAsState()
     val scope = rememberCoroutineScope()
     val view = LocalView.current
+    val context = LocalContext.current
 
     var storedPriceTrackingInfo: PriceTracking? by remember { mutableStateOf(null) }
     val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
+        val toast = Toast.makeText(
+            context,
+            "Alert set for ${appData.content?.data?.name ?: "the app"}",
+            Toast.LENGTH_SHORT
+        )
         scope.launch(context = Dispatchers.IO) {
             viewModel.startPriceTracking(targetPrice, notifyEveryDay)
             storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+            toast.show()
         }
     }
     val stopPriceTracking: () -> Unit = {
+        val toast = Toast.makeText(
+            context,
+            "Alert removed",
+            Toast.LENGTH_SHORT
+        )
         scope.launch(context = Dispatchers.IO) {
             viewModel.stopPriceTracking()
             storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+            toast.show()
         }
     }
 
