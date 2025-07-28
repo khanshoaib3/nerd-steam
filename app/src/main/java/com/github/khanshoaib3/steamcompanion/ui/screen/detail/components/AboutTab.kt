@@ -37,7 +37,7 @@ fun AboutTab(
 
     SelectionContainer {
         RenderAnnotatedContent(
-            modifier = modifier,
+            modifier = modifier.verticalScroll(scrollState),
             annotatedString = annotatedString,
             imageTags = imageTags
         )

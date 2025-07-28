@@ -32,7 +32,7 @@ fun MediaTab(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(
+        modifier = modifier.fillMaxWidth().padding(
             vertical = dimensionResource(R.dimen.padding_small),
             horizontal = dimensionResource(R.dimen.padding_medium)
         ),
@@ -62,9 +62,9 @@ fun MediaTab(
             AsyncImage(
                 model = appData.content?.data?.screenshots?.get(it)?.pathFull ?: "",
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
             )
         }
