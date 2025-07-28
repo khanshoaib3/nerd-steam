@@ -6,6 +6,7 @@ composeBom = "2025.07.00"
 # Compose / UI
 foundation = "1.8.3"
 activityCompose = "1.12.0-alpha04"
+kotlinxCoroutinesTest = "1.10.2"
 material3Adaptive = "1.2.0-alpha09"
 material3NavigationSuite = "1.4.0-alpha18"
 materialIconsExtended = "1.7.8" # optional if pinned
@@ -61,6 +62,7 @@ androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 
 # Material Adaptive

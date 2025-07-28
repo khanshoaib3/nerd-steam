@@ -1,4 +1,5 @@
-import org.gradle.kotlin.dsl.libs
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -18,6 +19,14 @@ android {
     namespace = "com.github.khanshoaib3.steamcompanion"
     compileSdk = 36
 
+    val secretProperties = Properties()
+    val secretPropertiesFile = File(rootDir, "secret.properties")
+    if (secretPropertiesFile.exists() && secretPropertiesFile.isFile) {
+        secretPropertiesFile.inputStream().let {
+            secretProperties.load(it)
+        }
+    }
+
     defaultConfig {
         applicationId = "com.github.khanshoaib3.steamcompanion"
         minSdk = 30
@@ -26,6 +35,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "IS_THERE_ANY_DEAL_API_KEY",
+            secretProperties["IS_THERE_ANY_DEAL_API_KEY"].toString()
+        )
     }
 
     buildTypes {
@@ -41,11 +55,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -53,6 +70,9 @@ android {
             excludes += "mozilla/public-suffix-list.txt"
             excludes += "META-INF/INDEX.LIST"
         }
+    }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -118,6 +138,7 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
 

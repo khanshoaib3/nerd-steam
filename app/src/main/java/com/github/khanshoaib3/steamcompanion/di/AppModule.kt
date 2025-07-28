@@ -13,6 +13,7 @@ import com.github.khanshoaib3.steamcompanion.data.local.detail.PriceTrackingDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TopRecordDao
 import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGameDao
+import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamCommunityApiService
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -90,5 +91,16 @@ class AppModule {
             .baseUrl("https://store.steampowered.com")
             .build()
             .create(SteamInternalWebApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideIsThereAnyDealApiService(): IsThereAnyDealApiService {
+        val json = Json { ignoreUnknownKeys = true }
+        return Retrofit.Builder()
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .baseUrl("https://api.isthereanydeal.com")
+            .build()
+            .create(IsThereAnyDealApiService::class.java)
     }
 }
