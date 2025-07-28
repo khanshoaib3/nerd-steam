@@ -19,19 +19,33 @@ class IsThereAnyDealRepositoryTest {
     )
 
     @Test
-    fun testGameLookup_found() = runTest {
+    fun testGameLookup_half() = runTest {
         val response = isThereAnyDealRepository.lookupGame(220)
-        Assert.assertTrue(response.found)
-        Assert.assertEquals("half-life-2", response.gameInfoShort?.slug)
-        print(response)
+        response.onSuccess {
+            Assert.assertTrue(it.found)
+            Assert.assertEquals("half-life-2", it.gameInfoShort?.slug)
+            print(it)
+        }
     }
 
     @Test
-    fun testGameInfo_halfLife() = runTest {
+    fun testGameInfo_uid_halfLife() = runTest {
         val response = isThereAnyDealRepository.getGameInfo("018d937f-012f-73b8-ab2c-898516969e6a")
-        Assert.assertEquals(response.appid, 220)
-        Assert.assertEquals("half-life-2", response.slug)
-        print(response)
+        response.onSuccess {
+            Assert.assertEquals(it.appid, 220)
+            Assert.assertEquals("half-life-2", it.slug)
+            print(it)
+        }
+    }
+
+    @Test
+    fun testGameInfo_appId_halfLife() = runTest {
+        val response = isThereAnyDealRepository.getGameInfoFromAppId(220)
+        response.onSuccess {
+            Assert.assertEquals(it.appid, 220)
+            Assert.assertEquals("half-life-2", it.slug)
+            print(it)
+        }
     }
 
     @Test
@@ -43,7 +57,9 @@ class IsThereAnyDealRepositoryTest {
                 "018d937f-7b20-72f6-a2de-dc2ff64bae95", // the last of us ii remastered
             )
         )
-        Assert.assertEquals(3, response.size)
-        println(response)
+        response.onSuccess {
+            Assert.assertEquals(3, it.size)
+            println(it)
+        }
     }
 }

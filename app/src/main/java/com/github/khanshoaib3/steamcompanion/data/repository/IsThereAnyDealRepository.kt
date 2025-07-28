@@ -5,72 +5,72 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.Ga
 import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.LookupGameResponse
 import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.PriceInfoResponse
 import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
-import java.lang.Exception
 import javax.inject.Inject
-import kotlin.jvm.Throws
 
 private const val TAG = "IsThereAnyDealRepository"
 
 interface IsThereAnyDealRepository {
-    @Throws
-    suspend fun lookupGame(appId: Int): LookupGameResponse
+    suspend fun lookupGame(appId: Int): Result<LookupGameResponse>
 
-    suspend fun getGameInfo(uid: String): GameInfoResponse
+    suspend fun getGameInfo(uid: String): Result<GameInfoResponse>
 
-    suspend fun getGameInfoFromAppId(appId: Int): GameInfoResponse
+    suspend fun getGameInfoFromAppId(appId: Int): Result<GameInfoResponse>
 
-    suspend fun getPriceInfo(uids: List<String>): List<PriceInfoResponse>
+    suspend fun getPriceInfo(uids: List<String>): Result<List<PriceInfoResponse>>
 
-    suspend fun getPriceInfo(uid: String): List<PriceInfoResponse>
+    suspend fun getPriceInfo(uid: String): Result<List<PriceInfoResponse>>
 }
 
 class OnlineIsThereAnyDealRepository @Inject constructor(
     private val isThereAnyDealApiService: IsThereAnyDealApiService,
 ) : IsThereAnyDealRepository {
-    override suspend fun lookupGame(appId: Int): LookupGameResponse {
-        try {
+    override suspend fun lookupGame(appId: Int): Result<LookupGameResponse> =
+        runCatching {
             Log.d(TAG, "Looking for game with appId $appId...")
             val response = isThereAnyDealApiService.lookupGame(appId)
-            Log.d(TAG, "Game lookup response: id=${response.gameInfoShort?.id}, title=${response.gameInfoShort?.title}")
-            return response
-        } catch (e: Exception) {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::lookupGame")
-            e.printStackTrace()
-            throw e
+            Log.d(
+                TAG,
+                "Game lookup response: id=${response.gameInfoShort?.id}, title=${response.gameInfoShort?.title}"
+            )
+            response
+        }.onFailure {
+            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::lookupGame", it)
         }
-    }
 
-    override suspend fun getGameInfo(uid: String): GameInfoResponse {
-        try {
+    override suspend fun getGameInfo(uid: String): Result<GameInfoResponse> =
+        runCatching {
             Log.d(TAG, "Looking for game with id $uid")
             val response = isThereAnyDealApiService.gameInfo(uid)
             Log.d(TAG, "Game Info response: id=${response.id}, title=${response.title}")
-            return response
-        } catch (e: Exception) {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getGameInfo")
-            e.printStackTrace()
-            throw e
+            response
+        }.onFailure {
+            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getGameInfo", it)
         }
+
+    override suspend fun getGameInfoFromAppId(appId: Int): Result<GameInfoResponse> {
+        lookupGame(appId = appId).fold(
+            onSuccess = { response ->
+                if (!response.found || response.gameInfoShort == null) return Result.failure(
+                    Exception("Game with appId $appId not found")
+                )
+                getGameInfo(response.gameInfoShort.id).onSuccess {
+                    return Result.success(it)
+                }
+            },
+            onFailure = { exception ->
+                return Result.failure(exception)
+            }
+        )
+        return Result.failure(Exception("Unknown error occurred")) // Should not be reached
     }
 
-    override suspend fun getGameInfoFromAppId(appId: Int): GameInfoResponse {
-        val lookupGame = lookupGame(appId = appId)
-        if (!lookupGame.found || lookupGame.gameInfoShort == null) throw Error("Game with appId $appId not found")
-        val gameInfo = getGameInfo(lookupGame.gameInfoShort.id)
-        return gameInfo
-    }
-
-    override suspend fun getPriceInfo(uids: List<String>): List<PriceInfoResponse> {
-        try {
+    override suspend fun getPriceInfo(uids: List<String>): Result<List<PriceInfoResponse>> =
+        runCatching {
             val response = isThereAnyDealApiService.prices(gameIds = uids)
-            return response
-        } catch (e: Exception) {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo")
-            e.printStackTrace()
-            throw e
+            response
+        }.onFailure {
+            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)
         }
-    }
 
     override suspend fun getPriceInfo(uid: String) = getPriceInfo(listOf(uid))
-
 }
