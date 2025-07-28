@@ -2,10 +2,12 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -43,6 +45,7 @@ data class TabScope(
     val appData: AppData,
     val appViewState: AppViewState,
     val fetchDataFromSourceCallback: (DataSourceType) -> Unit,
+    val scrollState: ScrollState,
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -50,7 +53,7 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
     TabItem(
         name = "About",
         content = {
-            AboutTab(modifier = modifier, appData = appData)
+            AboutTab(modifier = modifier, appData = appData, scrollState = scrollState)
         },
     ),
     TabItem(
@@ -81,6 +84,7 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
 @Composable
 fun CardLower(
     modifier: Modifier = Modifier,
+    scrollState: ScrollState,
     appData: AppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataSourceType) -> Unit,
@@ -89,45 +93,34 @@ fun CardLower(
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val view = LocalView.current
 
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        modifier = modifier
-    ) {
-        Column {
-            HorizontalDivider()
+    Column(modifier = modifier) {
+        Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            Column {
+                HorizontalDivider()
 
-            SecondaryScrollableTabRow(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                selectedTabIndex = selectedTabIndex
-            ) {
-                tabItems.forEachIndexed { index, item ->
-                    Tab(
-                        selected = index == selectedTabIndex,
-                        onClick = {
-                            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                            selectedTabIndex = index
-                        },
-                        text = { Text(text = item.name) }
-                    )
+                SecondaryScrollableTabRow(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    selectedTabIndex = selectedTabIndex
+                ) {
+                    tabItems.forEachIndexed { index, item ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onClick = {
+                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                                selectedTabIndex = index
+                            },
+                            text = { Text(text = item.name) }
+                        )
+                    }
                 }
-            }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = dimensionResource(R.dimen.padding_small),
-                        horizontal = dimensionResource(R.dimen.padding_medium)
-                    ),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
                 tabItems[selectedTabIndex].content(
                     TabScope(
                         Modifier.padding(dimensionResource(R.dimen.padding_medium)),
                         appData,
                         appViewState,
-                        fetchDataFromSourceCallback
+                        fetchDataFromSourceCallback,
+                        scrollState
                     )
                 )
             }
@@ -147,7 +140,8 @@ private fun GameDetailScreenPreview() {
         CardLower(
             appData = AppData(content = appData),
             appViewState = AppViewState(steamChartsFetchStatus = Progress.NOT_QUEUED),
-            fetchDataFromSourceCallback = {}
+            fetchDataFromSourceCallback = {},
+            scrollState = rememberScrollState()
         )
     }
 }

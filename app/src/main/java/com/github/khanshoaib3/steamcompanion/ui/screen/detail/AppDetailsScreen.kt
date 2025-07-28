@@ -2,13 +2,16 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.detail
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,11 +43,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
@@ -58,6 +68,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlin.math.roundToInt
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -141,7 +152,7 @@ fun AppDetailsScreen(
 
     if (!isWideScreen) {
         Scaffold(
-            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+//            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
                     title = { Text(appData.content?.data?.name ?: "No Name") },
@@ -175,14 +186,12 @@ fun AppDetailsScreen(
                 startPriceTracking = startPriceTracking,
                 stopPriceTracking = stopPriceTracking,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
                     .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
             )
         }
     } else {
         AppDetailsCard(
-            modifier = modifier.verticalScroll(scrollState),
+            modifier = modifier,
             appData = appData,
             appViewState = viewState,
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
@@ -209,26 +218,61 @@ fun AppDetailsCard(
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true,
 ) {
-    Box(modifier = modifier.padding(dimensionResource(R.dimen.padding_small))) {
-        OutlinedCard {
-            CardUpper(
-                modifier = Modifier.fillMaxWidth(),
-                appData = appData,
-                onBookmarkClick = onBookmarkClick,
-                isBookmarkActive = isBookmarkActive,
-                storedPriceTrackingInfo = storedPriceTrackingInfo,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
-                showHeader = showHeader
-            )
-            CardLower(
-                modifier = Modifier.fillMaxWidth(),
-                appData = appData,
-                appViewState = appViewState,
-                fetchDataFromSourceCallback = fetchDataFromSourceCallback
-            )
+    var upperCardOffsetY by remember { mutableFloatStateOf(0f) }
+    Log.d("Jello", upperCardOffsetY.dp.value.toString())
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                // Calculate the change in image size based on scroll delta
+                val delta = available.y
+                upperCardOffsetY += available.y
+
+                // Return the consumed scroll amount
+                return Offset(0f, -available.y.dp.value)
+            }
         }
     }
+
+    OutlinedCard(modifier = modifier.fillMaxWidth().nestedScroll(nestedScrollConnection),) {
+        val scrollState = rememberScrollState()
+        CardUpper(
+            modifier = Modifier.fillMaxWidth().offset(y=upperCardOffsetY.dp),
+            appData = appData,
+            onBookmarkClick = onBookmarkClick,
+            isBookmarkActive = isBookmarkActive,
+            storedPriceTrackingInfo = storedPriceTrackingInfo,
+            startPriceTracking = startPriceTracking,
+            stopPriceTracking = stopPriceTracking,
+            showHeader = showHeader
+        )
+        CardLower(
+            modifier = Modifier.fillMaxWidth().offset(y=upperCardOffsetY.dp),
+            appData = appData,
+            appViewState = appViewState,
+            fetchDataFromSourceCallback = fetchDataFromSourceCallback,
+            scrollState = scrollState
+        )
+    }
+//    OutlinedCard(modifier = modifier) {
+//        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))) {
+//            CardUpper(
+//                modifier = Modifier.fillMaxWidth(),
+//                appData = appData,
+//                onBookmarkClick = onBookmarkClick,
+//                isBookmarkActive = isBookmarkActive,
+//                storedPriceTrackingInfo = storedPriceTrackingInfo,
+//                startPriceTracking = startPriceTracking,
+//                stopPriceTracking = stopPriceTracking,
+//                showHeader = showHeader
+//            )
+//            CardLower(
+//                modifier = Modifier.fillMaxHeight(0.4f),
+//                appData = appData,
+//                appViewState = appViewState,
+//                fetchDataFromSourceCallback = fetchDataFromSourceCallback
+//            )
+//        }
+//    }
 }
 
 @Preview(showBackground = true)

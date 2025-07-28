@@ -1,9 +1,12 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -21,6 +24,7 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
 @Composable
 fun AboutTab(
     appData: AppData,
+    scrollState: ScrollState,
     modifier: Modifier = Modifier,
 ) {
     val html = appData.content?.data?.detailedDescription ?: "<b>Empty</b>"

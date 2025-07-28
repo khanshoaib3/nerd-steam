@@ -100,87 +100,91 @@ fun CardUpper(
         selectedNotificationOptionIndex = if (storedPriceTrackingInfo.notifyEveryDay) 0 else 1
     }
 
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-            modifier = Modifier
-                .padding(vertical = dimensionResource(R.dimen.padding_small))
-                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                .padding(bottom = dimensionResource(R.dimen.padding_medium))
+    Column(modifier = modifier) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
         ) {
-            if (showHeader) {
-                Header(
-                    modifier = Modifier.fillMaxWidth(),
-                    appName = data?.name ?: "No Name",
-                    onBookmarkClick = onBookmarkClick,
-                    isBookmarkActive = isBookmarkActive
-                )
-            }
-            FeaturesOverview(
-                modifier = Modifier.fillMaxWidth(),
-                appId = data?.steamAppId ?: 0,
-                appName = data?.name ?: "No Name",
-                appType = data?.type ?: "game",
-                developers = data?.developers ?: listOf(),
-                publishers = data?.publishers ?: listOf(),
-                platforms = data?.platforms ?: Platforms(true, false, false)
-            )
-            PriceNPlayerCount(
-                modifier = Modifier.fillMaxWidth(),
-                isFree = data?.isFree == true,
-                isComingSoon = data?.releaseDate?.comingSoon == true,
-                priceOverview = data?.priceOverview ?: PriceOverview("INR", 0, 0, 0)
-            )
-            Categories(
-                modifier = Modifier.fillMaxWidth(),
-                categories = data?.categories ?: listOf()
-            )
-            ShortDescription(
-                modifier = Modifier.fillMaxWidth(),
-                description = data?.shortDescription ?: "Description not found"
-            )
-
-            if (data?.isFree == false && data.releaseDate.comingSoon == false) {
-                TrackingButtons(
-                    onClick = { scope.launch { sheetState.show() } },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        if (sheetState.isVisible) {
-            PriceTrackingSheet(
-                sheetState = sheetState,
-                targetPrice = targetPrice,
-                maxPrice = maxPrice,
-                onPriceChange = {
-                    targetPrice = (it * 100).roundToInt() / 100f
-                },
-                selectedNotificationOptionIndex = selectedNotificationOptionIndex,
-                notificationOptions = notificationOptions,
-                onSelectedNotificationOptionIndexChange = { selectedNotificationOptionIndex = it },
-                onCancel = { scope.launch { sheetState.hide() } },
-                onConfirm = {
-                    startPriceTracking(
-                        targetPrice,
-                        selectedNotificationOptionIndex == 0
+            Column(
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+                modifier = Modifier
+                    .padding(vertical = dimensionResource(R.dimen.padding_small))
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                    .padding(bottom = dimensionResource(R.dimen.padding_medium))
+            ) {
+                if (showHeader) {
+                    Header(
+                        modifier = Modifier.fillMaxWidth(),
+                        appName = data?.name ?: "No Name",
+                        onBookmarkClick = onBookmarkClick,
+                        isBookmarkActive = isBookmarkActive
                     )
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
-                    scope.launch {
-                        sheetState.hide()
-                    }
-                },
-                priceAlreadyTracked = storedPriceTrackingInfo != null,
-                onStop = {
-                    stopPriceTracking()
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
-                    scope.launch {
-                        sheetState.hide()
-                    }
                 }
-            )
+                FeaturesOverview(
+                    modifier = Modifier.fillMaxWidth(),
+                    appId = data?.steamAppId ?: 0,
+                    appName = data?.name ?: "No Name",
+                    appType = data?.type ?: "game",
+                    developers = data?.developers ?: listOf(),
+                    publishers = data?.publishers ?: listOf(),
+                    platforms = data?.platforms ?: Platforms(true, false, false)
+                )
+                PriceNPlayerCount(
+                    modifier = Modifier.fillMaxWidth(),
+                    isFree = data?.isFree == true,
+                    isComingSoon = data?.releaseDate?.comingSoon == true,
+                    priceOverview = data?.priceOverview ?: PriceOverview("INR", 0, 0, 0)
+                )
+                Categories(
+                    modifier = Modifier.fillMaxWidth(),
+                    categories = data?.categories ?: listOf()
+                )
+                ShortDescription(
+                    modifier = Modifier.fillMaxWidth(),
+                    description = data?.shortDescription ?: "Description not found"
+                )
+
+                if (data?.isFree == false && data.releaseDate.comingSoon == false) {
+                    TrackingButtons(
+                        onClick = { scope.launch { sheetState.show() } },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            if (sheetState.isVisible) {
+                PriceTrackingSheet(
+                    sheetState = sheetState,
+                    targetPrice = targetPrice,
+                    maxPrice = maxPrice,
+                    onPriceChange = {
+                        targetPrice = (it * 100).roundToInt() / 100f
+                    },
+                    selectedNotificationOptionIndex = selectedNotificationOptionIndex,
+                    notificationOptions = notificationOptions,
+                    onSelectedNotificationOptionIndexChange = {
+                        selectedNotificationOptionIndex = it
+                    },
+                    onCancel = { scope.launch { sheetState.hide() } },
+                    onConfirm = {
+                        startPriceTracking(
+                            targetPrice,
+                            selectedNotificationOptionIndex == 0
+                        )
+                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
+                        scope.launch {
+                            sheetState.hide()
+                        }
+                    },
+                    priceAlreadyTracked = storedPriceTrackingInfo != null,
+                    onStop = {
+                        stopPriceTracking()
+                        view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
+                        scope.launch {
+                            sheetState.hide()
+                        }
+                    }
+                )
+            }
         }
     }
 }
