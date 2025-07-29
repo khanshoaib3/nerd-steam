@@ -5,7 +5,6 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.Ga
 import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.GameInfoShort
 import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.PriceInfoResponse
 import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
-import retrofit2.HttpException
 import javax.inject.Inject
 
 private const val TAG = "IsThereAnyDealRepository"

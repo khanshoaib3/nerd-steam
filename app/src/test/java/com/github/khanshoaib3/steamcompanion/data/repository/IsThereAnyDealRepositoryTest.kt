@@ -1,9 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.data.repository
 
-import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import io.mockk.mockkStatic
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,7 +14,6 @@ class IsThereAnyDealRepositoryTest {
 
     @Before
     fun setup() {
-        mockkStatic(Log::class)
     }
 
     val isThereAnyDealRepository = OnlineIsThereAnyDealRepository(

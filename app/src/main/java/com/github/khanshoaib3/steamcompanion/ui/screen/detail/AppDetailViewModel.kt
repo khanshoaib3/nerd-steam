@@ -6,8 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
+import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.PriceInfoResponse
 import com.github.khanshoaib3.steamcompanion.data.repository.AppDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineIsThereAnyDealRepository
 import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRowData
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
@@ -21,14 +22,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 enum class Progress {
     NOT_QUEUED, LOADING, LOADED, FAILED
 }
 
 enum class DataSourceType {
-    STEAM, IS_THERE_ANY_DEAL, STEAM_CHARTS
+    STEAM, IS_THERE_ANY_DEAL_PRICE_INFO, STEAM_CHARTS
 }
 
 data class AppData(
@@ -65,6 +65,27 @@ data class ITADPriceDealsInfo(
     val expiry: String?,
 )
 
+fun PriceInfoResponse.toITADPriceInfo() =
+    ITADPriceInfo(
+        currency = historyLow.all?.currency,
+        historicLow = historyLow.all?.amount,
+        oneYearLow = historyLow.y1?.amount,
+        threeMonthsLow = historyLow.m3?.amount,
+        deals = priceDeals.map { deal ->
+            ITADPriceDealsInfo(
+                shopName = deal.shop.name,
+                url = deal.url,
+                price = deal.price.amount,
+                regularPrice = deal.regular.amount,
+                currency = deal.regular.currency,
+                discountPercentage = deal.cut,
+                voucher = deal.voucher,
+                timeStamp = deal.timestamp,
+                expiry = deal.expiry
+            )
+        }
+    )
+
 data class AppViewState(
     val selectedTabIndex: Int = 0,
     val steamChartsFetchStatus: Progress = Progress.NOT_QUEUED,
@@ -99,8 +120,8 @@ class AppDetailViewModel @AssistedInject constructor(
                     fetchSteamChartsData()
                 }
 
-                DataSourceType.IS_THERE_ANY_DEAL -> if (appViewState.value.isThereAnyDealPriceInfoStatus == Progress.NOT_QUEUED) {
-
+                DataSourceType.IS_THERE_ANY_DEAL_PRICE_INFO -> if (appViewState.value.isThereAnyDealPriceInfoStatus == Progress.NOT_QUEUED) {
+                    fetchISTDPriceInfo()
                 }
 
                 else -> {}
@@ -109,8 +130,6 @@ class AppDetailViewModel @AssistedInject constructor(
 
     suspend fun updateAppId() {
         val realAppId = key.appId
-        if (realAppId == null) return
-        if (realAppId == 0) return
 
         _appData.update {
             val content = appDetailRepository.fetchDataForAppId(appId = realAppId)
@@ -118,15 +137,12 @@ class AppDetailViewModel @AssistedInject constructor(
             AppData(
                 content = content,
                 isBookmarked = isBookmarked,
-//                playerStatsRows = SteamChartsPerAppScraper(realAppId).scrape().playerStatsRows
             )
         }
     }
 
     suspend fun fetchSteamChartsData() {
         if (appViewState.value.steamChartsFetchStatus != Progress.NOT_QUEUED) return
-        if (key.appId == null) return
-        if (key.appId == 0) return
 
         _appViewState.update { it.copy(steamChartsFetchStatus = Progress.LOADING) }
         try {
@@ -157,28 +173,7 @@ class AppDetailViewModel @AssistedInject constructor(
 
         isThereAnyDealRepository.getPriceInfo(collatedAppData.value.isThereAnyDealId!!)
             .onSuccess { response ->
-                _collatedAppData.update {
-                    it.copy(
-                        isThereAnyDealPriceInfo = ITADPriceInfo(
-                        currency = response.historyLow.all?.currency,
-                        historicLow = response.historyLow.all?.amount,
-                        oneYearLow = response.historyLow.y1?.amount,
-                        threeMonthsLow = response.historyLow.m3?.amount,
-                        deals = response.priceDeals.map { deal ->
-                            ITADPriceDealsInfo(
-                                shopName = deal.shop.name,
-                                url = deal.url,
-                                price = deal.price.amount,
-                                regularPrice = deal.regular.amount,
-                                currency = deal.regular.currency,
-                                discountPercentage = deal.cut,
-                                voucher = deal.voucher,
-                                timeStamp = deal.timestamp,
-                                expiry = deal.expiry
-                            )
-                        }
-                    ))
-                }
+                _collatedAppData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
                 _appViewState.update { it.copy(steamChartsFetchStatus = Progress.LOADED) }
             }
             .onFailure {
