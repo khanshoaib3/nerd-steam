@@ -8,6 +8,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.AppDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.OnlineIsThereAnyDealRepository
 import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRowData
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 enum class Progress {
     NOT_QUEUED, LOADING, LOADED, FAILED
@@ -35,19 +37,52 @@ data class AppData(
     val playerStatsRowData: List<PlayerStatsRowData> = listOf(),
 )
 
+data class CollatedAppData(
+    val steamAppId: Int,
+    val isThereAnyDealId: String? = null,
+    val playerStatistics: Any? = null,
+    val commonDetails: Any? = null,
+    val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
+)
+
+data class ITADPriceInfo(
+    val currency: String?,
+    val historicLow: Float?,
+    val oneYearLow: Float?,
+    val threeMonthsLow: Float?,
+    val deals: List<ITADPriceDealsInfo> = listOf(),
+)
+
+data class ITADPriceDealsInfo(
+    val shopName: String,
+    val url: String,
+    val price: Float,
+    val regularPrice: Float,
+    val currency: String,
+    val discountPercentage: Int,
+    val voucher: String?,
+    val timeStamp: String,
+    val expiry: String?,
+)
+
 data class AppViewState(
     val selectedTabIndex: Int = 0,
     val steamChartsFetchStatus: Progress = Progress.NOT_QUEUED,
+    val isThereAnyDealPriceInfoStatus: Progress = Progress.NOT_QUEUED,
 )
 
 @HiltViewModel(assistedFactory = AppDetailViewModel.Factory::class)
 class AppDetailViewModel @AssistedInject constructor(
     private val appDetailRepository: AppDetailRepository,
+    private val isThereAnyDealRepository: OnlineIsThereAnyDealRepository,
     private val bookmarkRepository: BookmarkRepository,
     @Assisted val key: Route.AppDetail,
 ) : ViewModel() {
     private val _appData = MutableStateFlow(AppData())
     val appData: StateFlow<AppData> = _appData
+
+    private val _collatedAppData = MutableStateFlow(CollatedAppData(key.appId))
+    val collatedAppData: StateFlow<CollatedAppData> = _collatedAppData
 
     private val _appViewState = MutableStateFlow(AppViewState())
     val appViewState: StateFlow<AppViewState> = _appViewState
@@ -57,17 +92,20 @@ class AppDetailViewModel @AssistedInject constructor(
         fun create(navKey: Route.AppDetail): AppDetailViewModel
     }
 
-    fun fetchDataFromSource(dataSourceType: DataSourceType) {
-        when (dataSourceType) {
-            DataSourceType.STEAM_CHARTS -> if (appViewState.value.steamChartsFetchStatus == Progress.NOT_QUEUED) {
-                viewModelScope.launch(Dispatchers.IO) {
+    fun fetchDataFromSource(dataSourceType: DataSourceType) =
+        viewModelScope.launch(Dispatchers.IO) {
+            when (dataSourceType) {
+                DataSourceType.STEAM_CHARTS -> if (appViewState.value.steamChartsFetchStatus == Progress.NOT_QUEUED) {
                     fetchSteamChartsData()
                 }
-            }
 
-            else -> {}
+                DataSourceType.IS_THERE_ANY_DEAL -> if (appViewState.value.isThereAnyDealPriceInfoStatus == Progress.NOT_QUEUED) {
+
+                }
+
+                else -> {}
+            }
         }
-    }
 
     suspend fun updateAppId() {
         val realAppId = key.appId
@@ -99,6 +137,54 @@ class AppDetailViewModel @AssistedInject constructor(
         } catch (_: Exception) {
             _appViewState.update { it.copy(steamChartsFetchStatus = Progress.FAILED) }
         }
+    }
+
+    suspend fun fetchISTDPriceInfo() {
+        if (appViewState.value.isThereAnyDealPriceInfoStatus != Progress.NOT_QUEUED) return
+
+        _appViewState.update { it.copy(steamChartsFetchStatus = Progress.LOADING) }
+
+        if (collatedAppData.value.isThereAnyDealId == null) {
+            isThereAnyDealRepository.lookupGame(appId = collatedAppData.value.steamAppId)
+                .onSuccess { response ->
+                    _collatedAppData.update { it.copy(isThereAnyDealId = response.id) }
+                }
+                .onFailure {
+                    _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = Progress.FAILED) }
+                    return
+                }
+        }
+
+        isThereAnyDealRepository.getPriceInfo(collatedAppData.value.isThereAnyDealId!!)
+            .onSuccess { response ->
+                _collatedAppData.update {
+                    it.copy(
+                        isThereAnyDealPriceInfo = ITADPriceInfo(
+                        currency = response.historyLow.all?.currency,
+                        historicLow = response.historyLow.all?.amount,
+                        oneYearLow = response.historyLow.y1?.amount,
+                        threeMonthsLow = response.historyLow.m3?.amount,
+                        deals = response.priceDeals.map { deal ->
+                            ITADPriceDealsInfo(
+                                shopName = deal.shop.name,
+                                url = deal.url,
+                                price = deal.price.amount,
+                                regularPrice = deal.regular.amount,
+                                currency = deal.regular.currency,
+                                discountPercentage = deal.cut,
+                                voucher = deal.voucher,
+                                timeStamp = deal.timestamp,
+                                expiry = deal.expiry
+                            )
+                        }
+                    ))
+                }
+                _appViewState.update { it.copy(steamChartsFetchStatus = Progress.LOADED) }
+            }
+            .onFailure {
+                _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = Progress.FAILED) }
+                return
+            }
     }
 
     suspend fun toggleBookmarkStatus() {

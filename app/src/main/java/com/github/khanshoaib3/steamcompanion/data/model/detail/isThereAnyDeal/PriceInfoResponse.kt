@@ -19,7 +19,7 @@ data class HistoryLow(
 
 @Serializable
 data class Price(
-    val amount: Double,
+    val amount: Float,
     val amountInt: Int,
     val currency: String
 )

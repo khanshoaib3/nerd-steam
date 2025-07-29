@@ -141,6 +141,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.mockk)
 
     // Debug-only tools
     debugImplementation(libs.androidx.ui.tooling)

@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LookupGameResponse(
     val found: Boolean,
-    @SerialName("game") val gameInfoShort: GameInfoShort?
+    @SerialName("game") val gameInfoShort: GameInfoShort? = null
 )
 
 @Serializable

@@ -2,15 +2,16 @@ package com.github.khanshoaib3.steamcompanion.data.repository
 
 import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.GameInfoResponse
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.LookupGameResponse
+import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.GameInfoShort
 import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.PriceInfoResponse
 import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
+import retrofit2.HttpException
 import javax.inject.Inject
 
 private const val TAG = "IsThereAnyDealRepository"
 
 interface IsThereAnyDealRepository {
-    suspend fun lookupGame(appId: Int): Result<LookupGameResponse>
+    suspend fun lookupGame(appId: Int): Result<GameInfoShort>
 
     suspend fun getGameInfo(uid: String): Result<GameInfoResponse>
 
@@ -18,21 +19,22 @@ interface IsThereAnyDealRepository {
 
     suspend fun getPriceInfo(uids: List<String>): Result<List<PriceInfoResponse>>
 
-    suspend fun getPriceInfo(uid: String): Result<List<PriceInfoResponse>>
+    suspend fun getPriceInfo(uid: String): Result<PriceInfoResponse>
 }
 
 class OnlineIsThereAnyDealRepository @Inject constructor(
     private val isThereAnyDealApiService: IsThereAnyDealApiService,
 ) : IsThereAnyDealRepository {
-    override suspend fun lookupGame(appId: Int): Result<LookupGameResponse> =
+    override suspend fun lookupGame(appId: Int): Result<GameInfoShort> =
         runCatching {
             Log.d(TAG, "Looking for game with appId $appId...")
             val response = isThereAnyDealApiService.lookupGame(appId)
             Log.d(
-                TAG,
-                "Game lookup response: id=${response.gameInfoShort?.id}, title=${response.gameInfoShort?.title}"
+                TAG, "Game lookup response: id=${response.gameInfoShort?.id} " +
+                        "title=${response.gameInfoShort?.title}"
             )
-            response
+            if (!response.found || response.gameInfoShort == null) throw Exception("Game with appId $appId not found in IsThereAnyDeal.com")
+            response.gameInfoShort
         }.onFailure {
             Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::lookupGame", it)
         }
@@ -50,10 +52,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
     override suspend fun getGameInfoFromAppId(appId: Int): Result<GameInfoResponse> {
         lookupGame(appId = appId).fold(
             onSuccess = { response ->
-                if (!response.found || response.gameInfoShort == null) return Result.failure(
-                    Exception("Game with appId $appId not found")
-                )
-                getGameInfo(response.gameInfoShort.id).onSuccess {
+                getGameInfo(response.id).onSuccess {
                     return Result.success(it)
                 }
             },
@@ -72,5 +71,11 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
             Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)
         }
 
-    override suspend fun getPriceInfo(uid: String) = getPriceInfo(listOf(uid))
+    override suspend fun getPriceInfo(uid: String): Result<PriceInfoResponse> =
+        runCatching {
+            val response = isThereAnyDealApiService.prices(gameIds = listOf(uid))
+            response.firstOrNull() ?: throw Exception("Price info for game with uid $uid not found")
+        }.onFailure {
+            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)
+        }
 }

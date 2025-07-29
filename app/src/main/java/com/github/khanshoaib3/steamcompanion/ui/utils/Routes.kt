@@ -20,7 +20,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface Route : NavKey {
     @Serializable
-    data class AppDetail(val appId: Int?) : Route {
+    data class AppDetail(val appId: Int) : Route {
         override val name = "AppDetail"
         override val icon = null
         override val selectedIcon = null

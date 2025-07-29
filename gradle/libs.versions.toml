@@ -12,6 +12,7 @@ material3NavigationSuite = "1.4.0-alpha18"
 materialIconsExtended = "1.7.8" # optional if pinned
 
 # Navigation 3
+mockk = "1.13.10"
 nav3Core = "1.0.0-alpha05"
 lifecycleViewmodelNav3 = "1.0.0-alpha03"
 kotlinxSerializationCore = "1.9.0"
@@ -104,6 +105,7 @@ coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
 # Skrape-it
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 skrapeit-html-parser = { module = "it.skrape:skrapeit-html-parser", version.ref = "skrape" }
 skrapeit-http-fetcher = { module = "it.skrape:skrapeit-http-fetcher", version.ref = "skrape" }
 

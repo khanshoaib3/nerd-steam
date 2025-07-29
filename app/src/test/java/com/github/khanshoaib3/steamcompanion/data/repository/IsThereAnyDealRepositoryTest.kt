@@ -1,15 +1,24 @@
 package com.github.khanshoaib3.steamcompanion.data.repository
 
+import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.mockk.mockkStatic
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 
 class IsThereAnyDealRepositoryTest {
+
+    @Before
+    fun setup() {
+        mockkStatic(Log::class)
+    }
+
     val isThereAnyDealRepository = OnlineIsThereAnyDealRepository(
         isThereAnyDealApiService = Retrofit.Builder()
             .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
@@ -19,11 +28,21 @@ class IsThereAnyDealRepositoryTest {
     )
 
     @Test
-    fun testGameLookup_half() = runTest {
+    fun testGameLookup_failure() = runTest {
+        val response = isThereAnyDealRepository.lookupGame(69)
+        Assert.assertTrue(response.isFailure)
+        Assert.assertEquals(
+            "Game with appId 69 not found in IsThereAnyDeal.com",
+            response.exceptionOrNull()?.message
+        )
+    }
+
+    @Test
+    fun testGameLookup_success_half_life_2() = runTest {
         val response = isThereAnyDealRepository.lookupGame(220)
+        Assert.assertTrue(response.isSuccess)
         response.onSuccess {
-            Assert.assertTrue(it.found)
-            Assert.assertEquals("half-life-2", it.gameInfoShort?.slug)
+            Assert.assertEquals("half-life-2", it.slug)
             print(it)
         }
     }
@@ -49,7 +68,7 @@ class IsThereAnyDealRepositoryTest {
     }
 
     @Test
-    fun testPriceInfo() = runTest {
+    fun testPriceInfo_success() = runTest {
         val response = isThereAnyDealRepository.getPriceInfo(
             listOf(
                 "018d937f-012f-73b8-ab2c-898516969e6a", // Half life 2
@@ -61,5 +80,12 @@ class IsThereAnyDealRepositoryTest {
             Assert.assertEquals(3, it.size)
             println(it)
         }
+    }
+
+    @Test
+    fun testPriceInfo_failure() = runTest {
+        val response = isThereAnyDealRepository.getPriceInfo("wrong-id")
+        Assert.assertTrue(response.isFailure)
+        Assert.assertEquals("HTTP 400", response.exceptionOrNull()?.message?.trim())
     }
 }

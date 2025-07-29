@@ -11,8 +11,12 @@ import androidx.work.WorkerParameters
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
 import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineAppDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.OnlineIsThereAnyDealRepository
+import com.github.khanshoaib3.steamcompanion.di.AppModule
+import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -25,14 +29,13 @@ class PriceCheckWorker(
 
     private val db = MainDatabase.getDatabase(appContext)
     val json = Json { ignoreUnknownKeys = true }
-    val rer = Retrofit.Builder()
-        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl("https://store.steampowered.com")
-        .build()
-        .create(SteamInternalWebApiService::class.java)
+    val steamInternalWebApiService: SteamInternalWebApiService = AppModule().provideSteamInternalWebApiService()
+
+    val isThereAnyDealApiService: IsThereAnyDealApiService = AppModule().provideIsThereAnyDealApiService()
 
     private val repository = OnlineAppDetailRepository(
-        steamInternalWebApiService = rer,
+        steamInternalWebApiService = steamInternalWebApiService,
+        isThereAnyDealRepository = OnlineIsThereAnyDealRepository(isThereAnyDealApiService),
         priceTrackingDao = db.priceTrackingDao()
     )
 

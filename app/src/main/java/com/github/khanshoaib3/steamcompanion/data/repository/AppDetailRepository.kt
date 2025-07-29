@@ -31,7 +31,8 @@ interface AppDetailRepository {
 
 class OnlineAppDetailRepository @Inject constructor(
     private val steamInternalWebApiService: SteamInternalWebApiService,
-    private val priceTrackingDao: PriceTrackingDao
+    private val priceTrackingDao: PriceTrackingDao,
+    private val isThereAnyDealRepository: OnlineIsThereAnyDealRepository
 ) : AppDetailRepository {
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun fetchDataForAppId(appId: Int): SteamWebApiAppDetailsResponse? {
