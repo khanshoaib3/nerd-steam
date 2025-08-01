@@ -1,11 +1,11 @@
-package com.github.khanshoaib3.steamcompanion.data.model.detail
+package com.github.khanshoaib3.steamcompanion.data.model.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class SteamWebApiAppDetailsResponse(
+data class AppDetailsResponse(
     @SerialName("success") val success: Boolean,
     @SerialName("data") val data: AppDetail? = null
 )

@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal
+package com.github.khanshoaib3.steamcompanion.data.model.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

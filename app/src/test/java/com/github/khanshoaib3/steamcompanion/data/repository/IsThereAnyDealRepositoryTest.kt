@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import retrofit2.HttpException
 import retrofit2.Retrofit
 
 class IsThereAnyDealRepositoryTest {
@@ -84,5 +85,6 @@ class IsThereAnyDealRepositoryTest {
         val response = isThereAnyDealRepository.getPriceInfo("wrong-id")
         Assert.assertTrue(response.isFailure)
         Assert.assertEquals("HTTP 400", response.exceptionOrNull()?.message?.trim())
+//        Assert.assertEquals("HTTP 400", (response.exceptionOrNull() as HttpException).response()?.errorBody()?.string())
     }
 }

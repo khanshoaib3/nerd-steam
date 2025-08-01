@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
+package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.detail.Category
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.Category
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
 @Composable
@@ -47,8 +47,8 @@ fun CategoryChip(modifier: Modifier = Modifier, category: Category) {
             .animateContentSize()
     ) {
         AsyncImage(
-            model = "https://steamdb.info/static/img/categories/${category.id}.png",
-            contentDescription = category.description,
+            model = category.url,
+            contentDescription = category.name,
             placeholder = painterResource(R.drawable.windows_icon),
             modifier = Modifier
                 .size(28.dp)
@@ -56,7 +56,7 @@ fun CategoryChip(modifier: Modifier = Modifier, category: Category) {
         )
         AnimatedVisibility(isOpen) {
             Text(
-                category.description,
+                category.name,
                 maxLines = 1,
                 color = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_very_small))
@@ -70,6 +70,6 @@ fun CategoryChip(modifier: Modifier = Modifier, category: Category) {
 @Composable
 private fun GameDetailScreenPreview() {
     SteamCompanionTheme {
-        CategoryChip(category = Category(id = 2, description = "Single-player"))
+        CategoryChip(category = Category(url = "https://steamdb.info/static/img/categories/2.png", name = "Single-player"))
     }
 }

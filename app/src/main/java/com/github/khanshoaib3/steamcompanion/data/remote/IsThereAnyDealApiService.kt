@@ -2,9 +2,9 @@ package com.github.khanshoaib3.steamcompanion.data.remote
 
 import androidx.annotation.IntRange
 import com.github.khanshoaib3.steamcompanion.BuildConfig
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.GameInfoResponse
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.LookupGameResponse
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.PriceInfoResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.GameInfoResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.LookupGameResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.PriceInfoResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

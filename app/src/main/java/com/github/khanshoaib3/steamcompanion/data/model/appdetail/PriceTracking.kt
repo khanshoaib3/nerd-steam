@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.data.model.detail
+package com.github.khanshoaib3.steamcompanion.data.model.appdetail
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

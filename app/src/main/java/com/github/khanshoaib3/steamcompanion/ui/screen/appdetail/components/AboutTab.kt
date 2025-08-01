@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
+package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,14 +16,15 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.fromHtml
 import coil3.compose.AsyncImage
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
 
 @Composable
 fun AboutTab(
-    appData: AppData,
+    collatedAppData: CollatedAppData,
     modifier: Modifier = Modifier,
-) {
-    val html = appData.content?.data?.detailedDescription ?: "<b>Empty</b>"
+) = collatedAppData.commonDetails?.let {
+    val html = it.about ?: "<b>Empty</b>"
     // Memoize expensive parsing logic (to not recalculate on recomposition)
     val (annotatedString, imageTags) = remember(html) {
         val processedHtml = prepareHtml(html)

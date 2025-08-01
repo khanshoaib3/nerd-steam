@@ -1,10 +1,11 @@
 package com.github.khanshoaib3.steamcompanion.data.repository
 
 import android.util.Log
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.GameInfoResponse
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.GameInfoShort
-import com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal.PriceInfoResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.GameInfoResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.GameInfoShort
+import com.github.khanshoaib3.steamcompanion.data.model.api.PriceInfoResponse
 import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
+import com.github.khanshoaib3.steamcompanion.utils.runSafeSuspendCatching
 import javax.inject.Inject
 
 private const val TAG = "IsThereAnyDealRepository"
@@ -25,7 +26,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
     private val isThereAnyDealApiService: IsThereAnyDealApiService,
 ) : IsThereAnyDealRepository {
     override suspend fun lookupGame(appId: Int): Result<GameInfoShort> =
-        runCatching {
+        runSafeSuspendCatching {
             Log.d(TAG, "Looking for game with appId $appId...")
             val response = isThereAnyDealApiService.lookupGame(appId)
             Log.d(
@@ -39,7 +40,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
         }
 
     override suspend fun getGameInfo(uid: String): Result<GameInfoResponse> =
-        runCatching {
+        runSafeSuspendCatching {
             Log.d(TAG, "Looking for game with id $uid")
             val response = isThereAnyDealApiService.gameInfo(uid)
             Log.d(TAG, "Game Info response: id=${response.id}, title=${response.title}")
@@ -63,7 +64,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
     }
 
     override suspend fun getPriceInfo(uids: List<String>): Result<List<PriceInfoResponse>> =
-        runCatching {
+        runSafeSuspendCatching {
             val response = isThereAnyDealApiService.prices(gameIds = uids)
             response
         }.onFailure {
@@ -71,7 +72,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
         }
 
     override suspend fun getPriceInfo(uid: String): Result<PriceInfoResponse> =
-        runCatching {
+        runSafeSuspendCatching {
             val response = isThereAnyDealApiService.prices(gameIds = listOf(uid))
             response.firstOrNull() ?: throw Exception("Price info for game with uid $uid not found")
         }.onFailure {

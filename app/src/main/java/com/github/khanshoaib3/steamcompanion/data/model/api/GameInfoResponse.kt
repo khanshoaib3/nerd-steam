@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.data.model.detail.isThereAnyDeal
+package com.github.khanshoaib3.steamcompanion.data.model.api
 
 import kotlinx.serialization.Serializable
 
@@ -7,20 +7,20 @@ data class GameInfoResponse(
     val id: String,
     val slug: String,
     val title: String,
-    val type: String,
+    val type: String?,
     val mature: Boolean,
     val assets: GameAssets,
     val earlyAccess: Boolean,
     val achievements: Boolean,
     val tradingCards: Boolean,
-    val appid: Int,
+    val appid: Int?,
     val tags: List<String>,
     val releaseDate: String,
     val developers: List<Company>,
     val publishers: List<Company>,
     val reviews: List<Review>,
     val stats: Stats,
-    val players: Players,
+    val players: Players?,
     val urls: Urls
 )
 
@@ -32,9 +32,9 @@ data class Company(
 
 @Serializable
 data class Review(
-    val score: Int,
+    val score: Int?,
     val source: String,
-    val count: Int,
+    val count: Int?,
     val url: String
 )
 

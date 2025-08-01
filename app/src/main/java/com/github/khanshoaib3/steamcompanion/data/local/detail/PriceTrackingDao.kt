@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
 
 @Dao
 interface PriceTrackingDao {

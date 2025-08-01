@@ -1,7 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.search
 
 import androidx.lifecycle.ViewModel
-import com.github.khanshoaib3.steamcompanion.data.model.search.AppSearchResult
+import com.github.khanshoaib3.steamcompanion.data.model.api.AppSearchResponse
 import com.github.khanshoaib3.steamcompanion.data.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ data class AppSearchResultDisplay(
     val iconUrl: String
 )
 
-fun AppSearchResult.toDisplayData(): AppSearchResultDisplay {
+fun AppSearchResponse.toDisplayData(): AppSearchResultDisplay {
     return AppSearchResultDisplay(
         appId = appid.toInt(),
         name = name,

@@ -32,8 +32,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneSceneStrategy
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailsScreen
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppDetailViewModel
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailsScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailViewModel
 import com.github.khanshoaib3.steamcompanion.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.SearchScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route

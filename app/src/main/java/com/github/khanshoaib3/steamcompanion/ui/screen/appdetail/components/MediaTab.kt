@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
+package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,14 +23,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaTab(
-    appData: AppData,
+    collatedAppData: CollatedAppData,
     modifier: Modifier = Modifier,
-) {
+) = collatedAppData.commonDetails?.let { commonAppDetails ->
     Column(
         modifier = modifier.padding(
             vertical = dimensionResource(R.dimen.padding_small),
@@ -39,8 +40,8 @@ fun MediaTab(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if ((appData.content?.data?.screenshots?.size ?: 0) <= 0)
-            return
+        if ((commonAppDetails.media?.screenshots?.size ?: 0) <= 0) return null
+
         Text(
             "Screenshots",
             style = MaterialTheme.typography.headlineSmall,
@@ -52,7 +53,7 @@ fun MediaTab(
 
         HorizontalMultiBrowseCarousel(
             state = rememberCarouselState {
-                appData.content?.data?.screenshots?.size ?: 0
+                commonAppDetails.media?.screenshots?.size ?: 0
             },
             modifier = Modifier.fillMaxWidth(),
             preferredItemWidth = 421.dp,
@@ -60,8 +61,8 @@ fun MediaTab(
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             AsyncImage(
-                model = appData.content?.data?.screenshots?.get(it)?.pathFull ?: "",
-                contentDescription = null,
+                model = commonAppDetails.media?.screenshots?.get(it) ?: "",
+                contentDescription = null, // TODO Add description
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()

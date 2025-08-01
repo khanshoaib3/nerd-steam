@@ -1,231 +1,539 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail
+package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.widget.Toast
+import android.icu.text.NumberFormat
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
-import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardLower
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.components.CardUpper
+import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.Platforms
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
-import com.github.khanshoaib3.steamcompanion.ui.utils.Side
-import com.github.khanshoaib3.steamcompanion.ui.utils.plus
-import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.util.Currency
+import kotlin.math.roundToInt
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppDetailsScreen(
-    isWideScreen: Boolean,
-    onUpButtonClick: () -> Unit,
+fun CardUpper(
     modifier: Modifier = Modifier,
-    viewModel: AppDetailViewModel = hiltViewModel(),
-) {
-    val appData by viewModel.appData.collectAsState()
-    val viewState by viewModel.appViewState.collectAsState()
-    val scope = rememberCoroutineScope()
-    val view = LocalView.current
-    val context = LocalContext.current
-
-    var storedPriceTrackingInfo: PriceTracking? by remember { mutableStateOf(null) }
-    val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
-        val toast = Toast.makeText(
-            context,
-            "Alert set for ${appData.content?.data?.name ?: "the app"}",
-            Toast.LENGTH_SHORT
-        )
-        scope.launch(context = Dispatchers.IO) {
-            viewModel.startPriceTracking(targetPrice, notifyEveryDay)
-            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
-            toast.show()
-        }
-    }
-    val stopPriceTracking: () -> Unit = {
-        val toast = Toast.makeText(
-            context,
-            "Alert removed",
-            Toast.LENGTH_SHORT
-        )
-        scope.launch(context = Dispatchers.IO) {
-            viewModel.stopPriceTracking()
-            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
-            toast.show()
-        }
-    }
-
-    LaunchedEffect(viewModel) {
-        withContext(Dispatchers.IO) {
-            viewModel.updateAppId()
-            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
-        }
-    }
-
-    val fetchDataFromSourceCallback: (DataSourceType) -> Unit = viewModel::fetchDataFromSource
-
-    if (appData.content == null || appData.content?.data == null || appData.content?.success != true) {
-        Column(
-            Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (appData.content != null && !appData.content!!.success) {
-                Icon(Icons.Default.ErrorOutline, contentDescription = "Error icon")
-                Text(
-                    "Unable to fetch data for the app!!",
-                    Modifier.padding(dimensionResource(R.dimen.padding_medium))
-                )
-            } else {
-                LoadingIndicator(Modifier.scale(2.5f))
-            }
-        }
-        return
-    }
-
-    val scrollState = rememberScrollState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    val toggleBookmarkStatus: () -> Unit = {
-        scope.launch(context = Dispatchers.IO) {
-            viewModel.toggleBookmarkStatus()
-        }
-        view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
-    }
-    val isBookmarked = appData.isBookmarked
-
-    if (!isWideScreen) {
-        Scaffold(
-            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                TopAppBar(
-                    title = { Text(appData.content?.data?.name ?: "No Name") },
-                    navigationIcon = {
-                        IconButton(onClick = onUpButtonClick) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack, "Go back"
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = toggleBookmarkStatus) {
-                            Icon(
-                                if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                                contentDescription = "Bookmark app"
-                            )
-                        }
-                    },
-                    scrollBehavior = scrollBehavior,
-                    windowInsets = WindowInsets()
-                )
-            }) { innerPadding ->
-            AppDetailsCard(
-                appData = appData,
-                appViewState = viewState,
-                fetchDataFromSourceCallback = fetchDataFromSourceCallback,
-                onBookmarkClick = toggleBookmarkStatus,
-                isBookmarkActive = isBookmarked,
-                storedPriceTrackingInfo = storedPriceTrackingInfo,
-                showHeader = false,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
-            )
-        }
-    } else {
-        AppDetailsCard(
-            modifier = modifier.verticalScroll(scrollState),
-            appData = appData,
-            appViewState = viewState,
-            fetchDataFromSourceCallback = fetchDataFromSourceCallback,
-            onBookmarkClick = toggleBookmarkStatus,
-            isBookmarkActive = isBookmarked,
-            storedPriceTrackingInfo = storedPriceTrackingInfo,
-            startPriceTracking = startPriceTracking,
-            stopPriceTracking = stopPriceTracking,
-            showHeader = true
-        )
-    }
-}
-
-@Composable
-fun AppDetailsCard(
-    modifier: Modifier = Modifier,
-    appData: AppData,
-    appViewState: AppViewState,
-    fetchDataFromSourceCallback: (DataSourceType) -> Unit,
+    collatedAppData: CollatedAppData,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceTrackingInfo: PriceTracking?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true,
-) {
-    Box(modifier = modifier.padding(dimensionResource(R.dimen.padding_small))) {
-        OutlinedCard {
-            CardUpper(
+) = collatedAppData.commonDetails?.let {
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    val view = LocalView.current
+
+    val notificationOptions = listOf("Everyday", "Once")
+    var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
+
+    val maxPrice = it.originalPrice
+    val currentPrice = it.currentPrice
+    var targetPrice by remember { mutableFloatStateOf(currentPrice) }
+    LaunchedEffect(storedPriceTrackingInfo) {
+        if (storedPriceTrackingInfo == null) return@LaunchedEffect
+        targetPrice = storedPriceTrackingInfo.targetPrice
+        selectedNotificationOptionIndex = if (storedPriceTrackingInfo.notifyEveryDay) 0 else 1
+    }
+
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+            modifier = Modifier
+                .padding(vertical = dimensionResource(R.dimen.padding_small))
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                .padding(bottom = dimensionResource(R.dimen.padding_medium))
+        ) {
+            if (showHeader) {
+                Header(
+                    modifier = Modifier.fillMaxWidth(),
+                    appName = it.name,
+                    onBookmarkClick = onBookmarkClick,
+                    isBookmarkActive = isBookmarkActive
+                )
+            }
+            FeaturesOverview(
                 modifier = Modifier.fillMaxWidth(),
-                appData = appData,
-                onBookmarkClick = onBookmarkClick,
-                isBookmarkActive = isBookmarkActive,
-                storedPriceTrackingInfo = storedPriceTrackingInfo,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
-                showHeader = showHeader
+                appId = collatedAppData.steamAppId,
+                imageUrl = it.imageUrl,
+                appName = it.name,
+                appType = it.type,
+                developers = it.developers,
+                publishers = it.publishers,
+                platforms = it.platforms,
             )
-            CardLower(
+            PriceNPlayerCount(
                 modifier = Modifier.fillMaxWidth(),
-                appData = appData,
-                appViewState = appViewState,
-                fetchDataFromSourceCallback = fetchDataFromSourceCallback
+                isFree = it.isFree,
+                currentPrice = it.currentPrice,
+                originalPrice = it.originalPrice,
+                currency = it.currency,
+            )
+            Categories(
+                modifier = Modifier.fillMaxWidth(),
+                categories = it.categories
+            )
+
+            if (it.description != null) {
+                ShortDescription(
+                    modifier = Modifier.fillMaxWidth(),
+                    description = it.description
+                )
+            }
+
+            if (!it.isFree && it.isReleased) {
+                TrackingButtons(
+                    onClick = { scope.launch { sheetState.show() } },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (sheetState.isVisible) {
+            PriceTrackingSheet(
+                sheetState = sheetState,
+                targetPrice = targetPrice,
+                maxPrice = maxPrice,
+                onPriceChange = {
+                    targetPrice = (it * 100).roundToInt() / 100f
+                },
+                selectedNotificationOptionIndex = selectedNotificationOptionIndex,
+                notificationOptions = notificationOptions,
+                onSelectedNotificationOptionIndexChange = {
+                    selectedNotificationOptionIndex = it
+                },
+                onCancel = { scope.launch { sheetState.hide() } },
+                onConfirm = {
+                    startPriceTracking(
+                        targetPrice,
+                        selectedNotificationOptionIndex == 0
+                    )
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                },
+                priceAlreadyTracked = storedPriceTrackingInfo != null,
+                onStop = {
+                    stopPriceTracking()
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PriceTrackingSheet(
+    sheetState: SheetState,
+    targetPrice: Float,
+    maxPrice: Float,
+    onPriceChange: (Float) -> Unit,
+    selectedNotificationOptionIndex: Int,
+    notificationOptions: List<String>,
+    onSelectedNotificationOptionIndexChange: (Int) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    priceAlreadyTracked: Boolean,
+    onStop: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCancel,
+        sheetState = sheetState,
+    ) {
+        PriceTrackingSheetContent(
+            targetPrice = targetPrice,
+            maxPrice = maxPrice,
+            onPriceChange = onPriceChange,
+            selectedNotificationOptionIndex = selectedNotificationOptionIndex,
+            notificationOptions = notificationOptions,
+            onSelectedNotificationOptionIndexChange = onSelectedNotificationOptionIndexChange,
+            onCancel = onCancel,
+            onConfirm = onConfirm,
+            priceAlreadyTracked = priceAlreadyTracked,
+            onStop = onStop,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+fun PriceTrackingSheetContent(
+    targetPrice: Float,
+    maxPrice: Float,
+    onPriceChange: (Float) -> Unit,
+    selectedNotificationOptionIndex: Int,
+    notificationOptions: List<String>,
+    onSelectedNotificationOptionIndexChange: (Int) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    priceAlreadyTracked: Boolean,
+    onStop: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Target Price",
+                    modifier = Modifier.weight(0.75f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                TextField(
+                    targetPrice.toString(),
+                    onValueChange = { onPriceChange(it.toFloat()) },
+                    modifier = Modifier.weight(0.25f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+            Slider(
+                value = targetPrice,
+                onValueChange = onPriceChange,
+                valueRange = 0f..maxPrice,
+//                steps = (maxPrice / 20).toInt()
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Frequency",
+                    modifier = Modifier.weight(0.75f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                SingleChoiceSegmentedButtonRow {
+                    notificationOptions.forEachIndexed { index, label ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = notificationOptions.size
+                            ),
+                            onClick = { onSelectedNotificationOptionIndexChange(index) },
+                            selected = index == selectedNotificationOptionIndex,
+                            label = { Text(label) }
+                        )
+                    }
+                }
+            }
+        }
+        if (priceAlreadyTracked) {
+            Spacer(Modifier.height(32.dp))
+            FilledTonalButton(onClick = onStop, modifier = Modifier.fillMaxWidth(0.9f)) {
+                Text("Remove Alert")
+            }
+            Spacer(Modifier.height(24.dp))
+        } else {
+            Spacer(Modifier.height(64.dp))
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.padding_large)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text("Cancel")
+            }
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text(if (priceAlreadyTracked) "Update" else "Start Tracking")
+            }
+        }
+    }
+}
+
+@Composable
+fun Header(
+    modifier: Modifier = Modifier,
+    onBookmarkClick: () -> Unit,
+    isBookmarkActive: Boolean,
+    appName: String,
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Text(
+            text = appName,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start
+        )
+        Row {
+            IconButton(onClick = onBookmarkClick) {
+                Icon(
+                    if (isBookmarkActive) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription = "Bookmark app"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FeaturesOverview(
+    modifier: Modifier = Modifier,
+    appId: Int,
+    imageUrl: String,
+    appName: String,
+    appType: String,
+    developers: List<String>?,
+    publishers: List<String>?,
+    platforms: Platforms,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+        Column(modifier = Modifier.weight(0.25f)) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Hero capsule for $appName",
+                placeholder = painterResource(R.drawable.preview_image_300x450),
+                modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+            )
+        }
+        Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
+        Column(modifier = Modifier.weight(0.75f)) {
+            Row {
+                Column(modifier = Modifier.weight(0.45f)) {
+                    Text("App ID", fontWeight = FontWeight.Bold)
+                    Text("App Type", fontWeight = FontWeight.Bold)
+                    Text("Developer", fontWeight = FontWeight.Bold)
+                    Text("Publisher", fontWeight = FontWeight.Bold)
+                    Text("Supported Systems", fontWeight = FontWeight.Bold)
+                }
+                Column(modifier = Modifier.weight(0.55f)) {
+                    Text("$appId")
+                    Text(appType)
+                    if (developers != null && developers.isNotEmpty()) {
+                        Text(developers.joinToString(", "))
+                    }
+                    if (publishers != null && publishers.isNotEmpty()) {
+                        Text(publishers.joinToString(", "))
+                    }
+                    Row {
+                        if (platforms.windows) {
+                            Icon(
+                                painter = painterResource(R.drawable.windows_icon),
+                                contentDescription = "Windows",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        if (platforms.linux) {
+                            Icon(
+                                painter = painterResource(R.drawable.linux_icon),
+                                contentDescription = "Linux",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        if (platforms.mac) {
+                            Icon(
+                                painter = painterResource(R.drawable.mac_icon),
+                                contentDescription = "MacOS",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PriceNPlayerCount(
+    modifier: Modifier = Modifier,
+    isFree: Boolean,
+    currentPrice: Float,
+    originalPrice: Float,
+    currency: String,
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        if (!isFree && originalPrice != 0f) {
+            Surface(
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small))
+            ) {
+                Row(modifier = Modifier.fillMaxWidth(0.4f)) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        val numberInstance = NumberFormat.getNumberInstance()
+                        val currentPrice = numberInstance.format(currentPrice)
+                        val originalPrice = numberInstance.format(originalPrice)
+                        val currencySymbol = Currency.getInstance(currency).symbol
+                        Text(
+                            text = "$currencySymbol $currentPrice",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "Original: $currencySymbol $originalPrice",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+        }
+        // Rating
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun Categories(
+    modifier: Modifier = Modifier,
+    categories: List<com.github.khanshoaib3.steamcompanion.data.model.appdetail.Category>?,
+) {
+    if (categories == null || categories.isEmpty()) return
+
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small))
+        ) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(dimensionResource(R.dimen.padding_small)),
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
+            ) {
+                categories.forEach { category ->
+                    CategoryChip(
+                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
+                        category = category,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShortDescription(modifier: Modifier = Modifier, description: String) {
+    CenterAlignedSelectableText(description, modifier)
+}
+
+@Composable
+fun TrackingButtons(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FilledIconButton(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Text(
+                text = "Set Price Alert",
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
@@ -238,17 +546,34 @@ private fun GameDetailScreenPreview() {
     val gameRawData =
         "{\"success\":true,\"data\":{\"type\":\"game\",\"name\":\"Half-Life 2\",\"steam_appid\":220,\"required_age\":0,\"is_free\":false,\"controller_support\":\"full\",\"dlc\":[323140],\"detailed_description\":\"<p class=\\\"bb_paragraph\\\"><i>The Seven Hour War is lost. Earth has surrendered. The Black Mesa incident is a distant memory.<\\/i> The player again picks up the crowbar of research scientist Gordon Freeman, who finds himself on an alien-infested Earth being picked to the bone, its resources depleted, its populace dwindling. Freeman is thrust into the unenviable role of rescuing the world from the wrong he unleashed back at Black Mesa. And a lot of people he cares about are counting on him.<\\/p><p class=\\\"bb_paragraph\\\">Half-Life 2 is the landmark first-person shooter that “forged the framework for the next generation of games” (PC Gamer). Experience a thrilling campaign packed with unprecedented levels of immersive world-building, boundary-pushing physics, and exhilarating combat.<\\/p><p class=\\\"bb_paragraph\\\"> <\\/p><h2 class=\\\"bb_tag\\\">Includes the Half-Life 2 Episode One and Two Expansions<\\/h2><p class=\\\"bb_paragraph\\\">The story of Half-Life 2 continues with Episodes One and Two, full-featured Half-Life adventures set during the aftermath of the base game. They are accessible from the main menu, and you will automatically advance to the next episode after completing each one.<\\/p><p class=\\\"bb_paragraph\\\"><img class=\\\"bb_img\\\" src=\\\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/extras\\/boxes.png?t=1737139959\\\" \\/><\\/p><h2 class=\\\"bb_tag\\\"> Half-Life 2: Deathmatch<\\/h2><p class=\\\"bb_paragraph\\\">Fast multiplayer action set in the Half-Life 2 universe! HL2's physics adds a new dimension to deathmatch play. Play straight deathmatch or try Combine vs. Resistance teamplay. Toss a toilet at your friend today! <i>Included in your Steam library with purchase of Half-Life 2.<\\/i><\\/p><p class=\\\"bb_paragraph\\\"><img class=\\\"bb_img\\\" src=\\\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/extras\\/deathmatch.png?t=1737139959\\\" \\/><\\/p><h2 class=\\\"bb_tag\\\">Steam Workshop<\\/h2><p class=\\\"bb_paragraph\\\">Play entire campaigns or replace weapons, enemies, UI, and more with content created by the community.<\\/p>\",\"about_the_game\":\"<p class=\\\"bb_paragraph\\\"><i>The Seven Hour War is lost. Earth has surrendered. The Black Mesa incident is a distant memory.<\\/i> The player again picks up the crowbar of research scientist Gordon Freeman, who finds himself on an alien-infested Earth being picked to the bone, its resources depleted, its populace dwindling. Freeman is thrust into the unenviable role of rescuing the world from the wrong he unleashed back at Black Mesa. And a lot of people he cares about are counting on him.<\\/p><p class=\\\"bb_paragraph\\\">Half-Life 2 is the landmark first-person shooter that “forged the framework for the next generation of games” (PC Gamer). Experience a thrilling campaign packed with unprecedented levels of immersive world-building, boundary-pushing physics, and exhilarating combat.<\\/p><p class=\\\"bb_paragraph\\\"> <\\/p><h2 class=\\\"bb_tag\\\">Includes the Half-Life 2 Episode One and Two Expansions<\\/h2><p class=\\\"bb_paragraph\\\">The story of Half-Life 2 continues with Episodes One and Two, full-featured Half-Life adventures set during the aftermath of the base game. They are accessible from the main menu, and you will automatically advance to the next episode after completing each one.<\\/p><p class=\\\"bb_paragraph\\\"><img class=\\\"bb_img\\\" src=\\\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/extras\\/boxes.png?t=1737139959\\\" \\/><\\/p><h2 class=\\\"bb_tag\\\"> Half-Life 2: Deathmatch<\\/h2><p class=\\\"bb_paragraph\\\">Fast multiplayer action set in the Half-Life 2 universe! HL2's physics adds a new dimension to deathmatch play. Play straight deathmatch or try Combine vs. Resistance teamplay. Toss a toilet at your friend today! <i>Included in your Steam library with purchase of Half-Life 2.<\\/i><\\/p><p class=\\\"bb_paragraph\\\"><img class=\\\"bb_img\\\" src=\\\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/extras\\/deathmatch.png?t=1737139959\\\" \\/><\\/p><h2 class=\\\"bb_tag\\\">Steam Workshop<\\/h2><p class=\\\"bb_paragraph\\\">Play entire campaigns or replace weapons, enemies, UI, and more with content created by the community.<\\/p>\",\"short_description\":\"Reawakened from stasis in the occupied metropolis of City 17, Gordon Freeman is joined by Alyx Vance as he leads a desperate human resistance. Experience the landmark first-person shooter packed with immersive world-building, boundary-pushing physics, and exhilarating combat.\",\"supported_languages\":\"English<strong>*<\\/strong>, French<strong>*<\\/strong>, German<strong>*<\\/strong>, Italian<strong>*<\\/strong>, Korean<strong>*<\\/strong>, Spanish - Spain<strong>*<\\/strong>, Russian<strong>*<\\/strong>, Simplified Chinese, Traditional Chinese, Dutch, Danish, Finnish, Japanese, Norwegian, Polish, Portuguese - Portugal, Swedish, Thai, Bulgarian, Czech, Greek, Hungarian, Portuguese - Brazil, Romanian, Spanish - Latin America, Turkish, Ukrainian<br><strong>*<\\/strong>languages with full audio support\",\"header_image\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/header.jpg?t=1737139959\",\"capsule_image\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/951c6aca52bf32d7c95e9f8b3c04fa95e9a735ea\\/capsule_231x87.jpg?t=1737139959\",\"capsule_imagev5\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/951c6aca52bf32d7c95e9f8b3c04fa95e9a735ea\\/capsule_184x69.jpg?t=1737139959\",\"website\":\"http:\\/\\/www.half-life.com\\/halflife2\",\"pc_requirements\":{\"minimum\":\"<strong>Minimum:<\\/strong><br><ul class=\\\"bb_ul\\\"><li><strong>OS *:<\\/strong> Windows 7, Vista, XP<br><\\/li><li><strong>Processor:<\\/strong> 1.7 Ghz<br><\\/li><li><strong>Memory:<\\/strong> 512 MB RAM<br><\\/li><li><strong>Graphics:<\\/strong> DirectX 8.1 level Graphics Card (requires support for SSE)<br><\\/li><li><strong>Storage:<\\/strong> 6500 MB available space<\\/li><\\/ul>\"},\"mac_requirements\":{\"minimum\":\"<strong>Minimum:<\\/strong><br><ul class=\\\"bb_ul\\\"><li><strong>OS:<\\/strong> Leopard 10.5.8, Snow Leopard 10.6.3, or higher<br><\\/li><li><strong>Memory:<\\/strong> 1 GB RAM<br><\\/li><li><strong>Graphics:<\\/strong> Nvidia GeForce8 or higher, ATI X1600 or higher, Intel HD 3000 or higher<\\/li><\\/ul>\"},\"linux_requirements\":[],\"developers\":[\"Valve\"],\"publishers\":[\"Valve\"],\"demos\":[{\"appid\":219,\"description\":\"\"}],\"price_overview\":{\"currency\":\"INR\",\"initial\":48000,\"final\":9600,\"discount_percent\":80,\"initial_formatted\":\"₹ 480\",\"final_formatted\":\"₹ 96\"},\"packages\":[36,289444,469],\"package_groups\":[{\"name\":\"default\",\"title\":\"Buy Half-Life 2\",\"description\":\"\",\"selection_text\":\"Select a purchase option\",\"save_text\":\"\",\"display_type\":0,\"is_recurring_subscription\":\"false\",\"subs\":[{\"packageid\":469,\"percent_savings_text\":\"-90% \",\"percent_savings\":0,\"option_text\":\"The Orange Box - <span class=\\\"discount_original_price\\\">₹ 880<\\/span> ₹ 88\",\"option_description\":\"\",\"can_get_free_license\":\"0\",\"is_free_license\":false,\"price_in_cents_with_discount\":8800},{\"packageid\":36,\"percent_savings_text\":\"-80% \",\"percent_savings\":0,\"option_text\":\"Half-Life 2 - <span class=\\\"discount_original_price\\\">₹ 480<\\/span> ₹ 96\",\"option_description\":\"\",\"can_get_free_license\":\"0\",\"is_free_license\":false,\"price_in_cents_with_discount\":9600},{\"packageid\":289444,\"percent_savings_text\":\" \",\"percent_savings\":0,\"option_text\":\"Half-Life 2 - Commercial License - ₹ 349\",\"option_description\":\"\",\"can_get_free_license\":\"0\",\"is_free_license\":false,\"price_in_cents_with_discount\":34900}]}],\"platforms\":{\"windows\":true,\"mac\":false,\"linux\":true},\"metacritic\":{\"score\":96,\"url\":\"https:\\/\\/www.metacritic.com\\/game\\/pc\\/half-life-2?ftag=MCD-06-10aaa1f\"},\"categories\":[{\"id\":2,\"description\":\"Single-player\"},{\"id\":22,\"description\":\"Steam Achievements\"},{\"id\":28,\"description\":\"Full controller support\"},{\"id\":29,\"description\":\"Steam Trading Cards\"},{\"id\":13,\"description\":\"Captions available\"},{\"id\":30,\"description\":\"Steam Workshop\"},{\"id\":23,\"description\":\"Steam Cloud\"},{\"id\":16,\"description\":\"Includes Source SDK\"},{\"id\":14,\"description\":\"Commentary available\"},{\"id\":41,\"description\":\"Remote Play on Phone\"},{\"id\":42,\"description\":\"Remote Play on Tablet\"},{\"id\":44,\"description\":\"Remote Play Together\"},{\"id\":62,\"description\":\"Family Sharing\"},{\"id\":63,\"description\":\"Steam Timeline\"}],\"genres\":[{\"id\":\"1\",\"description\":\"Action\"}],\"screenshots\":[{\"id\":0,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_47b4105b396de408cb8b6b4f358c69e5e2a62dae.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_47b4105b396de408cb8b6b4f358c69e5e2a62dae.1920x1080.jpg?t=1737139959\"},{\"id\":1,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_0e499071a60a20b24149ad65a8edb769250f2921.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_0e499071a60a20b24149ad65a8edb769250f2921.1920x1080.jpg?t=1737139959\"},{\"id\":2,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_ffb00abd45012680e4f209355ec81f961b6dd1fb.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_ffb00abd45012680e4f209355ec81f961b6dd1fb.1920x1080.jpg?t=1737139959\"},{\"id\":3,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_b822a29b3804e05ab9517cac99a5d978d109a32b.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_b822a29b3804e05ab9517cac99a5d978d109a32b.1920x1080.jpg?t=1737139959\"},{\"id\":4,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_c400361f185800786ea984e795f2a0dd4afee990.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_c400361f185800786ea984e795f2a0dd4afee990.1920x1080.jpg?t=1737139959\"},{\"id\":5,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_a2aeefb3ad34c46af5c381ff03ac0973892f5530.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_a2aeefb3ad34c46af5c381ff03ac0973892f5530.1920x1080.jpg?t=1737139959\"},{\"id\":6,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_394f4ad714937db2cc90545972b318ddb6db7231.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_394f4ad714937db2cc90545972b318ddb6db7231.1920x1080.jpg?t=1737139959\"},{\"id\":7,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_412b0e9f8285d3695d0b39840da41c184dff591a.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_412b0e9f8285d3695d0b39840da41c184dff591a.1920x1080.jpg?t=1737139959\"},{\"id\":8,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_93d1112a93572b2826a02456db4195c07bd2221a.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_93d1112a93572b2826a02456db4195c07bd2221a.1920x1080.jpg?t=1737139959\"},{\"id\":9,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_ed5532325f508728f8481f0109d662352a519e0a.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_ed5532325f508728f8481f0109d662352a519e0a.1920x1080.jpg?t=1737139959\"},{\"id\":10,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_4e76506add2af0c438d3c4bc810ccb823353fd13.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_4e76506add2af0c438d3c4bc810ccb823353fd13.1920x1080.jpg?t=1737139959\"},{\"id\":11,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_8d6f9f74b33e2b0b296c6bff9836085e063b2d2f.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_8d6f9f74b33e2b0b296c6bff9836085e063b2d2f.1920x1080.jpg?t=1737139959\"},{\"id\":12,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_1ee62eeed05669128167c2f28c5ece55aa683191.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_1ee62eeed05669128167c2f28c5ece55aa683191.1920x1080.jpg?t=1737139959\"},{\"id\":13,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_1a36c58cd035de49493962da7bb929501a4b3bcc.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_1a36c58cd035de49493962da7bb929501a4b3bcc.1920x1080.jpg?t=1737139959\"},{\"id\":14,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_06d5f06190db60187bb7128ae44902d676efef10.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_06d5f06190db60187bb7128ae44902d676efef10.1920x1080.jpg?t=1737139959\"},{\"id\":15,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_b3de6987b384b2db61b5dcad2dd6460fd2969612.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_b3de6987b384b2db61b5dcad2dd6460fd2969612.1920x1080.jpg?t=1737139959\"},{\"id\":16,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_4b9943f1961a35f0cdbeceed2f48c70cb05d791a.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_4b9943f1961a35f0cdbeceed2f48c70cb05d791a.1920x1080.jpg?t=1737139959\"},{\"id\":17,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_18841cb9a8fc2cf67039317b601d10c4059b6fa8.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_18841cb9a8fc2cf67039317b601d10c4059b6fa8.1920x1080.jpg?t=1737139959\"},{\"id\":18,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_fe894d70bdfa75236a4b451efbeea7d4ce3e0174.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_fe894d70bdfa75236a4b451efbeea7d4ce3e0174.1920x1080.jpg?t=1737139959\"},{\"id\":19,\"path_thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_70af5835953e5367fe536d90a8ddf2a26c2668dc.600x338.jpg?t=1737139959\",\"path_full\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/ss_70af5835953e5367fe536d90a8ddf2a26c2668dc.1920x1080.jpg?t=1737139959\"}],\"movies\":[{\"id\":257074217,\"name\":\"Half-Life 2 Trailer\",\"thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/257074217\\/2a5d40f3f7cd4a644849a7dae7ee9f9d7fb2074d\\/movie_600x337.jpg?t=1732069594\",\"webm\":{\"480\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/257074217\\/movie480_vp9.webm?t=1732069594\",\"max\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/257074217\\/movie_max_vp9.webm?t=1732069594\"},\"mp4\":{\"480\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/257074217\\/movie480.mp4?t=1732069594\",\"max\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/257074217\\/movie_max.mp4?t=1732069594\"},\"highlight\":true},{\"id\":904,\"name\":\"Half-Life 2 Trailer\",\"thumbnail\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/904\\/003a9a6063e5f154f7244aa5b55e16ddeb390dc4\\/movie_600x337.jpg?t=1732069598\",\"webm\":{\"480\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/904\\/movie480_vp9.webm?t=1732069598\",\"max\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/904\\/movie_max_vp9.webm?t=1732069598\"},\"mp4\":{\"480\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/904\\/movie480.mp4?t=1732069598\",\"max\":\"http:\\/\\/video.akamai.steamstatic.com\\/store_trailers\\/904\\/movie_max.mp4?t=1732069598\"},\"highlight\":false}],\"recommendations\":{\"total\":177653},\"achievements\":{\"total\":69,\"highlighted\":[{\"name\":\"Defiant\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_hit_cancop_withcan.jpg\"},{\"name\":\"Submissive\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_put_canintrash.jpg\"},{\"name\":\"Malcontent\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_escape_apartmentraid.jpg\"},{\"name\":\"What cat?\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_break_miniteleporter.jpg\"},{\"name\":\"Trusty Hardware\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_get_crowbar.jpg\"},{\"name\":\"Barnacle Bowling\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_kill_barnacleswithbarrel.jpg\"},{\"name\":\"Anchor's Aweigh!\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_get_airboat.jpg\"},{\"name\":\"Heavy Weapons\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_get_airboatgun.jpg\"},{\"name\":\"Vorticough\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_find_vortigauntcave.jpg\"},{\"name\":\"Revenge!\",\"path\":\"https:\\/\\/cdn.akamai.steamstatic.com\\/steamcommunity\\/public\\/images\\/apps\\/220\\/hl2_kill_chopper.jpg\"}]},\"release_date\":{\"coming_soon\":false,\"date\":\"16 Nov, 2004\"},\"support_info\":{\"url\":\"http:\\/\\/steamcommunity.com\\/app\\/220\",\"email\":\"\"},\"background\":\"https:\\/\\/store.akamai.steamstatic.com\\/images\\/storepagebackground\\/app\\/220?t=1737139959\",\"background_raw\":\"https:\\/\\/shared.akamai.steamstatic.com\\/store_item_assets\\/steam\\/apps\\/220\\/page_bg_raw.jpg?t=1737139959\",\"content_descriptors\":{\"ids\":[2,5],\"notes\":\"Half-Life 2 includes violence throughout the game.\"},\"ratings\":{\"usk\":{\"rating\":\"18\"},\"agcom\":{\"rating\":\"16\",\"descriptors\":\"Violenza\\r\\nPaura\"},\"dejus\":{\"rating_generated\":\"1\",\"rating\":\"14\",\"required_age\":\"14\",\"banned\":\"0\",\"use_age_gate\":\"0\",\"descriptors\":\"Violência\"},\"steam_germany\":{\"rating_generated\":\"1\",\"rating\":\"16\",\"required_age\":\"16\",\"banned\":\"0\",\"use_age_gate\":\"0\",\"descriptors\":\"Drastische Gewalt\"}}}}"
     val json = Json { ignoreUnknownKeys = true }
-    val gameData = json.decodeFromString<SteamWebApiAppDetailsResponse>(gameRawData)
+    val gameData = json.decodeFromString<AppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
-        AppDetailsCard(
-            appData = AppData(content = gameData),
-            appViewState = AppViewState(),
-            fetchDataFromSourceCallback = {},
+        CardUpper(
+            collatedAppData = CollatedAppData(steamAppId = 220),
             onBookmarkClick = {},
+            isBookmarkActive = false,
             storedPriceTrackingInfo = null,
             startPriceTracking = { _, _ -> },
-            stopPriceTracking = {},
-            isBookmarkActive = true
+            stopPriceTracking = {}
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun PriceTrackingSheetPreview() {
+    PriceTrackingSheetContent(
+        targetPrice = 45.0f,
+        maxPrice = 199.99f,
+        onPriceChange = {},
+        selectedNotificationOptionIndex = 1,
+        notificationOptions = listOf("Everyday", "Once"),
+        onSelectedNotificationOptionIndexChange = {},
+        onCancel = {},
+        onConfirm = {},
+        priceAlreadyTracked = true,
+        onStop = {}
+    )
 }

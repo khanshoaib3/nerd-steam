@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.detail.components
+package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,10 +17,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppData
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.AppViewState
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.DataSourceType
-import com.github.khanshoaib3.steamcompanion.ui.screen.detail.Progress
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
 
@@ -29,7 +29,7 @@ import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
 fun PlayerStatsTab(
     appData: AppData,
     appViewState: AppViewState,
-    fetchDataFromSourceCallback: (DataSourceType) -> Unit,
+    fetchDataFromSourceCallback: (DataType) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -42,9 +42,9 @@ fun PlayerStatsTab(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (appViewState.steamChartsFetchStatus != Progress.LOADED) {
+        if (appViewState.steamChartsStatus != Progress.LOADED) {
             LaunchedEffect(appViewState) {
-                fetchDataFromSourceCallback(DataSourceType.STEAM_CHARTS)
+                fetchDataFromSourceCallback(DataType.STEAM_CHARTS_PLAYER_STATS)
             }
 
             LoadingIndicator()

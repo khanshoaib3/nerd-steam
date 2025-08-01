@@ -10,8 +10,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
-import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
-import com.github.khanshoaib3.steamcompanion.data.remote.IsThereAnyDealApiService
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineAppDetailRepository
 import com.github.khanshoaib3.steamcompanion.di.AppModule

@@ -2,8 +2,8 @@ package com.github.khanshoaib3.steamcompanion.data.repository
 
 import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.local.detail.PriceTrackingDao
-import com.github.khanshoaib3.steamcompanion.data.model.detail.PriceTracking
-import com.github.khanshoaib3.steamcompanion.data.model.detail.SteamWebApiAppDetailsResponse
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
@@ -18,7 +18,7 @@ import javax.inject.Inject
 private const val TAG = "GameDetailRepository"
 
 interface AppDetailRepository {
-    suspend fun fetchDataForAppId(appId: Int): SteamWebApiAppDetailsResponse?
+    suspend fun fetchDataForAppId(appId: Int): AppDetailsResponse?
 
     suspend fun trackPrice(priceTracking: PriceTracking)
 
@@ -34,16 +34,16 @@ class OnlineAppDetailRepository @Inject constructor(
     private val priceTrackingDao: PriceTrackingDao,
 ) : AppDetailRepository {
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun fetchDataForAppId(appId: Int): SteamWebApiAppDetailsResponse? {
+    override suspend fun fetchDataForAppId(appId: Int): AppDetailsResponse? {
         var result = steamInternalWebApiService.getAppDetails(appId)
         val json = Json { ignoreUnknownKeys = true }
         Log.d("GameDetailRepository", "$result")
 
-        lateinit var appDetail: SteamWebApiAppDetailsResponse
+        lateinit var appDetail: AppDetailsResponse
         var missingField = false
         try {
             appDetail =
-                json.decodeFromJsonElement<SteamWebApiAppDetailsResponse>(result.get(key = "$appId")!!)
+                json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$appId")!!)
         } catch (_: MissingFieldException) {
             Log.d(TAG, "Unable to serialize data for $appId because of missing fields.")
             Log.d(TAG, "Attempting to fetch updated App ID from redirect url...")
@@ -57,7 +57,7 @@ class OnlineAppDetailRepository @Inject constructor(
         Log.d(TAG, "New app id: $newAppId")
 
         result = steamInternalWebApiService.getAppDetails(newAppId)
-        return json.decodeFromJsonElement<SteamWebApiAppDetailsResponse>(result.get(key = "$newAppId")!!)
+        return json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$newAppId")!!)
     }
 
     private fun getUpdatedAppIdFromRedirectUrl(currentAppId: Int): Int? {
