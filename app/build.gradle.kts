@@ -92,6 +92,7 @@ dependencies {
 
     // Datetime
     implementation(libs.kotlinx.datetime)
+    implementation(libs.timeago)
 
     // Preferences Datastore
     implementation(libs.androidx.datastore.preferences)

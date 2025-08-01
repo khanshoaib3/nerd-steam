@@ -86,8 +86,8 @@ class AppDetailViewModelTest {
         requirements = listOf(
             Requirement(
                 platform = "Windows",
-                minimumRequirement = """< strong > Minimum : < / strong ><br> < ul class = "bb_ul" > < li ><strong> OS *:</strong> Windows 7, Vista, XP<br></li><li><strong>Processor:</strong> 1.7 Ghz<br></li><li><strong>Memory:</strong> 512 MB RAM<br></li><li><strong>Graphics:</strong> DirectX 8.1 level Graphics Card (requires support for SSE)<br></li><li><strong>Storage:</strong> 6500 MB available space</li></ul>""",
-                recommendedRequirement = null
+                minimumRequirements = """< strong > Minimum : < / strong ><br> < ul class = "bb_ul" > < li ><strong> OS *:</strong> Windows 7, Vista, XP<br></li><li><strong>Processor:</strong> 1.7 Ghz<br></li><li><strong>Memory:</strong> 512 MB RAM<br></li><li><strong>Graphics:</strong> DirectX 8.1 level Graphics Card (requires support for SSE)<br></li><li><strong>Storage:</strong> 6500 MB available space</li></ul>""",
+                recommendedRequirements = null
             )
         ),
         reviews = listOf(),

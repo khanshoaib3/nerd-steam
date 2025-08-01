@@ -1,32 +1,31 @@
 package com.github.khanshoaib3.steamcompanion.data.scraper
 
 import android.util.Log
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.MonthlyPlayerStatistic
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt
 import it.skrape.fetcher.skrape
+import it.skrape.selects.html5.abbr
+import it.skrape.selects.html5.div
+import it.skrape.selects.html5.span
 import it.skrape.selects.html5.table
 import it.skrape.selects.html5.tbody
 import it.skrape.selects.html5.td
 import it.skrape.selects.html5.tr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.jvm.Throws
 
 private const val TAG = "SteamChartsPerAppScraper"
-
-data class PlayerStatsRowData(
-    val month: String,
-    val avgPlayers: String,
-    val gain: String,
-    val percGain: String,
-    val peakPlayers: String,
-)
 
 data class SteamChartsPerAppScrapedData(
     var httpStatusCode: Int = 0,
     var httpStatusMessage: String = "",
-    var playerStatsRowData: List<PlayerStatsRowData> = listOf(),
+    var monthlyPlayerStats: List<MonthlyPlayerStatistic> = listOf(),
+    var lastHourCount: String = "",
+    var lastHourTime: String = "",
+    var twentyFourHourPeak: String = "",
+    var allTimePeak: String = "",
 )
 
 class SteamChartsPerAppScraper(private val appId: Int) {
@@ -42,7 +41,7 @@ class SteamChartsPerAppScraper(private val appId: Int) {
                     it.httpStatusCode = status { code }
                     it.httpStatusMessage = status { message }
                     htmlDocument {
-                        var rows = mutableListOf<PlayerStatsRowData>()
+                        val rows = mutableListOf<MonthlyPlayerStatistic>()
                         table {
                             withClass = "common-table"
                             findFirst {
@@ -51,7 +50,7 @@ class SteamChartsPerAppScraper(private val appId: Int) {
                                         findAll {
                                             forEach { row ->
                                                 rows.add(
-                                                    PlayerStatsRowData(
+                                                    MonthlyPlayerStatistic(
                                                         month = row.td { findByIndex(0) { text } },
                                                         avgPlayers = row.td { findByIndex(1) { text } },
                                                         gain = row.td { findByIndex(2) { text } },
@@ -66,7 +65,22 @@ class SteamChartsPerAppScraper(private val appId: Int) {
                             }
                         }
 
-                        it.playerStatsRowData = rows
+                        it.monthlyPlayerStats = rows
+
+                        div {
+                            withId = "app-heading"
+                            div {
+                                withClass = "app-stat"
+                                findAll {
+                                    it.lastHourCount = get(0).span { findFirst { text } }
+                                    it.lastHourTime = get(0).abbr {
+                                        findFirst { attribute("title") }
+                                    }
+                                    it.twentyFourHourPeak = get(1).span { findFirst { text } }
+                                    it.allTimePeak = get(2).span { findFirst { text } }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -31,6 +31,7 @@ datastorePreferences = "1.1.7"
 room = "2.7.2"
 
 # WorkManager
+timeago = "4.1.0"
 work = "2.10.2"
 
 # Networking
@@ -123,6 +124,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # Testing
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
+timeago = { module = "com.github.marlonlom:timeago", version.ref = "timeago" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -2,9 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -19,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
@@ -72,7 +69,7 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
         content = {
             PlayerStatsTab(
                 modifier = modifier,
-                appData = appData,
+                collatedAppData = collatedAppData,
                 appViewState = appViewState,
                 fetchDataFromSourceCallback = fetchDataFromSourceCallback
             )
@@ -115,26 +112,15 @@ fun CardLower(
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = dimensionResource(R.dimen.padding_small),
-                        horizontal = dimensionResource(R.dimen.padding_medium)
-                    ),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                tabItems[selectedTabIndex].content(
-                    TabScope(
-                        Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                        appData,
-                        collatedAppData,
-                        appViewState,
-                        fetchDataFromSourceCallback
-                    )
+            tabItems[selectedTabIndex].content(
+                TabScope(
+                    Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                    appData,
+                    collatedAppData,
+                    appViewState,
+                    fetchDataFromSourceCallback
                 )
-            }
+            )
         }
     }
 }

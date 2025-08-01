@@ -20,6 +20,7 @@ import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.SteamChartsI
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
+import com.github.khanshoaib3.steamcompanion.ui.components.SteamChartsFooter
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 
 enum class SteamChartsTableType {
@@ -74,7 +75,7 @@ fun <T : SteamChartsItem> SteamChartsTable(
                         imageHeight = imageHeight,
                         onRowClick = onGameRowClick
                     )
-                    SteamChartsTableFooter(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_very_small)))
+                    SteamChartsFooter(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_very_small)))
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.home.components
+package com.github.khanshoaib3.steamcompanion.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -13,12 +13,11 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
 
 @Composable
-fun SteamChartsTableFooter(modifier: Modifier = Modifier) {
+fun SteamChartsFooter(modifier: Modifier = Modifier, url: String = "https://steamcharts.com/") {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
@@ -29,16 +28,15 @@ fun SteamChartsTableFooter(modifier: Modifier = Modifier) {
             buildAnnotatedString {
                 append("powered by ")
                 withLink(
-                    LinkAnnotation.Url(
-                        "https://steamcharts.com/",
-                        TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                    link = LinkAnnotation.Url(
+                        url = url,
+                        styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
                     )
                 ) {
                     append("steamcharts.com")
                 }
             },
             style = MaterialTheme.typography.bodySmall,
-            fontStyle = FontStyle.Italic,
             textAlign = TextAlign.End,
         )
     }

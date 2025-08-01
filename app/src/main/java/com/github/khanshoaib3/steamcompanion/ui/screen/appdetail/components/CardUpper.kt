@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
@@ -144,7 +146,7 @@ fun CardUpper(
                 )
             }
 
-            if (!it.isFree && it.isReleased) {
+            if (!it.isFree && it.isReleased && it.originalPrice != 0f) {
                 TrackingButtons(
                     onClick = { scope.launch { sheetState.show() } },
                     modifier = Modifier.fillMaxWidth()
@@ -444,10 +446,7 @@ fun PriceNPlayerCount(
         modifier = modifier
     ) {
         if (!isFree && originalPrice != 0f) {
-            Surface(
-                color = MaterialTheme.colorScheme.tertiaryContainer,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small))
-            ) {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
                 Row(modifier = Modifier.fillMaxWidth(0.4f)) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -489,10 +488,7 @@ fun Categories(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Surface(
-            color = MaterialTheme.colorScheme.tertiaryContainer,
-            shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small))
-        ) {
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)

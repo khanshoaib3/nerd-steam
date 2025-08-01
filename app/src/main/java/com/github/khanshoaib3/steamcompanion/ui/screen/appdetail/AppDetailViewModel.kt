@@ -5,14 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.CommonAppDetails
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.ITADPriceInfo
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PlayerStatistics
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.toITADPriceInfo
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.toPlayerStatistics
 import com.github.khanshoaib3.steamcompanion.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.steamcompanion.data.repository.AppDetailRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.IsThereAnyDealRepository
-import com.github.khanshoaib3.steamcompanion.data.scraper.PlayerStatsRowData
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.FAILED
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADED
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADING
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.NOT_QUEUED
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -34,24 +39,23 @@ enum class DataType {
 
 data class AppData(
     val isBookmarked: Boolean = false,
-    val playerStatsRowData: List<PlayerStatsRowData> = listOf(),
 )
 
 data class CollatedAppData(
     val steamAppId: Int,
     val isThereAnyDealId: String? = null,
     val commonDetails: CommonAppDetails? = null,
-    val playerStatistics: Any? = null,
+    val playerStatistics: PlayerStatistics? = null,
     val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
     val priceTrackingInfo: PriceTracking? = null,
 )
 
 data class AppViewState(
     val selectedTabIndex: Int = 0,
-    val steamChartsStatus: Progress = Progress.NOT_QUEUED,
-    val isThereAnyDealPriceInfoStatus: Progress = Progress.NOT_QUEUED,
-    val steamStatus: Progress = Progress.NOT_QUEUED,
-    val isThereAnyDealGameInfoStatus: Progress = Progress.NOT_QUEUED,
+    val steamChartsStatus: Progress = NOT_QUEUED,
+    val isThereAnyDealPriceInfoStatus: Progress = NOT_QUEUED,
+    val steamStatus: Progress = NOT_QUEUED,
+    val isThereAnyDealGameInfoStatus: Progress = NOT_QUEUED,
 )
 
 @HiltViewModel(assistedFactory = AppDetailViewModel.Factory::class)
@@ -83,36 +87,27 @@ class AppDetailViewModel @AssistedInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (dataType) {
                 DataType.COMMON_APP_DETAILS -> fetchCommonAppDetails()
-                DataType.STEAM_CHARTS_PLAYER_STATS -> if (appViewState.value.steamChartsStatus == Progress.NOT_QUEUED) {
-                    fetchSteamChartsPlayerStats()
-                }
-
-                DataType.IS_THERE_ANY_DEAL_PRICE_INFO -> if (appViewState.value.isThereAnyDealPriceInfoStatus == Progress.NOT_QUEUED) {
-                    fetchISTDPriceInfo()
-                }
+                DataType.STEAM_CHARTS_PLAYER_STATS -> fetchSteamChartsPlayerStats()
+                DataType.IS_THERE_ANY_DEAL_PRICE_INFO -> fetchISTDPriceInfo()
             }
         }
 
     suspend fun updateAppId() {
-        val realAppId = key.appId
-
         _appData.update {
-            val content = appDetailRepository.fetchDataForAppId(appId = realAppId)
-            val isBookmarked = bookmarkRepository.isBookmarked(content?.data?.steamAppId)
+            val isBookmarked = bookmarkRepository.isBookmarked(key.appId)
             AppData(
-//                content = content,
                 isBookmarked = isBookmarked,
             )
         }
     }
 
     suspend fun fetchCommonAppDetails() {
-        if (appViewState.value.steamStatus != Progress.NOT_QUEUED
-            && appViewState.value.isThereAnyDealGameInfoStatus != Progress.NOT_QUEUED
+        if (appViewState.value.steamStatus != NOT_QUEUED
+            && appViewState.value.isThereAnyDealGameInfoStatus != NOT_QUEUED
         ) return
 
         _viewState.update {
-            it.copy(steamStatus = Progress.LOADING, isThereAnyDealGameInfoStatus = Progress.LOADING)
+            it.copy(steamStatus = LOADING, isThereAnyDealGameInfoStatus = LOADING)
         }
 
         val steamResponse = appDetailRepository.fetchDataForAppId(key.appId)
@@ -124,19 +119,19 @@ class AppDetailViewModel @AssistedInject constructor(
         ) {
             _viewState.update {
                 it.copy(
-                    steamStatus = Progress.FAILED,
-                    isThereAnyDealGameInfoStatus = Progress.FAILED
+                    steamStatus = FAILED,
+                    isThereAnyDealGameInfoStatus = FAILED
                 )
             }
             return
         }
 
         if ((steamResponse != null && !steamResponse.success) || steamResponse == null) {
-            _viewState.update { it.copy(steamStatus = Progress.FAILED) }
+            _viewState.update { it.copy(steamStatus = FAILED) }
         }
 
         if (isThereAnyDealResponse.isFailure) {
-            _viewState.update { it.copy(isThereAnyDealGameInfoStatus = Progress.FAILED) }
+            _viewState.update { it.copy(isThereAnyDealGameInfoStatus = FAILED) }
         }
 
         _collatedAppData.update {
@@ -151,30 +146,33 @@ class AppDetailViewModel @AssistedInject constructor(
 
         _viewState.update {
             it.copy(
-                steamStatus = if (it.steamStatus == Progress.FAILED) Progress.FAILED else Progress.LOADED,
-                isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus == Progress.FAILED) Progress.FAILED else Progress.LOADED
+                steamStatus = if (it.steamStatus == FAILED) FAILED else LOADED,
+                isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus == FAILED) FAILED else LOADED
             )
         }
     }
 
     suspend fun fetchSteamChartsPlayerStats() {
-        if (appViewState.value.steamChartsStatus != Progress.NOT_QUEUED) return
+        if (appViewState.value.steamChartsStatus != NOT_QUEUED) return
 
-        _viewState.update { it.copy(steamChartsStatus = Progress.LOADING) }
+        _viewState.update { it.copy(steamChartsStatus = LOADING) }
         try {
-            _appData.update {
-                it.copy(playerStatsRowData = SteamChartsPerAppScraper(key.appId).scrape().playerStatsRowData)
+            _collatedAppData.update {
+                it.copy(
+                    playerStatistics = SteamChartsPerAppScraper(key.appId).scrape()
+                        .toPlayerStatistics()
+                )
             }
-            _viewState.update { it.copy(steamChartsStatus = Progress.LOADED) }
+            _viewState.update { it.copy(steamChartsStatus = LOADED) }
         } catch (_: Exception) {
-            _viewState.update { it.copy(steamChartsStatus = Progress.FAILED) }
+            _viewState.update { it.copy(steamChartsStatus = FAILED) }
         }
     }
 
     suspend fun fetchISTDPriceInfo() {
-        if (appViewState.value.isThereAnyDealPriceInfoStatus != Progress.NOT_QUEUED) return
+        if (appViewState.value.isThereAnyDealPriceInfoStatus != NOT_QUEUED) return
 
-        _viewState.update { it.copy(steamChartsStatus = Progress.LOADING) }
+        _viewState.update { it.copy(steamChartsStatus = LOADING) }
 
         if (collatedAppData.value.isThereAnyDealId == null) {
             isThereAnyDealRepository.lookupGame(appId = collatedAppData.value.steamAppId)
@@ -182,7 +180,7 @@ class AppDetailViewModel @AssistedInject constructor(
                     _collatedAppData.update { it.copy(isThereAnyDealId = response.id) }
                 }
                 .onFailure {
-                    _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = Progress.FAILED) }
+                    _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
                     return
                 }
         }
@@ -190,10 +188,10 @@ class AppDetailViewModel @AssistedInject constructor(
         isThereAnyDealRepository.getPriceInfo(collatedAppData.value.isThereAnyDealId!!)
             .onSuccess { response ->
                 _collatedAppData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
-                _viewState.update { it.copy(steamChartsStatus = Progress.LOADED) }
+                _viewState.update { it.copy(steamChartsStatus = LOADED) }
             }
             .onFailure {
-                _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = Progress.FAILED) }
+                _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
                 return
             }
     }

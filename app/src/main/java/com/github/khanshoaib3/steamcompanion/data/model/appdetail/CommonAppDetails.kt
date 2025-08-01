@@ -46,8 +46,8 @@ data class CommonAppDetails(
                 requirements.add(
                     Requirement(
                         platform = "Windows",
-                        minimumRequirements = req.minimum,
-                        recommendedRequirements = req.recommended,
+                        minimumRequirements = req.minimum?.replace("<br>", ""),
+                        recommendedRequirements = req.recommended?.replace("<br>", ""),
                     )
                 )
             }
@@ -57,8 +57,8 @@ data class CommonAppDetails(
                 requirements.add(
                     Requirement(
                         platform = "MacOS",
-                        minimumRequirements = req.minimum,
-                        recommendedRequirements = req.recommended,
+                        minimumRequirements = req.minimum?.replace("<br>", ""),
+                        recommendedRequirements = req.recommended?.replace("<br>", ""),
                     )
                 )
             }
@@ -68,8 +68,8 @@ data class CommonAppDetails(
                 requirements.add(
                     Requirement(
                         platform = "SteamOS + Linux",
-                        minimumRequirements = req.minimum,
-                        recommendedRequirements = req.recommended,
+                        minimumRequirements = req.minimum?.replace("<br>", ""),
+                        recommendedRequirements = req.recommended?.replace("<br>", ""),
                     )
                 )
             }
