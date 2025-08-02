@@ -2,6 +2,7 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import android.content.res.Configuration
 import android.icu.text.NumberFormat
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -55,6 +57,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
@@ -376,7 +379,7 @@ fun FeaturesOverview(
     platforms: Platforms,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Column(modifier = Modifier.weight(0.25f)) {
+        Column(modifier = Modifier.weight(0.25f), verticalArrangement = Arrangement.Top) {
             AsyncImage(
                 model = imageUrl,
                 contentDescription = "Hero capsule for $appName",
@@ -386,24 +389,30 @@ fun FeaturesOverview(
         }
         Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
         Column(modifier = Modifier.weight(0.75f)) {
-            Row {
-                Column(modifier = Modifier.weight(0.45f)) {
-                    Text("App ID", fontWeight = FontWeight.Bold)
-                    Text("App Type", fontWeight = FontWeight.Bold)
-                    Text("Developer", fontWeight = FontWeight.Bold)
-                    Text("Publisher", fontWeight = FontWeight.Bold)
-                    Text("Supported Systems", fontWeight = FontWeight.Bold)
-                }
-                Column(modifier = Modifier.weight(0.55f)) {
-                    Text("$appId")
-                    Text(appType)
-                    if (developers != null && developers.isNotEmpty()) {
-                        Text(developers.joinToString(", "))
-                    }
-                    if (publishers != null && publishers.isNotEmpty()) {
-                        Text(publishers.joinToString(", "))
-                    }
-                    Row {
+            FeaturesRow(
+                first = "App ID",
+                second = "$appId",
+            )
+            FeaturesRow(
+                first = "App Type",
+                second = appType,
+            )
+            if (developers != null && developers.isNotEmpty()) {
+                FeaturesRow(
+                    first = "Developer",
+                    second = developers.joinToString(", "),
+                )
+            }
+            if (publishers != null && publishers.isNotEmpty()) {
+                FeaturesRow(
+                    first = "Publisher",
+                    second = publishers.joinToString(", "),
+                )
+            }
+            FeaturesRow(
+                first = "Platforms",
+                second = {
+                    Row(modifier = mod) {
                         if (platforms.windows) {
                             Icon(
                                 painter = painterResource(R.drawable.windows_icon),
@@ -427,8 +436,46 @@ fun FeaturesOverview(
                         }
                     }
                 }
-            }
+            )
         }
+    }
+}
+
+data class FeaturesRowScope(
+    val mod: Modifier = Modifier,
+)
+
+@Composable
+fun FeaturesRow(
+    first: String,
+    second: @Composable FeaturesRowScope.() -> Unit,
+) {
+    Row {
+        Text(
+            text = first,
+            modifier = Modifier.fillMaxWidth(0.35f),
+            fontWeight = FontWeight.Bold,
+        )
+        second(FeaturesRowScope(Modifier.fillMaxWidth(0.65f)))
+    }
+}
+
+@Composable
+fun FeaturesRow(
+    first: String,
+    second: String,
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = first,
+            modifier = Modifier.weight(0.35f),
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = second,
+            modifier = Modifier.weight(0.65f).horizontalScroll(rememberScrollState()),
+            maxLines = 2,
+        )
     }
 }
 
