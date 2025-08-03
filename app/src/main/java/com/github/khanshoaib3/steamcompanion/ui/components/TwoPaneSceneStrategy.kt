@@ -43,7 +43,7 @@ class TwoPaneScene<T : Any>(
     companion object {
         internal const val TWO_PANE_FIRST_KEY = "TwoPaneFirst"
         internal const val TWO_PANE_SECOND_KEY = "TwoPaneSecond"
-        internal var InTwoPaneScene = false
+        internal var IsActive = false
 
         /**
          * Helper function to add metadata to a [NavEntry] indicating it can be displayed
@@ -78,7 +78,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
             && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND))
             || (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
                     && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)))) {
-            TwoPaneScene.InTwoPaneScene = false
+            TwoPaneScene.IsActive = false
             return null
         }
 
@@ -95,7 +95,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
 
             // The scene key must uniquely represent the state of the scene.
             // A Pair of the first and second entry keys ensures uniqueness.
-            TwoPaneScene.InTwoPaneScene = true
+            TwoPaneScene.IsActive = true
 
             TwoPaneScene(
                 key = firstEntry.contentKey,
@@ -110,7 +110,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
             )
 
         } else {
-            TwoPaneScene.InTwoPaneScene = false
+            TwoPaneScene.IsActive = false
             null
         }
     }

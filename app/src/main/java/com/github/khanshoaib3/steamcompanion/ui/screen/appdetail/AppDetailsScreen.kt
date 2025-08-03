@@ -6,10 +6,13 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -64,6 +67,7 @@ import kotlinx.serialization.json.Json
 @Composable
 fun AppDetailsScreen(
     isWideScreen: Boolean,
+    isInTwoPaneScene: Boolean,
     onUpButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AppDetailViewModel = hiltViewModel(),
@@ -122,7 +126,6 @@ fun AppDetailsScreen(
         return
     }
 
-    val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val toggleBookmarkStatus: () -> Unit = {
@@ -133,51 +136,9 @@ fun AppDetailsScreen(
     }
     val isBookmarked = appData.isBookmarked
 
-    if (!isWideScreen) {
-        Scaffold(
-            modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                TopAppBar(
-                    title = { Text(collatedAppData.commonDetails?.name ?: "No Name") },
-                    navigationIcon = {
-                        IconButton(onClick = onUpButtonClick) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack, "Go back"
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = toggleBookmarkStatus) {
-                            Icon(
-                                if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                                contentDescription = "Bookmark app"
-                            )
-                        }
-                    },
-                    scrollBehavior = scrollBehavior,
-                    windowInsets = WindowInsets()
-                )
-            }) { innerPadding ->
-            AppDetailsCard(
-                appData = appData,
-                collatedAppData = collatedAppData,
-                appViewState = viewState,
-                fetchDataFromSourceCallback = fetchDataFromSourceCallback,
-                onBookmarkClick = toggleBookmarkStatus,
-                isBookmarkActive = isBookmarked,
-                storedPriceTrackingInfo = storedPriceTrackingInfo,
-                showHeader = false,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom))
-            )
-        }
-    } else {
+    if (isInTwoPaneScene) {
         AppDetailsCard(
-            modifier = modifier.verticalScroll(scrollState),
+            modifier = modifier,
             appData = appData,
             collatedAppData = collatedAppData,
             appViewState = viewState,
@@ -189,12 +150,54 @@ fun AppDetailsScreen(
             stopPriceTracking = stopPriceTracking,
             showHeader = true
         )
+        return
+    }
+
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { Text(collatedAppData.commonDetails?.name ?: "No Name") },
+                navigationIcon = {
+                    IconButton(onClick = onUpButtonClick) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, "Go back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = toggleBookmarkStatus) {
+                        Icon(
+                            if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                            contentDescription = "Bookmark app"
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+                windowInsets = WindowInsets()
+            )
+        }) { innerPadding ->
+        AppDetailsCard(
+            appData = appData,
+            collatedAppData = collatedAppData,
+            appViewState = viewState,
+            fetchDataFromSourceCallback = fetchDataFromSourceCallback,
+            onBookmarkClick = toggleBookmarkStatus,
+            isBookmarkActive = isBookmarked,
+            storedPriceTrackingInfo = storedPriceTrackingInfo,
+            startPriceTracking = startPriceTracking,
+            stopPriceTracking = stopPriceTracking,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom)),
+            showHeader = false,
+            isWideScreen = isWideScreen
+        )
     }
 }
 
 @Composable
 fun AppDetailsCard(
-    modifier: Modifier = Modifier,
     appData: AppData,
     collatedAppData: CollatedAppData,
     appViewState: AppViewState,
@@ -204,27 +207,72 @@ fun AppDetailsCard(
     storedPriceTrackingInfo: PriceTracking?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
+    modifier: Modifier = Modifier,
     showHeader: Boolean = true,
+    isWideScreen: Boolean = false,
 ) {
-    Box(modifier = modifier.padding(dimensionResource(R.dimen.padding_small))) {
-        OutlinedCard {
-            CardUpper(
-                modifier = Modifier.fillMaxWidth(),
-                collatedAppData = collatedAppData,
-                onBookmarkClick = onBookmarkClick,
-                isBookmarkActive = isBookmarkActive,
-                storedPriceTrackingInfo = storedPriceTrackingInfo,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
-                showHeader = showHeader
-            )
-            CardLower(
-                modifier = Modifier.fillMaxWidth(),
-                appData = appData,
-                collatedAppData = collatedAppData,
-                appViewState = appViewState,
-                fetchDataFromSourceCallback = fetchDataFromSourceCallback
-            )
+    if (isWideScreen) {
+        Row(
+            modifier = modifier
+                .padding(dimensionResource(R.dimen.padding_small)),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            OutlinedCard(
+                modifier = Modifier
+                    .weight(0.4f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                CardUpper(
+                    modifier = Modifier.fillMaxWidth(),
+                    collatedAppData = collatedAppData,
+                    onBookmarkClick = onBookmarkClick,
+                    isBookmarkActive = isBookmarkActive,
+                    storedPriceTrackingInfo = storedPriceTrackingInfo,
+                    startPriceTracking = startPriceTracking,
+                    stopPriceTracking = stopPriceTracking,
+                    showHeader = showHeader
+                )
+            }
+            Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
+            OutlinedCard(
+                modifier = Modifier
+                    .weight(0.6f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                CardLower(
+                    modifier = Modifier.fillMaxWidth(),
+                    appData = appData,
+                    collatedAppData = collatedAppData,
+                    appViewState = appViewState,
+                    fetchDataFromSourceCallback = fetchDataFromSourceCallback
+                )
+            }
+        }
+    } else {
+        Box(
+            modifier = modifier
+                .padding(dimensionResource(R.dimen.padding_small))
+                .verticalScroll(rememberScrollState())
+        ) {
+            OutlinedCard {
+                CardUpper(
+                    modifier = Modifier.fillMaxWidth(),
+                    collatedAppData = collatedAppData,
+                    onBookmarkClick = onBookmarkClick,
+                    isBookmarkActive = isBookmarkActive,
+                    storedPriceTrackingInfo = storedPriceTrackingInfo,
+                    startPriceTracking = startPriceTracking,
+                    stopPriceTracking = stopPriceTracking,
+                    showHeader = showHeader
+                )
+                CardLower(
+                    modifier = Modifier.fillMaxWidth(),
+                    appData = appData,
+                    collatedAppData = collatedAppData,
+                    appViewState = appViewState,
+                    fetchDataFromSourceCallback = fetchDataFromSourceCallback
+                )
+            }
         }
     }
 }

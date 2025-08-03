@@ -10,7 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue.Expanded
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,16 +18,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import kotlinx.coroutines.launch
 
 class NavSuiteScope(
-    val isWideScreen: Boolean,
-    val isShowingNavRail: Boolean,
     val railState: WideNavigationRailState,
     val modifier: Modifier = Modifier
 )
@@ -38,29 +31,10 @@ class NavSuiteScope(
 fun NavWrapper(
     currentTopLevelRoute: Route,
     navigateTo: (Route) -> Unit,
+    showNavRail: Boolean,
+    isWideScreen: Boolean,
     content: @Composable (NavSuiteScope.() -> Unit),
 ) {
-    val adaptiveInfo = currentWindowAdaptiveInfo()
-    val windowSizeClass = adaptiveInfo.windowSizeClass
-
-    val showNavRail = when {
-        adaptiveInfo.windowPosture.isTabletop -> false
-        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
-            -> true
-
-        else -> false
-    }
-    val isWideScreen = when {
-        !showNavRail -> false
-        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
-                && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
-            -> true
-        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
-                && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
-            -> true
-
-        else -> false
-    }
     val railState = rememberWideNavigationRailState()
 
     val coroutineScope = rememberCoroutineScope()
@@ -101,8 +75,6 @@ fun NavWrapper(
         modifier = Modifier.padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp)
     ) { innerPaddings ->
         NavSuiteScope(
-            isWideScreen,
-            isShowingNavRail = showNavRail,
             railState,
             modifier = Modifier.padding(innerPaddings)
         ).content()

@@ -14,6 +14,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -26,6 +27,10 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.NavWrapper
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
@@ -43,6 +48,27 @@ fun RootNavDisplay(
 ) {
     val scope = rememberCoroutineScope()
     val view = LocalView.current
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val windowSizeClass = adaptiveInfo.windowSizeClass
+
+    val showNavRail = when {
+        adaptiveInfo.windowPosture.isTabletop -> false
+        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+            -> true
+
+        else -> false
+    }
+    val isWideScreen = when {
+        !showNavRail -> false
+        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
+                && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
+            -> true
+        windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+                && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
+            -> true
+
+        else -> false
+    }
 
     Scaffold { innerPadding ->
         NavDisplay(
@@ -82,7 +108,8 @@ fun RootNavDisplay(
                             }
                         )
                     AppDetailsScreen(
-                        isWideScreen = false,
+                        isWideScreen = isWideScreen,
+                        isInTwoPaneScene = false,
                         onUpButtonClick = { rootBackStack.removeLastOrNull() },
                         modifier = Modifier.padding(innerPadding),
                         viewModel = viewModel
@@ -92,6 +119,8 @@ fun RootNavDisplay(
                 entry<TopLevelRoute.Dummy> {
                     NavWrapper(
                         currentTopLevelRoute = topLevelBackStack.topLevelKey,
+                        showNavRail = showNavRail,
+                        isWideScreen = isWideScreen,
                         navigateTo = {
                             if (it is TopLevelRoute) topLevelBackStack.addTopLevel(it)
                             else rootBackStack.add(it)
@@ -101,7 +130,7 @@ fun RootNavDisplay(
                         TopLevelNavDisplay(
                             topLevelBackStack = topLevelBackStack,
                             isWideScreen = isWideScreen,
-                            isShowingNavRail = isShowingNavRail,
+                            isShowingNavRail = showNavRail,
                             onMenuButtonClick = {
                                 scope.launch {
                                     railState.expand()

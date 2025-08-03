@@ -1,44 +1,21 @@
 package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 
 import android.content.res.Configuration
-import android.icu.text.NumberFormat
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,28 +27,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
-import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.data.model.api.Platforms
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import java.util.Currency
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,7 +89,7 @@ fun CardUpper(
                     isBookmarkActive = isBookmarkActive
                 )
             }
-            FeaturesOverview(
+            OverviewTable(
                 modifier = Modifier.fillMaxWidth(),
                 appId = collatedAppData.steamAppId,
                 imageUrl = it.imageUrl,
@@ -130,7 +99,7 @@ fun CardUpper(
                 publishers = it.publishers,
                 platforms = it.platforms,
             )
-            PriceNPlayerCount(
+            PriceAndRating(
                 modifier = Modifier.fillMaxWidth(),
                 isFree = it.isFree,
                 currentPrice = it.currentPrice,
@@ -194,150 +163,6 @@ fun CardUpper(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PriceTrackingSheet(
-    sheetState: SheetState,
-    targetPrice: Float,
-    maxPrice: Float,
-    onPriceChange: (Float) -> Unit,
-    selectedNotificationOptionIndex: Int,
-    notificationOptions: List<String>,
-    onSelectedNotificationOptionIndexChange: (Int) -> Unit,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-    priceAlreadyTracked: Boolean,
-    onStop: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    ModalBottomSheet(
-        onDismissRequest = onCancel,
-        sheetState = sheetState,
-    ) {
-        PriceTrackingSheetContent(
-            targetPrice = targetPrice,
-            maxPrice = maxPrice,
-            onPriceChange = onPriceChange,
-            selectedNotificationOptionIndex = selectedNotificationOptionIndex,
-            notificationOptions = notificationOptions,
-            onSelectedNotificationOptionIndexChange = onSelectedNotificationOptionIndexChange,
-            onCancel = onCancel,
-            onConfirm = onConfirm,
-            priceAlreadyTracked = priceAlreadyTracked,
-            onStop = onStop,
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-fun PriceTrackingSheetContent(
-    targetPrice: Float,
-    maxPrice: Float,
-    onPriceChange: (Float) -> Unit,
-    selectedNotificationOptionIndex: Int,
-    notificationOptions: List<String>,
-    onSelectedNotificationOptionIndexChange: (Int) -> Unit,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-    priceAlreadyTracked: Boolean,
-    onStop: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier.padding(dimensionResource(R.dimen.padding_medium)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    "Target Price",
-                    modifier = Modifier.weight(0.75f),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                TextField(
-                    targetPrice.toString(),
-                    onValueChange = { onPriceChange(it.toFloat()) },
-                    modifier = Modifier.weight(0.25f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-            }
-            Slider(
-                value = targetPrice,
-                onValueChange = onPriceChange,
-                valueRange = 0f..maxPrice,
-//                steps = (maxPrice / 20).toInt()
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    "Frequency",
-                    modifier = Modifier.weight(0.75f),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                SingleChoiceSegmentedButtonRow {
-                    notificationOptions.forEachIndexed { index, label ->
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = index,
-                                count = notificationOptions.size
-                            ),
-                            onClick = { onSelectedNotificationOptionIndexChange(index) },
-                            selected = index == selectedNotificationOptionIndex,
-                            label = { Text(label) }
-                        )
-                    }
-                }
-            }
-        }
-        if (priceAlreadyTracked) {
-            Spacer(Modifier.height(32.dp))
-            FilledTonalButton(onClick = onStop, modifier = Modifier.fillMaxWidth(0.9f)) {
-                Text("Remove Alert")
-            }
-            Spacer(Modifier.height(24.dp))
-        } else {
-            Spacer(Modifier.height(64.dp))
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimensionResource(R.dimen.padding_large)),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            OutlinedButton(
-                onClick = onCancel,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-            ) {
-                Text("Cancel")
-            }
-            Button(
-                onClick = onConfirm,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-            ) {
-                Text(if (priceAlreadyTracked) "Update" else "Start Tracking")
-            }
-        }
-    }
-}
-
 @Composable
 fun Header(
     modifier: Modifier = Modifier,
@@ -362,193 +187,6 @@ fun Header(
                     if (isBookmarkActive) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                     contentDescription = "Bookmark app"
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun FeaturesOverview(
-    modifier: Modifier = Modifier,
-    appId: Int,
-    imageUrl: String,
-    appName: String,
-    appType: String,
-    developers: List<String>?,
-    publishers: List<String>?,
-    platforms: Platforms,
-) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Column(modifier = Modifier.weight(0.25f), verticalArrangement = Arrangement.Top) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "Hero capsule for $appName",
-                placeholder = painterResource(R.drawable.preview_image_300x450),
-                modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
-            )
-        }
-        Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
-        Column(modifier = Modifier.weight(0.75f)) {
-            FeaturesRow(
-                first = "App ID",
-                second = "$appId",
-            )
-            FeaturesRow(
-                first = "App Type",
-                second = appType,
-            )
-            if (developers != null && developers.isNotEmpty()) {
-                FeaturesRow(
-                    first = "Developer",
-                    second = developers.joinToString(", "),
-                )
-            }
-            if (publishers != null && publishers.isNotEmpty()) {
-                FeaturesRow(
-                    first = "Publisher",
-                    second = publishers.joinToString(", "),
-                )
-            }
-            FeaturesRow(
-                first = "Platforms",
-                second = {
-                    Row(modifier = mod) {
-                        if (platforms.windows) {
-                            Icon(
-                                painter = painterResource(R.drawable.windows_icon),
-                                contentDescription = "Windows",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        if (platforms.linux) {
-                            Icon(
-                                painter = painterResource(R.drawable.linux_icon),
-                                contentDescription = "Linux",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        if (platforms.mac) {
-                            Icon(
-                                painter = painterResource(R.drawable.mac_icon),
-                                contentDescription = "MacOS",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                }
-            )
-        }
-    }
-}
-
-data class FeaturesRowScope(
-    val mod: Modifier = Modifier,
-)
-
-@Composable
-fun FeaturesRow(
-    first: String,
-    second: @Composable FeaturesRowScope.() -> Unit,
-) {
-    Row {
-        Text(
-            text = first,
-            modifier = Modifier.fillMaxWidth(0.35f),
-            fontWeight = FontWeight.Bold,
-        )
-        second(FeaturesRowScope(Modifier.fillMaxWidth(0.65f)))
-    }
-}
-
-@Composable
-fun FeaturesRow(
-    first: String,
-    second: String,
-) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = first,
-            modifier = Modifier.weight(0.35f),
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = second,
-            modifier = Modifier.weight(0.65f).horizontalScroll(rememberScrollState()),
-            maxLines = 2,
-        )
-    }
-}
-
-@Composable
-fun PriceNPlayerCount(
-    modifier: Modifier = Modifier,
-    isFree: Boolean,
-    currentPrice: Float,
-    originalPrice: Float,
-    currency: String,
-) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        if (!isFree && originalPrice != 0f) {
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
-                Row(modifier = Modifier.fillMaxWidth(0.4f)) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.padding_medium))
-                    ) {
-                        val numberInstance = NumberFormat.getNumberInstance()
-                        val currentPrice = numberInstance.format(currentPrice)
-                        val originalPrice = numberInstance.format(originalPrice)
-                        val currencySymbol = Currency.getInstance(currency).symbol
-                        Text(
-                            text = "$currencySymbol $currentPrice",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            "Original: $currencySymbol $originalPrice",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-            }
-        }
-        // Rating
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun Categories(
-    modifier: Modifier = Modifier,
-    categories: List<com.github.khanshoaib3.steamcompanion.data.model.appdetail.Category>?,
-) {
-    if (categories == null || categories.isEmpty()) return
-
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(dimensionResource(R.dimen.padding_small)),
-                horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small))
-            ) {
-                categories.forEach { category ->
-                    CategoryChip(
-                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
-                        category = category,
-                    )
-                }
             }
         }
     }

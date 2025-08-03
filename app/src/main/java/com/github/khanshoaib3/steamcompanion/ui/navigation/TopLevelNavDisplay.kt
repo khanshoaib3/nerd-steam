@@ -127,13 +127,14 @@ fun TopLevelNavDisplay(
                         )
                     AppDetailsScreen(
                         isWideScreen = isWideScreen,
+                        isInTwoPaneScene = true,
                         onUpButtonClick = { topLevelBackStack.removeLast() },
                         viewModel = viewModel
                     )
                 }
             },
             transitionSpec = {
-                if (TwoPaneScene.InTwoPaneScene && topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
+                if (TwoPaneScene.IsActive && topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between app details in two pane screen view (performs the default fade transitions)
                     ContentTransform(
                         fadeIn(animationSpec = tween(700)),
