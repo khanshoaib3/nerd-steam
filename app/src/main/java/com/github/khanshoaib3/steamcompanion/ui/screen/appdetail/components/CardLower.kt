@@ -13,18 +13,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -81,9 +77,10 @@ fun CardLower(
     appData: AppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataType) -> Unit,
+    updateSelectedTabIndexCallback: (Int) -> Unit,
 ) = appData.commonDetails?.let {
     val tabItems = getDefaultTabItems()
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    val selectedTabIndex = appViewState.selectedTabIndex
     val view = LocalView.current
 
     Surface(
@@ -102,7 +99,7 @@ fun CardLower(
                         selected = index == selectedTabIndex,
                         onClick = {
                             view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                            selectedTabIndex = index
+                            updateSelectedTabIndexCallback(index)
                         },
                         text = { Text(text = item.name) }
                     )
@@ -133,7 +130,8 @@ private fun GameDetailScreenPreview() {
         CardLower(
             appData = AppData(220),
             appViewState = AppViewState(steamChartsStatus = Progress.NOT_QUEUED),
-            fetchDataFromSourceCallback = {}
+            fetchDataFromSourceCallback = {},
+            updateSelectedTabIndexCallback = {}
         )
     }
 }

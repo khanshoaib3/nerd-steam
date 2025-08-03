@@ -65,8 +65,8 @@ class AppDetailViewModel @AssistedInject constructor(
     private val _appData = MutableStateFlow(AppData(key.appId))
     val appData: StateFlow<AppData> = _appData
 
-    private val _viewState = MutableStateFlow(AppViewState())
-    val appViewState: StateFlow<AppViewState> = _viewState
+    private val _appViewState = MutableStateFlow(AppViewState())
+    val appViewState: StateFlow<AppViewState> = _appViewState
 
     init {
         fetchDataFromSource(DataType.COMMON_APP_DETAILS)
@@ -91,7 +91,7 @@ class AppDetailViewModel @AssistedInject constructor(
             && appViewState.value.isThereAnyDealGameInfoStatus != NOT_QUEUED
         ) return
 
-        _viewState.update {
+        _appViewState.update {
             it.copy(steamStatus = LOADING, isThereAnyDealGameInfoStatus = LOADING)
         }
 
@@ -102,7 +102,7 @@ class AppDetailViewModel @AssistedInject constructor(
         if (((steamResponse != null && !steamResponse.success) || steamResponse == null)
             && isThereAnyDealResponse.isFailure
         ) {
-            _viewState.update {
+            _appViewState.update {
                 it.copy(
                     steamStatus = FAILED,
                     isThereAnyDealGameInfoStatus = FAILED
@@ -112,11 +112,11 @@ class AppDetailViewModel @AssistedInject constructor(
         }
 
         if ((steamResponse != null && !steamResponse.success) || steamResponse == null) {
-            _viewState.update { it.copy(steamStatus = FAILED) }
+            _appViewState.update { it.copy(steamStatus = FAILED) }
         }
 
         if (isThereAnyDealResponse.isFailure) {
-            _viewState.update { it.copy(isThereAnyDealGameInfoStatus = FAILED) }
+            _appViewState.update { it.copy(isThereAnyDealGameInfoStatus = FAILED) }
         }
 
         _appData.update {
@@ -130,7 +130,7 @@ class AppDetailViewModel @AssistedInject constructor(
             )
         }
 
-        _viewState.update {
+        _appViewState.update {
             it.copy(
                 steamStatus = if (it.steamStatus == FAILED) FAILED else LOADED,
                 isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus == FAILED) FAILED else LOADED,
@@ -141,7 +141,7 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchSteamChartsPlayerStats() {
         if (appViewState.value.steamChartsStatus != NOT_QUEUED) return
 
-        _viewState.update { it.copy(steamChartsStatus = LOADING) }
+        _appViewState.update { it.copy(steamChartsStatus = LOADING) }
         try {
             _appData.update {
                 it.copy(
@@ -149,16 +149,16 @@ class AppDetailViewModel @AssistedInject constructor(
                         .toPlayerStatistics()
                 )
             }
-            _viewState.update { it.copy(steamChartsStatus = LOADED) }
+            _appViewState.update { it.copy(steamChartsStatus = LOADED) }
         } catch (_: Exception) {
-            _viewState.update { it.copy(steamChartsStatus = FAILED) }
+            _appViewState.update { it.copy(steamChartsStatus = FAILED) }
         }
     }
 
     suspend fun fetchISTDPriceInfo() {
         if (appViewState.value.isThereAnyDealPriceInfoStatus != NOT_QUEUED) return
 
-        _viewState.update { it.copy(steamChartsStatus = LOADING) }
+        _appViewState.update { it.copy(steamChartsStatus = LOADING) }
 
         if (appData.value.isThereAnyDealId == null) {
             isThereAnyDealRepository.lookupGame(appId = appData.value.steamAppId)
@@ -166,7 +166,7 @@ class AppDetailViewModel @AssistedInject constructor(
                     _appData.update { it.copy(isThereAnyDealId = response.id) }
                 }
                 .onFailure {
-                    _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
+                    _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
                     return
                 }
         }
@@ -174,10 +174,10 @@ class AppDetailViewModel @AssistedInject constructor(
         isThereAnyDealRepository.getPriceInfo(appData.value.isThereAnyDealId!!)
             .onSuccess { response ->
                 _appData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
-                _viewState.update { it.copy(steamChartsStatus = LOADED) }
+                _appViewState.update { it.copy(steamChartsStatus = LOADED) }
             }
             .onFailure {
-                _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
+                _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
                 return
             }
     }
@@ -217,5 +217,9 @@ class AppDetailViewModel @AssistedInject constructor(
 
     suspend fun stopPriceTracking() {
         appDetailRepository.stopTracking(appId = key.appId)
+    }
+
+    fun updateSelectedTabIndex(index: Int) {
+        _appViewState.update { it.copy(selectedTabIndex = index) }
     }
 }

@@ -135,6 +135,8 @@ fun AppDetailsScreen(
     }
     val isBookmarked = appData.isBookmarked
 
+    val updateSelectedTabIndexCallback: (Int) -> Unit = viewModel::updateSelectedTabIndex
+
     if (isInTwoPaneScene) {
         AppDetailsCard(
             modifier = modifier,
@@ -146,7 +148,8 @@ fun AppDetailsScreen(
             storedPriceTrackingInfo = storedPriceTrackingInfo,
             startPriceTracking = startPriceTracking,
             stopPriceTracking = stopPriceTracking,
-            showHeader = true
+            updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
+            showHeader = true,
         )
         return
     }
@@ -184,11 +187,12 @@ fun AppDetailsScreen(
             storedPriceTrackingInfo = storedPriceTrackingInfo,
             startPriceTracking = startPriceTracking,
             stopPriceTracking = stopPriceTracking,
+            updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom)),
             showHeader = false,
-            isWideScreen = isWideScreen
+            isWideScreen = isWideScreen,
         )
     }
 }
@@ -198,6 +202,7 @@ fun AppDetailsCard(
     appData: AppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataType) -> Unit,
+    updateSelectedTabIndexCallback: (Int) -> Unit,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceTrackingInfo: PriceTracking?,
@@ -239,7 +244,8 @@ fun AppDetailsCard(
                     modifier = Modifier.fillMaxWidth(),
                     appData = appData,
                     appViewState = appViewState,
-                    fetchDataFromSourceCallback = fetchDataFromSourceCallback
+                    fetchDataFromSourceCallback = fetchDataFromSourceCallback,
+                    updateSelectedTabIndexCallback = updateSelectedTabIndexCallback
                 )
             }
         }
@@ -264,7 +270,8 @@ fun AppDetailsCard(
                     modifier = Modifier.fillMaxWidth(),
                     appData = appData,
                     appViewState = appViewState,
-                    fetchDataFromSourceCallback = fetchDataFromSourceCallback
+                    fetchDataFromSourceCallback = fetchDataFromSourceCallback,
+                    updateSelectedTabIndexCallback = updateSelectedTabIndexCallback
                 )
             }
         }
@@ -288,7 +295,8 @@ private fun GameDetailScreenPreview() {
             storedPriceTrackingInfo = null,
             startPriceTracking = { _, _ -> },
             stopPriceTracking = {},
-            isBookmarkActive = true
+            isBookmarkActive = true,
+            updateSelectedTabIndexCallback = {}
         )
     }
 }
