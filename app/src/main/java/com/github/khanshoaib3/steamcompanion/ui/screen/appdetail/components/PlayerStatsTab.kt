@@ -25,7 +25,7 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.components.SteamChartsFooter
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
@@ -36,7 +36,7 @@ import java.text.NumberFormat
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlayerStatsTab(
-    collatedAppData: CollatedAppData,
+    appData: AppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataType) -> Unit,
     modifier: Modifier = Modifier,
@@ -64,7 +64,7 @@ fun PlayerStatsTab(
                 Text("Unable to load!", style = MaterialTheme.typography.bodyMediumEmphasized)
             }
 
-            else -> collatedAppData.playerStatistics?.let { playerStatistics ->
+            else -> appData.playerStatistics?.let { playerStatistics ->
                 val numberFormat = NumberFormat.getInstance()
                 Card(
                     Modifier.fillMaxWidth(0.95f),
@@ -183,7 +183,7 @@ fun PlayerStatsTab(
                     }
                 }
 
-                SteamChartsFooter(url = "https://steamcharts.com/app/${collatedAppData.steamAppId}")
+                SteamChartsFooter(url = "https://steamcharts.com/app/${appData.steamAppId}")
             }
         }
     }

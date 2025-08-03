@@ -23,9 +23,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -39,7 +38,6 @@ data class TabItem(
 data class TabScope(
     val modifier: Modifier,
     val appData: AppData,
-    val collatedAppData: CollatedAppData,
     val appViewState: AppViewState,
     val fetchDataFromSourceCallback: (DataType) -> Unit,
 )
@@ -49,19 +47,19 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
     TabItem(
         name = "About",
         content = {
-            AboutTab(modifier = modifier, collatedAppData = collatedAppData)
+            AboutTab(modifier = modifier, appData = appData)
         },
     ),
     TabItem(
         name = "System Requirements",
         content = {
-            SystemRequirementsTab(modifier = modifier, collatedAppData = collatedAppData)
+            SystemRequirementsTab(modifier = modifier, appData = appData)
         }
     ),
     TabItem(
         name = "Media",
         content = {
-            MediaTab(modifier = modifier, collatedAppData = collatedAppData)
+            MediaTab(modifier = modifier, appData = appData)
         }
     ),
     TabItem(
@@ -69,7 +67,7 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
         content = {
             PlayerStatsTab(
                 modifier = modifier,
-                collatedAppData = collatedAppData,
+                appData = appData,
                 appViewState = appViewState,
                 fetchDataFromSourceCallback = fetchDataFromSourceCallback
             )
@@ -81,10 +79,9 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
 fun CardLower(
     modifier: Modifier = Modifier,
     appData: AppData,
-    collatedAppData: CollatedAppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataType) -> Unit,
-) = collatedAppData.commonDetails?.let {
+) = appData.commonDetails?.let {
     val tabItems = getDefaultTabItems()
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val view = LocalView.current
@@ -116,7 +113,6 @@ fun CardLower(
                 TabScope(
                     Modifier.padding(dimensionResource(R.dimen.padding_medium)),
                     appData,
-                    collatedAppData,
                     appViewState,
                     fetchDataFromSourceCallback
                 )
@@ -135,8 +131,7 @@ private fun GameDetailScreenPreview() {
     val appData = json.decodeFromString<AppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
         CardLower(
-            appData = AppData(),
-            collatedAppData = CollatedAppData(220),
+            appData = AppData(220),
             appViewState = AppViewState(steamChartsStatus = Progress.NOT_QUEUED),
             fetchDataFromSourceCallback = {}
         )

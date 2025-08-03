@@ -23,14 +23,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaTab(
-    collatedAppData: CollatedAppData,
+    appData: AppData,
     modifier: Modifier = Modifier,
-) = collatedAppData.commonDetails?.let { commonAppDetails ->
+) = appData.commonDetails?.let { commonAppDetails ->
     Column(
         modifier = modifier.padding(
             vertical = dimensionResource(R.dimen.padding_small),

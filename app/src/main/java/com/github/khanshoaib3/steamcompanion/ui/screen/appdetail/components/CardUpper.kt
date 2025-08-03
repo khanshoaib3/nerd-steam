@@ -37,7 +37,7 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -47,14 +47,14 @@ import kotlin.math.roundToInt
 @Composable
 fun CardUpper(
     modifier: Modifier = Modifier,
-    collatedAppData: CollatedAppData,
+    appData: AppData,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceTrackingInfo: PriceTracking?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true,
-) = collatedAppData.commonDetails?.let {
+) = appData.commonDetails?.let {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val view = LocalView.current
@@ -91,7 +91,7 @@ fun CardUpper(
             }
             OverviewTable(
                 modifier = Modifier.fillMaxWidth(),
-                appId = collatedAppData.steamAppId,
+                appId = appData.steamAppId,
                 imageUrl = it.imageUrl,
                 appName = it.name,
                 appType = it.type,
@@ -230,7 +230,7 @@ private fun GameDetailScreenPreview() {
     val gameData = json.decodeFromString<AppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
         CardUpper(
-            collatedAppData = CollatedAppData(steamAppId = 220),
+            appData = AppData(steamAppId = 220),
             onBookmarkClick = {},
             isBookmarkActive = false,
             storedPriceTrackingInfo = null,

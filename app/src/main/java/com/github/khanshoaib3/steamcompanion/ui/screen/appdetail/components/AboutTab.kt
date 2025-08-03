@@ -17,13 +17,12 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.fromHtml
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
 
 @Composable
 fun AboutTab(
-    collatedAppData: CollatedAppData,
+    appData: AppData,
     modifier: Modifier = Modifier,
-) = collatedAppData.commonDetails?.let {
+) = appData.commonDetails?.let {
     val html = it.about ?: "<b>Empty</b>"
     // Memoize expensive parsing logic (to not recalculate on recomposition)
     val (annotatedString, imageTags) = remember(html) {

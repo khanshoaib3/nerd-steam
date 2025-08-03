@@ -73,7 +73,6 @@ fun AppDetailsScreen(
     viewModel: AppDetailViewModel = hiltViewModel(),
 ) {
     val appData by viewModel.appData.collectAsState()
-    val collatedAppData by viewModel.collatedAppData.collectAsState()
     val viewState by viewModel.appViewState.collectAsState()
     val scope = rememberCoroutineScope()
     val view = LocalView.current
@@ -83,7 +82,7 @@ fun AppDetailsScreen(
     val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
         val toast = Toast.makeText(
             context,
-            "Alert set for ${collatedAppData.commonDetails?.name ?: "the app"}",
+            "Alert set for ${appData.commonDetails?.name ?: "the app"}",
             Toast.LENGTH_SHORT
         )
         scope.launch(context = Dispatchers.IO) {
@@ -140,7 +139,6 @@ fun AppDetailsScreen(
         AppDetailsCard(
             modifier = modifier,
             appData = appData,
-            collatedAppData = collatedAppData,
             appViewState = viewState,
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
@@ -157,7 +155,7 @@ fun AppDetailsScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text(collatedAppData.commonDetails?.name ?: "No Name") },
+                title = { Text(appData.commonDetails?.name ?: "No Name") },
                 navigationIcon = {
                     IconButton(onClick = onUpButtonClick) {
                         Icon(
@@ -179,7 +177,6 @@ fun AppDetailsScreen(
         }) { innerPadding ->
         AppDetailsCard(
             appData = appData,
-            collatedAppData = collatedAppData,
             appViewState = viewState,
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
@@ -199,7 +196,6 @@ fun AppDetailsScreen(
 @Composable
 fun AppDetailsCard(
     appData: AppData,
-    collatedAppData: CollatedAppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataType) -> Unit,
     onBookmarkClick: () -> Unit,
@@ -224,7 +220,7 @@ fun AppDetailsCard(
             ) {
                 CardUpper(
                     modifier = Modifier.fillMaxWidth(),
-                    collatedAppData = collatedAppData,
+                    appData = appData,
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive,
                     storedPriceTrackingInfo = storedPriceTrackingInfo,
@@ -242,7 +238,6 @@ fun AppDetailsCard(
                 CardLower(
                     modifier = Modifier.fillMaxWidth(),
                     appData = appData,
-                    collatedAppData = collatedAppData,
                     appViewState = appViewState,
                     fetchDataFromSourceCallback = fetchDataFromSourceCallback
                 )
@@ -257,7 +252,7 @@ fun AppDetailsCard(
             OutlinedCard {
                 CardUpper(
                     modifier = Modifier.fillMaxWidth(),
-                    collatedAppData = collatedAppData,
+                    appData = appData,
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive,
                     storedPriceTrackingInfo = storedPriceTrackingInfo,
@@ -268,7 +263,6 @@ fun AppDetailsCard(
                 CardLower(
                     modifier = Modifier.fillMaxWidth(),
                     appData = appData,
-                    collatedAppData = collatedAppData,
                     appViewState = appViewState,
                     fetchDataFromSourceCallback = fetchDataFromSourceCallback
                 )
@@ -287,8 +281,7 @@ private fun GameDetailScreenPreview() {
     val gameData = json.decodeFromString<AppDetailsResponse>(gameRawData)
     SteamCompanionTheme {
         AppDetailsCard(
-            appData = AppData(),
-            collatedAppData = CollatedAppData(steamAppId = 220),
+            appData = AppData(steamAppId = 220),
             appViewState = AppViewState(),
             fetchDataFromSourceCallback = {},
             onBookmarkClick = {},

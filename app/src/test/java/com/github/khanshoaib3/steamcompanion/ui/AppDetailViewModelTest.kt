@@ -42,7 +42,7 @@ class AppDetailViewModelTest {
     fun `Test fetching of price info from IsThereAnyDeal`() {
         runBlocking {
             viewmodel.fetchISTDPriceInfo()
-            viewmodel.collatedAppData.value.let {
+            viewmodel.appData.value.let {
                 println(it.isThereAnyDealPriceInfo)
             }
         }
@@ -52,7 +52,7 @@ class AppDetailViewModelTest {
     fun `Test collating steam and ITAD responses`() {
         runBlocking {
             viewmodel.fetchCommonAppDetails()
-            println(viewmodel.collatedAppData.value.commonDetails)
+            println(viewmodel.appData.value.commonDetails)
         }
     }
 

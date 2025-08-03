@@ -38,16 +38,13 @@ enum class DataType {
 }
 
 data class AppData(
-    val isBookmarked: Boolean = false,
-)
-
-data class CollatedAppData(
     val steamAppId: Int,
     val isThereAnyDealId: String? = null,
     val commonDetails: CommonAppDetails? = null,
-    val playerStatistics: PlayerStatistics? = null,
-    val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
+    val isBookmarked: Boolean = false,
     val priceTrackingInfo: PriceTracking? = null,
+    val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
+    val playerStatistics: PlayerStatistics? = null,
 )
 
 data class AppViewState(
@@ -65,11 +62,8 @@ class AppDetailViewModel @AssistedInject constructor(
     private val bookmarkRepository: BookmarkRepository,
     @Assisted val key: Route.AppDetail,
 ) : ViewModel() {
-    private val _appData = MutableStateFlow(AppData())
+    private val _appData = MutableStateFlow(AppData(key.appId))
     val appData: StateFlow<AppData> = _appData
-
-    private val _collatedAppData = MutableStateFlow(CollatedAppData(key.appId))
-    val collatedAppData: StateFlow<CollatedAppData> = _collatedAppData
 
     private val _viewState = MutableStateFlow(AppViewState())
     val appViewState: StateFlow<AppViewState> = _viewState
@@ -91,15 +85,6 @@ class AppDetailViewModel @AssistedInject constructor(
                 DataType.IS_THERE_ANY_DEAL_PRICE_INFO -> fetchISTDPriceInfo()
             }
         }
-
-    suspend fun updateAppId() {
-        _appData.update {
-            val isBookmarked = bookmarkRepository.isBookmarked(key.appId)
-            AppData(
-                isBookmarked = isBookmarked,
-            )
-        }
-    }
 
     suspend fun fetchCommonAppDetails() {
         if (appViewState.value.steamStatus != NOT_QUEUED
@@ -134,20 +119,21 @@ class AppDetailViewModel @AssistedInject constructor(
             _viewState.update { it.copy(isThereAnyDealGameInfoStatus = FAILED) }
         }
 
-        _collatedAppData.update {
+        _appData.update {
             it.copy(
                 commonDetails = CommonAppDetails.fromIsThereAnyDealAndSteam(
                     _steamResponse = steamResponse,
                     _isThereAnyDealResponse = isThereAnyDealResponse.getOrNull()
                 ),
                 isThereAnyDealId = isThereAnyDealResponse.getOrNull()?.id,
+                isBookmarked = bookmarkRepository.isBookmarked(key.appId)
             )
         }
 
         _viewState.update {
             it.copy(
                 steamStatus = if (it.steamStatus == FAILED) FAILED else LOADED,
-                isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus == FAILED) FAILED else LOADED
+                isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus == FAILED) FAILED else LOADED,
             )
         }
     }
@@ -157,7 +143,7 @@ class AppDetailViewModel @AssistedInject constructor(
 
         _viewState.update { it.copy(steamChartsStatus = LOADING) }
         try {
-            _collatedAppData.update {
+            _appData.update {
                 it.copy(
                     playerStatistics = SteamChartsPerAppScraper(key.appId).scrape()
                         .toPlayerStatistics()
@@ -174,10 +160,10 @@ class AppDetailViewModel @AssistedInject constructor(
 
         _viewState.update { it.copy(steamChartsStatus = LOADING) }
 
-        if (collatedAppData.value.isThereAnyDealId == null) {
-            isThereAnyDealRepository.lookupGame(appId = collatedAppData.value.steamAppId)
+        if (appData.value.isThereAnyDealId == null) {
+            isThereAnyDealRepository.lookupGame(appId = appData.value.steamAppId)
                 .onSuccess { response ->
-                    _collatedAppData.update { it.copy(isThereAnyDealId = response.id) }
+                    _appData.update { it.copy(isThereAnyDealId = response.id) }
                 }
                 .onFailure {
                     _viewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
@@ -185,9 +171,9 @@ class AppDetailViewModel @AssistedInject constructor(
                 }
         }
 
-        isThereAnyDealRepository.getPriceInfo(collatedAppData.value.isThereAnyDealId!!)
+        isThereAnyDealRepository.getPriceInfo(appData.value.isThereAnyDealId!!)
             .onSuccess { response ->
-                _collatedAppData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
+                _appData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
                 _viewState.update { it.copy(steamChartsStatus = LOADED) }
             }
             .onFailure {
@@ -196,30 +182,20 @@ class AppDetailViewModel @AssistedInject constructor(
             }
     }
 
-    suspend fun toggleBookmarkStatus() {
-        appData.value.apply {
-            if (collatedAppData.value.commonDetails == null) return@apply
+    suspend fun toggleBookmarkStatus() = appData.value.apply {
+        if (appData.value.commonDetails == null) return@apply
 
-            if (!isBookmarked) {
-                bookmarkRepository.addBookmark(
-                    Bookmark(
-                        appId = key.appId,
-                        name = collatedAppData.value.commonDetails!!.name,
-                    )
+        if (!isBookmarked) {
+            bookmarkRepository.addBookmark(
+                Bookmark(
+                    appId = key.appId,
+                    name = appData.value.commonDetails!!.name,
                 )
-                _appData.update {
-                    it.copy(
-                        isBookmarked = true
-                    )
-                }
-            } else {
-                bookmarkRepository.removeBookmark(key.appId)
-                _appData.update {
-                    it.copy(
-                        isBookmarked = false
-                    )
-                }
-            }
+            )
+            _appData.update { it.copy(isBookmarked = true) }
+        } else {
+            bookmarkRepository.removeBookmark(key.appId)
+            _appData.update { it.copy(isBookmarked = false) }
         }
     }
 
@@ -227,18 +203,17 @@ class AppDetailViewModel @AssistedInject constructor(
         return appDetailRepository.getPriceTrackingInfo(appId = key.appId)
     }
 
-    suspend fun startPriceTracking(targetPrice: Float, notifyEveryDay: Boolean) {
-        if (collatedAppData.value.commonDetails == null) return
-
-        appDetailRepository.trackPrice(
-            PriceTracking(
-                appId = key.appId,
-                gameName = collatedAppData.value.commonDetails!!.name,
-                targetPrice = targetPrice,
-                notifyEveryDay = notifyEveryDay,
+    suspend fun startPriceTracking(targetPrice: Float, notifyEveryDay: Boolean) =
+        appData.value.commonDetails?.let {
+            appDetailRepository.trackPrice(
+                PriceTracking(
+                    appId = key.appId,
+                    gameName = appData.value.commonDetails!!.name,
+                    targetPrice = targetPrice,
+                    notifyEveryDay = notifyEveryDay,
+                )
             )
-        )
-    }
+        }
 
     suspend fun stopPriceTracking() {
         appDetailRepository.stopTracking(appId = key.appId)

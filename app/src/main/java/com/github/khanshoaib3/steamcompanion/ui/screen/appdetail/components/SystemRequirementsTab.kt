@@ -20,13 +20,13 @@ import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import kotlinx.serialization.json.Json
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.CollatedAppData
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 
 @Composable
 fun SystemRequirementsTab(
-    collatedAppData: CollatedAppData,
+    appData: AppData,
     modifier: Modifier = Modifier,
-) = collatedAppData.commonDetails?.let{ commonAppDetails ->
+) = appData.commonDetails?.let{ commonAppDetails ->
     SelectionContainer {
         Column(
             modifier = modifier,
