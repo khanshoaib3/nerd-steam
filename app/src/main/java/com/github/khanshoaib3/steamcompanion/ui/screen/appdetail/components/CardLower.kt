@@ -59,6 +59,17 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
         }
     ),
     TabItem(
+        name = "Price Info",
+        content = {
+            PriceInfoTab(
+                modifier = modifier,
+                appData = appData,
+                appViewState = appViewState,
+                fetchDataFromSourceCallback = fetchDataFromSourceCallback
+            )
+        }
+    ),
+    TabItem(
         name = "Player Stats",
         content = {
             PlayerStatsTab(

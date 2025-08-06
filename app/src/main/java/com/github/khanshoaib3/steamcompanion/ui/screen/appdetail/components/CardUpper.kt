@@ -177,9 +177,10 @@ fun Header(
     ) {
         Text(
             text = appName,
+            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Start,
         )
         Row {
             IconButton(onClick = onBookmarkClick) {

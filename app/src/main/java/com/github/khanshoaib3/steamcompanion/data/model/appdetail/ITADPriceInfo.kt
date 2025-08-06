@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.steamcompanion.data.model.appdetail
 
 import com.github.khanshoaib3.steamcompanion.data.model.api.PriceInfoResponse
+import com.github.khanshoaib3.steamcompanion.utils.DateTimeUtils
 
 data class ITADPriceInfo(
     val currency: String?,
@@ -17,6 +18,7 @@ data class ITADPriceDealsInfo(
     val regularPrice: Float,
     val currency: String,
     val discountPercentage: Int,
+    val drms: List<String>,
     val voucher: String?,
     val timeStamp: String,
     val expiry: String?,
@@ -36,9 +38,10 @@ fun PriceInfoResponse.toITADPriceInfo() =
                 regularPrice = deal.regular.amount,
                 currency = deal.regular.currency,
                 discountPercentage = deal.cut,
+                drms = deal.drm?.map { it.name } ?: listOf(),
                 voucher = deal.voucher,
-                timeStamp = deal.timestamp,
-                expiry = deal.expiry
+                timeStamp = DateTimeUtils.getConciseDate(deal.timestamp)!!,
+                expiry = DateTimeUtils.getConciseDate(deal.expiry),
             )
         }
     )

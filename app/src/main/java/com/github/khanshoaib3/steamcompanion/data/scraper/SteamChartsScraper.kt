@@ -4,6 +4,7 @@ import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
+import com.github.khanshoaib3.steamcompanion.utils.DateTimeUtils
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt
@@ -13,9 +14,6 @@ import it.skrape.selects.html5.table
 import it.skrape.selects.html5.tbody
 import it.skrape.selects.html5.td
 import it.skrape.selects.html5.tr
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format.MonthNames
-import kotlinx.datetime.format.char
 
 private const val TAG = "SteamChartsScraper"
 
@@ -50,7 +48,17 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
                                         forEach { row ->
                                             trendingGames.add(
                                                 listOf(
-                                                    row.td { findByIndex(0) { a { findFirst { attribute("href") } } } }, // AppID
+                                                    row.td {
+                                                        findByIndex(0) {
+                                                            a {
+                                                                findFirst {
+                                                                    attribute(
+                                                                        "href"
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    }, // AppID
                                                     row.td { findByIndex(0) { text } }, // Name
                                                     row.td { findByIndex(1) { text } }, // Gain/24 hours Change
                                                     row.td { findByIndex(3) { text } }, // Current Players
@@ -73,7 +81,17 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
                                         forEach { row ->
                                             topGames.add(
                                                 listOf(
-                                                    row.td { findByIndex(1) { a { findFirst { attribute("href") } } } }, // AppID
+                                                    row.td {
+                                                        findByIndex(1) {
+                                                            a {
+                                                                findFirst {
+                                                                    attribute(
+                                                                        "href"
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    }, // AppID
                                                     row.td { findByIndex(1) { text } }, // Name
                                                     row.td { findByIndex(2) { text } }, // Current Players
                                                     row.td { findByIndex(4) { text } }, // Peak Players
@@ -96,7 +114,17 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
                                         forEach { row ->
                                             topRecords.add(
                                                 listOf(
-                                                    row.td { findByIndex(0) { a { findFirst { attribute("href") } } } }, // AppID
+                                                    row.td {
+                                                        findByIndex(0) {
+                                                            a {
+                                                                findFirst {
+                                                                    attribute(
+                                                                        "href"
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    }, // AppID
                                                     row.td { findByIndex(0) { text } }, // Name
                                                     row.td { findByIndex(1) { text } }, // Peak Players
                                                     row.td { findByIndex(2) { text } }, // Time
@@ -148,19 +176,13 @@ fun SteamChartsScrapedData.parseAndGetTopGamesList(): List<TopGame> =
     }
 
 
-
 fun SteamChartsScrapedData.parseAndGetTopRecordsList(): List<TopRecord> {
-    // To convert the date-time from UTC to `Jan 2018` like format
-    val formatter = LocalDate.Format {
-        monthName(MonthNames.ENGLISH_ABBREVIATED); char(' '); year()
-    }
-
     return topRecords.map {
         TopRecord(
             appId = it[0].substring(it[0].lastIndexOf("/") + 1).toInt(),
             name = it[1],
             peakPlayers = it[2].toInt(),
-            month = formatter.format(LocalDate.parse(it[3].substring(0, it[3].indexOf("T")))) // Remove the time as it's unnecessary
+            month = DateTimeUtils.getConciseDate(it[3], includeDay = false) ?: "Jan 1999",
         )
     }
 }

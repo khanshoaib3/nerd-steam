@@ -40,7 +40,7 @@ fun Bookmark.toDisplayModel(): BookmarkDisplay {
     return BookmarkDisplay(
         appId = this.appId,
         name = this.name,
-        formattedTime = formattedTimestamp()
+        formattedTime = this.timeStamp.formattedTimestamp()
     )
 }
 

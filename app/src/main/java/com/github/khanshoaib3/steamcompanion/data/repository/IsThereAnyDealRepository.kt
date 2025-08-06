@@ -65,7 +65,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
 
     override suspend fun getPriceInfo(uids: List<String>): Result<List<PriceInfoResponse>> =
         runSafeSuspendCatching {
-            val response = isThereAnyDealApiService.prices(gameIds = uids)
+            val response = isThereAnyDealApiService.prices(gameIds = uids, allowVouchers = true)
             response
         }.onFailure {
             Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)
@@ -73,7 +73,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
 
     override suspend fun getPriceInfo(uid: String): Result<PriceInfoResponse> =
         runSafeSuspendCatching {
-            val response = isThereAnyDealApiService.prices(gameIds = listOf(uid))
+            val response = isThereAnyDealApiService.prices(gameIds = listOf(uid), allowVouchers = true)
             response.firstOrNull() ?: throw Exception("Price info for game with uid $uid not found")
         }.onFailure {
             Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)

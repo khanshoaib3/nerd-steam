@@ -158,7 +158,7 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchISTDPriceInfo() {
         if (appViewState.value.isThereAnyDealPriceInfoStatus != NOT_QUEUED) return
 
-        _appViewState.update { it.copy(steamChartsStatus = LOADING) }
+        _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = LOADING) }
 
         if (appData.value.isThereAnyDealId == null) {
             isThereAnyDealRepository.lookupGame(appId = appData.value.steamAppId)
@@ -174,7 +174,7 @@ class AppDetailViewModel @AssistedInject constructor(
         isThereAnyDealRepository.getPriceInfo(appData.value.isThereAnyDealId!!)
             .onSuccess { response ->
                 _appData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
-                _appViewState.update { it.copy(steamChartsStatus = LOADED) }
+                _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = LOADED) }
             }
             .onFailure {
                 _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }

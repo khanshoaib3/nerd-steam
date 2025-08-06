@@ -50,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.FAILED
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADED
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components.CardLower
@@ -137,7 +138,7 @@ fun AppDetailsScreen(
 
     val updateSelectedTabIndexCallback: (Int) -> Unit = viewModel::updateSelectedTabIndex
 
-    if (isInTwoPaneScene) {
+    if (isInTwoPaneScene && TwoPaneScene.IsActive) {
         AppDetailsCard(
             modifier = modifier,
             appData = appData,

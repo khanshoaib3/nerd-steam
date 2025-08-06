@@ -18,10 +18,10 @@ data class Bookmark(
     val name: String,
 
     @ColumnInfo(name = "time_stamp")
-    val timeStamp: Long = System.currentTimeMillis()
+    val timeStamp: Long = System.currentTimeMillis() // TODO Change this to LocalDateTime
 )
 
-fun Bookmark.formattedTimestamp(): String {
+fun Long.formattedTimestamp(): String {
     val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    return formatter.format(this.timeStamp)
+    return formatter.format(this)
 }
