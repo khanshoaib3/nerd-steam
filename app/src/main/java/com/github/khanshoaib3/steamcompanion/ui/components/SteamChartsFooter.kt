@@ -8,7 +8,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -30,7 +29,7 @@ fun SteamChartsFooter(modifier: Modifier = Modifier, url: String = "https://stea
                 withLink(
                     link = LinkAnnotation.Url(
                         url = url,
-                        styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                        styles = TextLinkStyles(style = SpanStyle(color = MaterialTheme.colorScheme.primary))
                     )
                 ) {
                     append("steamcharts.com")

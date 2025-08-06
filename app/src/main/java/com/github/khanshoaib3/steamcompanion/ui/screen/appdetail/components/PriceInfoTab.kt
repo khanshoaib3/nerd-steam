@@ -3,7 +3,10 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.res.Configuration
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,16 +32,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,9 +61,13 @@ import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.utils.OpenWebPage
 import com.github.khanshoaib3.steamcompanion.utils.getNumberFormatFromCurrencyCode
 import java.text.NumberFormat
 import java.util.Locale
+
+val END_ROUNDED_CORNER_SHAPE = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+val START_ROUNDED_CORNER_SHAPE = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -116,6 +128,8 @@ fun PriceInfoTab(
                         }
                     }
                     Spacer(Modifier.height(dimensionResource(R.dimen.padding_medium)))
+
+                    Footer()
                 }
             }
         }
@@ -146,7 +160,8 @@ private fun OverviewRow(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CenterAlignedSelectableText(
                     text = if (threeMonthsLow == null) "-" else numberFormat.format(threeMonthsLow),
-                    style = MaterialTheme.typography.headlineSmallEmphasized
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = "3 Months Low",
@@ -156,7 +171,8 @@ private fun OverviewRow(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CenterAlignedSelectableText(
                     text = if (oneYearLow == null) "-" else numberFormat.format(oneYearLow),
-                    style = MaterialTheme.typography.headlineSmallEmphasized
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = "1 Year Low",
@@ -166,7 +182,8 @@ private fun OverviewRow(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CenterAlignedSelectableText(
                     text = if (historicLow == null) "-" else numberFormat.format(historicLow),
-                    style = MaterialTheme.typography.headlineSmallEmphasized
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = "Historic Low",
@@ -185,6 +202,8 @@ fun DealCard(
 ) {
     val currencyFormatter = getNumberFormatFromCurrencyCode(deal.currency)
     val context = LocalContext.current
+    val view = LocalView.current
+
     OutlinedCard(
         modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.tertiary)
@@ -195,153 +214,207 @@ fun DealCard(
                 .height(IntrinsicSize.Max),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.tertiaryContainer,
-                shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
-                border = BorderStroke(Dp.Hairline, MaterialTheme.colorScheme.outlineVariant)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = dimensionResource(R.dimen.padding_large),
-                            vertical = dimensionResource(R.dimen.padding_small),
-                        )
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        text = deal.shopName,
-                        style = MaterialTheme.typography.titleLargeEmphasized,
-                        fontWeight = FontWeight.Bold,
+            // Shop and deal info
+            Column(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
+                        shape = END_ROUNDED_CORNER_SHAPE,
                     )
-                    Text(
-                        text = "Regular Price: ${currencyFormatter.format(deal.regularPrice)}",
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                    if (deal.drms.isNotEmpty()) {
-                        Text(
-                            text = "DRM: ${deal.drms.fastJoinToString(", ")}",
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                    }
-                    Row {
-                        Text(
-                            text = "Date: ${deal.timeStamp}",
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                        if (deal.expiry != null) {
-                            Text(
-                                text = " (expires ${deal.expiry})",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                textAlign = TextAlign.End,
-                            )
-                        }
-                    }
-                }
-            }
-            Surface(
-                color = MaterialTheme.colorScheme.tertiary,
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_large)),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = currencyFormatter.format(deal.price),
-                        style = MaterialTheme.typography.bodyLargeEmphasized,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = NumberFormat.getPercentInstance(Locale.getDefault())
-                            .format(-deal.discountPercentage / 100f),
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.align(Alignment.End)
-                    )
-                }
-            }
-            Surface(
-                shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
-                border = BorderStroke(
-                    Dp.Hairline,
-                    MaterialTheme.colorScheme.outlineVariant
-                ),
-                color = MaterialTheme.colorScheme.secondary,
-            ) {
-                Row {
-                    if (!deal.voucher.isNullOrEmpty()) {
-                        Surface(
-                            shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
-                            color = MaterialTheme.colorScheme.secondary
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .clickable {
-                                        val clipboard: ClipboardManager = getSystemService(
-                                            context,
-                                            ClipboardManager::class.java
-                                        ) as ClipboardManager
-                                        val clip = ClipData.newPlainText("Voucher", deal.voucher)
-                                        clipboard.setPrimaryClip(clip)
-                                    }
-                                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                                    .fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                Text(
-                                    text = "Use Voucher:",
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = deal.voucher,
-                                        style = MaterialTheme.typography.bodyMediumEmphasized,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Spacer(Modifier.width(dimensionResource(R.dimen.padding_very_small)))
-                                    Icon(
-                                        imageVector = Icons.Filled.ContentCopy,
-                                        contentDescription = "Copy voucher",
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Surface(
-                        shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
+                    .border(
                         border = BorderStroke(
                             Dp.Hairline,
                             MaterialTheme.colorScheme.outlineVariant
                         ),
-                        color = MaterialTheme.colorScheme.primary,
+                        shape = END_ROUNDED_CORNER_SHAPE,
+                    )
+                    .weight(1f)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.padding_large),
+                        vertical = dimensionResource(R.dimen.padding_small),
+                    )
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = deal.shopName,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
+                Text(
+                    text = "Regular Price: ${currencyFormatter.format(deal.regularPrice)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
+                if (deal.drms.isNotEmpty()) {
+                    Text(
+                        text = "DRM: ${deal.drms.fastJoinToString(", ")}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                }
+                Row {
+                    Text(
+                        text = "Date: ${deal.timeStamp}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                    if (deal.expiry != null) {
+                        Text(
+                            text = " (expires ${deal.expiry})",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.End,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                    }
+                }
+            }
+
+            // Price and discount percentage
+            Column(
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_large)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = currencyFormatter.format(deal.price),
+                    style = MaterialTheme.typography.bodyLargeEmphasized,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = NumberFormat.getPercentInstance(Locale.getDefault())
+                        .format(-deal.discountPercentage / 100f),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+
+            // Link and voucher button
+            Row(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = START_ROUNDED_CORNER_SHAPE,
+                    )
+                    .border(
+                        border = BorderStroke(
+                            width = Dp.Hairline,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        shape = START_ROUNDED_CORNER_SHAPE,
+                    )
+            ) {
+                if (!deal.voucher.isNullOrEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .clickable {
+                                val clipboard: ClipboardManager = getSystemService(
+                                    context,
+                                    ClipboardManager::class.java
+                                ) as ClipboardManager
+                                val clip = ClipData.newPlainText("Voucher", deal.voucher)
+                                clipboard.setPrimaryClip(clip)
+                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            }
+                            .background(
+                                color = MaterialTheme.colorScheme.secondary,
+                                shape = START_ROUNDED_CORNER_SHAPE,
+                            )
+                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                                .fillMaxHeight(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                        Text(
+                            text = "Use Voucher:",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSecondary,
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Text(
+                                text = deal.voucher,
+                                style = MaterialTheme.typography.bodyMediumEmphasized,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondary,
+                            )
+                            Spacer(Modifier.width(dimensionResource(R.dimen.padding_very_small)))
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                contentDescription = "Open in browser"
+                                imageVector = Icons.Filled.ContentCopy,
+                                contentDescription = "Copy voucher",
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSecondary,
                             )
                         }
                     }
+                }
+                Column(
+                    modifier = Modifier
+                        .clickable {
+                            OpenWebPage(deal.url, context)
+                        }
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = START_ROUNDED_CORNER_SHAPE,
+                        )
+                        .border(
+                            border = BorderStroke(
+                                width = Dp.Hairline,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            shape = START_ROUNDED_CORNER_SHAPE,
+                        )
+                        .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = "Open in browser",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun Footer(modifier: Modifier = Modifier, url: String = "https://isthereanydeal.com/") {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            // https://developer.android.com/reference/kotlin/androidx/compose/ui/text/LinkAnnotation
+            buildAnnotatedString {
+                append("powered by ")
+                withLink(
+                    link = LinkAnnotation.Url(
+                        url = url,
+                        styles = TextLinkStyles(style = SpanStyle(color = MaterialTheme.colorScheme.primary))
+                    )
+                ) {
+                    append("isthereanydeal.com")
+                }
+            },
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.End,
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    backgroundColor = 0xFF111318
+)
 @Preview(showBackground = true)
 @Composable
 private fun PriceInfoTabPreview() {
