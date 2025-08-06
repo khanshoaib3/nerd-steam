@@ -92,12 +92,7 @@ fun CardUpper(
             OverviewTable(
                 modifier = Modifier.fillMaxWidth(),
                 appId = appData.steamAppId,
-                imageUrl = it.imageUrl,
-                appName = it.name,
-                appType = it.type,
-                developers = it.developers,
-                publishers = it.publishers,
-                platforms = it.platforms,
+                commonAppDetails = appData.commonDetails,
             )
             PriceAndRating(
                 modifier = Modifier.fillMaxWidth(),
@@ -105,6 +100,7 @@ fun CardUpper(
                 currentPrice = it.currentPrice,
                 originalPrice = it.originalPrice,
                 currency = it.currency,
+                review = it.reviews?.lastOrNull()
             )
             Categories(
                 modifier = Modifier.fillMaxWidth(),

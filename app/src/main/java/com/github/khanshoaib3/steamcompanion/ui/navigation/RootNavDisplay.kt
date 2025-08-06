@@ -63,6 +63,7 @@ fun RootNavDisplay(
         windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
                 && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
             -> true
+
         windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
                 && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
             -> true
@@ -85,7 +86,10 @@ fun RootNavDisplay(
                 ) {
                     BookmarkScreenRoot(
                         navigateBackCallback = { rootBackStack.removeLastOrNull() },
-                        addAppDetailPane = { rootBackStack.add(Route.AppDetail(it)) },
+                        addAppDetailPane = {
+                            rootBackStack.add(Route.AppDetail(it))
+                            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        },
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
