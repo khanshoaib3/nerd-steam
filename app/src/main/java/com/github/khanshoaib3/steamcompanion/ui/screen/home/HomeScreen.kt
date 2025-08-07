@@ -45,13 +45,13 @@ fun HomeScreenRoot(
     addAppDetailPane: (Int) -> Unit,
     isWideScreen: Boolean,
     isShowingNavRail: Boolean,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
 ) {
     val homeDataState by homeViewModel.homeDataState.collectAsState()
     val homeViewState by homeViewModel.homeViewState.collectAsState()
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val view = LocalView.current
 
@@ -88,7 +88,7 @@ fun HomeScreenRoot(
             onMenuButtonClick = onMenuButtonClick,
             homeDataState = homeDataState,
             homeViewState = homeViewState,
-            topAppBarScrollBehavior = scrollBehavior,
+            topAppBarScrollBehavior = topAppBarScrollBehavior,
             navigateBackCallback = { topLevelBackStack.removeLast() }
         )
     }

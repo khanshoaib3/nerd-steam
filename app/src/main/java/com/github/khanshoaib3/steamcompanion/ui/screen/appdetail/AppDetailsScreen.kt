@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -70,6 +71,7 @@ fun AppDetailsScreen(
     isWideScreen: Boolean,
     isInTwoPaneScene: Boolean,
     onUpButtonClick: () -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     viewModel: AppDetailViewModel = hiltViewModel(),
 ) {
@@ -126,8 +128,6 @@ fun AppDetailsScreen(
         return
     }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
     val toggleBookmarkStatus: () -> Unit = {
         scope.launch(context = Dispatchers.IO) {
             viewModel.toggleBookmarkStatus()
@@ -156,7 +156,7 @@ fun AppDetailsScreen(
     }
 
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text(appData.commonDetails?.name ?: "No Name") },
@@ -175,7 +175,7 @@ fun AppDetailsScreen(
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior,
+                scrollBehavior = topAppBarScrollBehavior,
                 windowInsets = WindowInsets()
             )
         }) { innerPadding ->

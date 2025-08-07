@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,7 +53,7 @@ fun CardUpper(
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true,
-) = appData.commonDetails?.let {
+) = appData.commonDetails?.let { commonAppDetails ->
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val view = LocalView.current
@@ -62,9 +61,9 @@ fun CardUpper(
     val notificationOptions = listOf("Everyday", "Once")
     var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
 
-    val maxPrice = it.originalPrice
-    val currentPrice = it.currentPrice
-    var targetPrice by remember { mutableFloatStateOf(currentPrice) }
+    val maxPrice = commonAppDetails.originalPrice
+    val currentPrice = commonAppDetails.currentPrice
+    var targetPrice by remember(appData.steamAppId) { mutableFloatStateOf(currentPrice) }
     LaunchedEffect(storedPriceTrackingInfo) {
         if (storedPriceTrackingInfo == null) return@LaunchedEffect
         targetPrice = storedPriceTrackingInfo.targetPrice
@@ -84,7 +83,7 @@ fun CardUpper(
             if (showHeader) {
                 Header(
                     modifier = Modifier.fillMaxWidth(),
-                    appName = it.name,
+                    appName = commonAppDetails.name,
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive
                 )
@@ -96,26 +95,26 @@ fun CardUpper(
             )
             PriceAndRating(
                 modifier = Modifier.fillMaxWidth(),
-                isFree = it.isFree,
-                currentPrice = it.currentPrice,
-                originalPrice = it.originalPrice,
-                currency = it.currency,
-                review = it.reviews?.lastOrNull()
+                isFree = commonAppDetails.isFree,
+                currentPrice = commonAppDetails.currentPrice,
+                originalPrice = commonAppDetails.originalPrice,
+                currency = commonAppDetails.currency,
+                review = commonAppDetails.reviews?.lastOrNull()
             )
             Categories(
                 modifier = Modifier.fillMaxWidth(),
-                categories = it.categories
+                categories = commonAppDetails.categories
             )
 
-            if (it.description != null) {
+            if (commonAppDetails.description != null) {
                 ShortDescription(
                     modifier = Modifier.fillMaxWidth(),
-                    description = it.description
+                    description = commonAppDetails.description
                 )
             }
 
-            if (!it.isFree && it.isReleased && it.originalPrice != 0f) {
-                TrackingButtons(
+            if (!commonAppDetails.isFree && commonAppDetails.isReleased && commonAppDetails.originalPrice != 0f) {
+                PriceTrackingRow(
                     onClick = { scope.launch { sheetState.show() } },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -127,32 +126,21 @@ fun CardUpper(
                 sheetState = sheetState,
                 targetPrice = targetPrice,
                 maxPrice = maxPrice,
-                onPriceChange = {
-                    targetPrice = (it * 100).roundToInt() / 100f
-                },
+                onPriceChange = { targetPrice = (it * 100).roundToInt() / 100f },
                 selectedNotificationOptionIndex = selectedNotificationOptionIndex,
                 notificationOptions = notificationOptions,
-                onSelectedNotificationOptionIndexChange = {
-                    selectedNotificationOptionIndex = it
-                },
+                onSelectedNotificationOptionIndexChange = { selectedNotificationOptionIndex = it },
                 onCancel = { scope.launch { sheetState.hide() } },
                 onConfirm = {
-                    startPriceTracking(
-                        targetPrice,
-                        selectedNotificationOptionIndex == 0
-                    )
+                    startPriceTracking(targetPrice, selectedNotificationOptionIndex == 0)
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
-                    scope.launch {
-                        sheetState.hide()
-                    }
+                    scope.launch { sheetState.hide() }
                 },
                 priceAlreadyTracked = storedPriceTrackingInfo != null,
                 onStop = {
                     stopPriceTracking()
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
-                    scope.launch {
-                        sheetState.hide()
-                    }
+                    scope.launch { sheetState.hide() }
                 }
             )
         }
@@ -194,29 +182,6 @@ fun ShortDescription(modifier: Modifier = Modifier, description: String) {
     CenterAlignedSelectableText(description, modifier)
 }
 
-@Composable
-fun TrackingButtons(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        FilledIconButton(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) {
-            Text(
-                text = "Set Price Alert",
-                fontWeight = FontWeight.Medium,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -235,23 +200,4 @@ private fun GameDetailScreenPreview() {
             stopPriceTracking = {}
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PriceTrackingSheetPreview() {
-    PriceTrackingSheetContent(
-        targetPrice = 45.0f,
-        maxPrice = 199.99f,
-        onPriceChange = {},
-        selectedNotificationOptionIndex = 1,
-        notificationOptions = listOf("Everyday", "Once"),
-        onSelectedNotificationOptionIndexChange = {},
-        onCancel = {},
-        onConfirm = {},
-        priceAlreadyTracked = true,
-        onStop = {}
-    )
 }

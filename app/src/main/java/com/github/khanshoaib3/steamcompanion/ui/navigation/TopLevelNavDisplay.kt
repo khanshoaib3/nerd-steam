@@ -15,6 +15,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,14 +42,15 @@ import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TopLevelNavDisplay(
     topLevelBackStack: TopLevelBackStack<Route>,
     isWideScreen: Boolean,
     isShowingNavRail: Boolean,
     onMenuButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
     val twoPaneStrategy = remember { TwoPaneSceneStrategy<Any>() }
@@ -93,7 +96,8 @@ fun TopLevelNavDisplay(
                         addAppDetailPane = addAppDetailPane,
                         topLevelBackStack = topLevelBackStack,
                         isWideScreen = isWideScreen,
-                        isShowingNavRail = isShowingNavRail
+                        isShowingNavRail = isShowingNavRail,
+                        topAppBarScrollBehavior = topAppBarScrollBehavior,
                     )
                 }
                 entry<TopLevelRoute.Search>(
@@ -105,6 +109,7 @@ fun TopLevelNavDisplay(
                         isShowingNavRail = isShowingNavRail,
                         onMenuButtonClick = onMenuButtonClick,
                         addAppDetailPane = addAppDetailPane,
+                        topAppBarScrollBehavior = topAppBarScrollBehavior,
                     )
                 }
 
@@ -126,10 +131,11 @@ fun TopLevelNavDisplay(
                             }
                         )
                     AppDetailsScreen(
+                        viewModel = viewModel,
                         isWideScreen = isWideScreen,
                         isInTwoPaneScene = true,
                         onUpButtonClick = { topLevelBackStack.removeLast() },
-                        viewModel = viewModel
+                        topAppBarScrollBehavior = topAppBarScrollBehavior,
                     )
                 }
             },

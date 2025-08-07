@@ -65,6 +65,7 @@ fun SearchScreenRoot(
     isShowingNavRail: Boolean,
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
 ) {
@@ -79,8 +80,6 @@ fun SearchScreenRoot(
         imageWidth = 150.toDp()
         imageHeight = 225.toDp()
     }
-
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val scope = rememberCoroutineScope()
 
@@ -119,7 +118,7 @@ fun SearchScreenRoot(
             showMenuButton = !isShowingNavRail,
             onMenuButtonClick = onMenuButtonClick,
             navigateBackCallback = { topLevelBackStack.removeLast() },
-            topAppBarScrollBehavior = scrollBehavior,
+            topAppBarScrollBehavior = topAppBarScrollBehavior,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             modifier = modifier

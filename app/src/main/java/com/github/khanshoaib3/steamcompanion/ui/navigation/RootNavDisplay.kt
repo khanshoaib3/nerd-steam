@@ -13,7 +13,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,14 +35,15 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_L
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.NavWrapper
-import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailViewModel
+import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailsScreen
+import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RootNavDisplay(
     rootBackStack: NavBackStack,
@@ -112,11 +115,12 @@ fun RootNavDisplay(
                             }
                         )
                     AppDetailsScreen(
+                        viewModel = viewModel,
                         isWideScreen = isWideScreen,
                         isInTwoPaneScene = false,
                         onUpButtonClick = { rootBackStack.removeLastOrNull() },
                         modifier = Modifier.padding(innerPadding),
-                        viewModel = viewModel
+                        topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
                     )
                 }
 
@@ -141,6 +145,7 @@ fun RootNavDisplay(
                                     view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                                 }
                             },
+                            topAppBarScrollBehavior = topAppBarScrollBehavior,
                             modifier = modifier
                         )
                     }

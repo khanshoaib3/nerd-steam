@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue.Expanded
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -21,9 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import kotlinx.coroutines.launch
 
-class NavSuiteScope(
+class NavSuiteScope @OptIn(ExperimentalMaterial3Api::class) constructor(
     val railState: WideNavigationRailState,
-    val modifier: Modifier = Modifier
+    val topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    val modifier: Modifier = Modifier,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,14 +55,18 @@ fun NavWrapper(
         leftInsetInDp =
             WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current).toDp()
     }
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
+        modifier = Modifier
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+            .padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp),
         topBar = {
             if (isWideScreen) {
                 CommonTopAppBar(
                     showMenuButton = false,
                     onMenuButtonClick = {},
                     navigateBackCallback = {},
-                    scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                    scrollBehavior = topAppBarScrollBehavior,
                     forRoute = currentTopLevelRoute,
                 )
             }
@@ -72,11 +79,11 @@ fun NavWrapper(
                 )
             }
         },
-        modifier = Modifier.padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp)
     ) { innerPaddings ->
         NavSuiteScope(
-            railState,
-            modifier = Modifier.padding(innerPaddings)
+            railState = railState,
+            topAppBarScrollBehavior = topAppBarScrollBehavior,
+            modifier = Modifier.padding(innerPaddings),
         ).content()
     }
 
