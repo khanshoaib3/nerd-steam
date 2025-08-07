@@ -29,7 +29,6 @@ data class SteamChartsPerAppScrapedData(
 )
 
 class SteamChartsPerAppScraper(private val appId: Int) {
-    @Throws
     suspend fun scrape(): SteamChartsPerAppScrapedData = withContext(Dispatchers.IO) {
         try {
             Log.d(TAG, "Started scraping...")

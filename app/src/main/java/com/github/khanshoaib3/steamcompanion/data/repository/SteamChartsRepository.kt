@@ -8,10 +8,13 @@ import com.github.khanshoaib3.steamcompanion.data.local.steamcharts.TrendingGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.steamcompanion.data.model.steamcharts.TrendingGame
+import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScrapedData
+import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsScraper
 import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTopGamesList
 import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTopRecordsList
 import com.github.khanshoaib3.steamcompanion.data.scraper.parseAndGetTrendingGamesList
+import com.github.khanshoaib3.steamcompanion.utils.runSafeSuspendCatching
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -27,6 +30,8 @@ interface SteamChartsRepository {
     fun getAllTopGames(): Flow<List<TopGame>>
 
     fun getAllTopRecords(): Flow<List<TopRecord>>
+
+    suspend fun fetchDataForApp(appId: Int): Result<SteamChartsPerAppScrapedData>
 }
 
 
@@ -36,8 +41,9 @@ class ScraperSteamChartsRepository @Inject constructor(
     private val trendingGameDao: TrendingGameDao,
     private val topGameDao: TopGameDao,
     private val topRecordDao: TopRecordDao,
-    private val localDataStoreRepository: LocalDataStoreRepository
+    private val localDataStoreRepository: LocalDataStoreRepository,
 ) : SteamChartsRepository {
+    // TODO Use Result here
     override suspend fun fetchAndStoreData() {
         val steamChartsFetchTime = localDataStoreRepository.steamChartsFetchTimeSnapshot()
         if (steamChartsFetchTime.isNotEmpty()) {
@@ -85,5 +91,9 @@ class ScraperSteamChartsRepository @Inject constructor(
 
     override fun getAllTopRecords(): Flow<List<TopRecord>> {
         return topRecordDao.getAll()
+    }
+
+    override suspend fun fetchDataForApp(appId: Int) = runSafeSuspendCatching {
+        SteamChartsPerAppScraper(appId = appId).scrape()
     }
 }

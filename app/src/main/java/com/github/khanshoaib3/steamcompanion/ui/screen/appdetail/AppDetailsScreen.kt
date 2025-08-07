@@ -29,7 +29,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,7 +49,7 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.FAILED
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADED
@@ -81,7 +80,7 @@ fun AppDetailsScreen(
     val view = LocalView.current
     val context = LocalContext.current
 
-    var storedPriceTrackingInfo: PriceTracking? by remember { mutableStateOf(null) }
+    var storedPriceAlertInfo: PriceAlert? by remember { mutableStateOf(null) }
     val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
         val toast = Toast.makeText(
             context,
@@ -90,7 +89,7 @@ fun AppDetailsScreen(
         )
         scope.launch(context = Dispatchers.IO) {
             viewModel.startPriceTracking(targetPrice, notifyEveryDay)
-            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+            storedPriceAlertInfo = viewModel.getPriceTrackingInfo()
             toast.show()
         }
     }
@@ -102,7 +101,7 @@ fun AppDetailsScreen(
         )
         scope.launch(context = Dispatchers.IO) {
             viewModel.stopPriceTracking()
-            storedPriceTrackingInfo = viewModel.getPriceTrackingInfo()
+            storedPriceAlertInfo = viewModel.getPriceTrackingInfo()
             toast.show()
         }
     }
@@ -146,7 +145,7 @@ fun AppDetailsScreen(
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
             isBookmarkActive = isBookmarked,
-            storedPriceTrackingInfo = storedPriceTrackingInfo,
+            storedPriceAlertInfo = storedPriceAlertInfo,
             startPriceTracking = startPriceTracking,
             stopPriceTracking = stopPriceTracking,
             updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
@@ -185,7 +184,7 @@ fun AppDetailsScreen(
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
             isBookmarkActive = isBookmarked,
-            storedPriceTrackingInfo = storedPriceTrackingInfo,
+            storedPriceAlertInfo = storedPriceAlertInfo,
             startPriceTracking = startPriceTracking,
             stopPriceTracking = stopPriceTracking,
             updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
@@ -206,7 +205,7 @@ fun AppDetailsCard(
     updateSelectedTabIndexCallback: (Int) -> Unit,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
-    storedPriceTrackingInfo: PriceTracking?,
+    storedPriceAlertInfo: PriceAlert?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
     modifier: Modifier = Modifier,
@@ -229,7 +228,7 @@ fun AppDetailsCard(
                     appData = appData,
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive,
-                    storedPriceTrackingInfo = storedPriceTrackingInfo,
+                    storedPriceAlertInfo = storedPriceAlertInfo,
                     startPriceTracking = startPriceTracking,
                     stopPriceTracking = stopPriceTracking,
                     showHeader = showHeader
@@ -262,7 +261,7 @@ fun AppDetailsCard(
                     appData = appData,
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive,
-                    storedPriceTrackingInfo = storedPriceTrackingInfo,
+                    storedPriceAlertInfo = storedPriceAlertInfo,
                     startPriceTracking = startPriceTracking,
                     stopPriceTracking = stopPriceTracking,
                     showHeader = showHeader
@@ -293,7 +292,7 @@ private fun GameDetailScreenPreview() {
             appViewState = AppViewState(),
             fetchDataFromSourceCallback = {},
             onBookmarkClick = {},
-            storedPriceTrackingInfo = null,
+            storedPriceAlertInfo = null,
             startPriceTracking = { _, _ -> },
             stopPriceTracking = {},
             isBookmarkActive = true,

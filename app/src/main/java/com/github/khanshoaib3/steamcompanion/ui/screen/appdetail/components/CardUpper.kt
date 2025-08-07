@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.HapticFeedbackConstantsCompat
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
-import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
@@ -49,7 +49,7 @@ fun CardUpper(
     appData: AppData,
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
-    storedPriceTrackingInfo: PriceTracking?,
+    storedPriceAlertInfo: PriceAlert?,
     startPriceTracking: (Float, Boolean) -> Unit,
     stopPriceTracking: () -> Unit,
     showHeader: Boolean = true,
@@ -64,10 +64,10 @@ fun CardUpper(
     val maxPrice = commonAppDetails.originalPrice
     val currentPrice = commonAppDetails.currentPrice
     var targetPrice by remember(appData.steamAppId) { mutableFloatStateOf(currentPrice) }
-    LaunchedEffect(storedPriceTrackingInfo) {
-        if (storedPriceTrackingInfo == null) return@LaunchedEffect
-        targetPrice = storedPriceTrackingInfo.targetPrice
-        selectedNotificationOptionIndex = if (storedPriceTrackingInfo.notifyEveryDay) 0 else 1
+    LaunchedEffect(storedPriceAlertInfo) {
+        if (storedPriceAlertInfo == null) return@LaunchedEffect
+        targetPrice = storedPriceAlertInfo.targetPrice
+        selectedNotificationOptionIndex = if (storedPriceAlertInfo.notifyEveryDay) 0 else 1
     }
 
     Surface(
@@ -99,7 +99,8 @@ fun CardUpper(
                 currentPrice = commonAppDetails.currentPrice,
                 originalPrice = commonAppDetails.originalPrice,
                 currency = commonAppDetails.currency,
-                review = commonAppDetails.reviews?.lastOrNull()
+                review = commonAppDetails.reviews?.findLast { it.score > 0 }
+                    ?: commonAppDetails.reviews?.firstOrNull()
             )
             Categories(
                 modifier = Modifier.fillMaxWidth(),
@@ -114,7 +115,7 @@ fun CardUpper(
             }
 
             if (!commonAppDetails.isFree && commonAppDetails.isReleased && commonAppDetails.originalPrice != 0f) {
-                PriceTrackingRow(
+                PriceAlertRow(
                     onClick = { scope.launch { sheetState.show() } },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -122,7 +123,7 @@ fun CardUpper(
         }
 
         if (sheetState.isVisible) {
-            PriceTrackingSheet(
+            PriceAlertSheet(
                 sheetState = sheetState,
                 targetPrice = targetPrice,
                 maxPrice = maxPrice,
@@ -136,7 +137,7 @@ fun CardUpper(
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
                     scope.launch { sheetState.hide() }
                 },
-                priceAlreadyTracked = storedPriceTrackingInfo != null,
+                priceAlreadyTracked = storedPriceAlertInfo != null,
                 onStop = {
                     stopPriceTracking()
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
@@ -195,7 +196,7 @@ private fun GameDetailScreenPreview() {
             appData = AppData(steamAppId = 220),
             onBookmarkClick = {},
             isBookmarkActive = false,
-            storedPriceTrackingInfo = null,
+            storedPriceAlertInfo = null,
             startPriceTracking = { _, _ -> },
             stopPriceTracking = {}
         )

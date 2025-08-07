@@ -42,7 +42,8 @@ fun CommonTopAppBar(
     val title: String = when (forRoute) {
         TopLevelRoute.Home -> stringResource(R.string.app_name)
         TopLevelRoute.Search -> "Search"
-        Route.Bookmark -> "Bookmark"
+        Route.Bookmark -> "Bookmarks"
+        Route.Alerts -> "Price Alerts"
         else -> stringResource(R.string.app_name)
     }
 

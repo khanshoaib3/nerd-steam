@@ -2,12 +2,14 @@ package com.github.khanshoaib3.steamcompanion.ui.utils
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessAlarm
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccessAlarm
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.Home
@@ -84,4 +86,4 @@ sealed interface TopLevelRoute : Route {
 }
 
 val NAV_TOP_LEVEL_ROUTES = listOf(TopLevelRoute.Home, TopLevelRoute.Search)
-val NAV_OTHER_ROUTES = listOf(Route.Bookmark, Route.Alerts, Route.Settings, Route.AboutNFeedback)
+val NAV_OTHER_ROUTES = listOf(Route.Bookmark, Route.Alerts)

@@ -48,7 +48,7 @@ fun BookmarkScreenRoot(
         imageHeight = 225.toDp()
     }
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val onGameHeaderClick: () -> Unit = {
         bookmarkViewModel.toggleSortOrderOfTypeName()

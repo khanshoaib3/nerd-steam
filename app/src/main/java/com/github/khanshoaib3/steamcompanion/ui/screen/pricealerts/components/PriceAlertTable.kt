@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.components
+package com.github.khanshoaib3.steamcompanion.ui.screen.pricealerts.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,37 +12,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkDisplay
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 
 @Composable
-fun BookmarkTable(
-    bookmarks: List<BookmarkDisplay>,
+fun PriceAlertTable(
+    alerts: List<PriceAlert>,
     onGameClick: (Int) -> Unit,
-    onGameHeaderClick: () -> Unit,
-    onTimeHeaderClick: () -> Unit,
+    onNameHeaderClick: () -> Unit,
+    onPriceHeaderClick: () -> Unit,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier
+        modifier = modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (bookmarks.isEmpty()) {
+        if (alerts.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "No bookmarks found!")
+                Text(text = "No alerts set!")
             }
         } else {
-            BookmarkTableHeader(
-                onGameHeaderClick = onGameHeaderClick,
-                onTimeHeaderClick = onTimeHeaderClick
+            PriceAlertTableHeader(
+                onNameHeaderClick = onNameHeaderClick,
+                onPriceHeaderClick = onPriceHeaderClick
             )
             HorizontalDivider(
                 Modifier.padding(
@@ -50,8 +50,8 @@ fun BookmarkTable(
                     vertical = dimensionResource(R.dimen.padding_very_small)
                 )
             )
-            BookmarkTableBody(
-                bookmarks = bookmarks,
+            PriceAlertTableBody(
+                alerts = alerts,
                 onGameClick = onGameClick,
                 imageWidth = imageWidth,
                 imageHeight = imageHeight

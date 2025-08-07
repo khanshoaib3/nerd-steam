@@ -10,41 +10,52 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.local.MainDatabase
-import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceTracking
+import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
-import com.github.khanshoaib3.steamcompanion.data.repository.OnlineAppDetailRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.LocalPriceAlertRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.steamcompanion.di.AppModule
-import kotlinx.serialization.json.Json
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-class PriceCheckWorker(
+class PriceAlertsWorker(
     private val appContext: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
 
     private val db = MainDatabase.getDatabase(appContext)
-    val json = Json { ignoreUnknownKeys = true }
-    val steamInternalWebApiService: SteamInternalWebApiService = AppModule().provideSteamInternalWebApiService()
+    val steamInternalWebApiService: SteamInternalWebApiService =
+        AppModule().provideSteamInternalWebApiService()
 
-    private val repository = OnlineAppDetailRepository(
-        steamInternalWebApiService = steamInternalWebApiService,
-        priceTrackingDao = db.priceTrackingDao()
-    )
+    private val steamRepository =
+        OnlineSteamRepository(steamInternalWebApiService = steamInternalWebApiService)
+    private val priceAlertRepository = LocalPriceAlertRepository(priceAlertDao = db.priceAlertDao())
 
+    @OptIn(ExperimentalTime::class)
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
         return try {
-            val trackedGames = repository.getAllTrackedGames()
+            priceAlertRepository.getAllPriceAlerts().collect {
+                it.onEach { entry ->
+                    val currentPrice = fetchCurrentPrice(entry.appId)
+                    if (currentPrice == null) return@onEach
 
-            for (entry in trackedGames) {
-                val currentPrice = fetchCurrentPrice(entry.appId)
-                if (currentPrice != null && currentPrice <= entry.targetPrice) {
-                    showNotification(entry, currentPrice)
-                    if (!entry.notifyEveryDay) {
-                        repository.stopTracking(entry.appId)
+                    if (currentPrice <= entry.targetPrice) {
+                        showNotification(entry, currentPrice)
+                        if (!entry.notifyEveryDay) {
+                            priceAlertRepository.removePriceAlert(entry.appId)
+                            return@onEach
+                        }
                     }
+
+                    priceAlertRepository.updatePriceAlert(
+                        entry.copy(
+                            lastFetchedPrice = currentPrice,
+                            lastFetchedTime = Clock.System.now().toEpochMilliseconds()
+                        )
+                    )
                 }
             }
-
             Result.success()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -53,19 +64,19 @@ class PriceCheckWorker(
     }
 
     private suspend fun fetchCurrentPrice(appId: Int): Float? {
-        val result = repository.fetchDataForAppId(appId)
+        val result = steamRepository.fetchDataForAppId(appId)
         return if (result?.success == true) {
             result.data?.priceOverview?.finalPrice?.div(100f)
         } else null
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun showNotification(entry: PriceTracking, currentPrice: Float) {
+    private fun showNotification(entry: PriceAlert, currentPrice: Float) {
         try {
             val notificationManager = NotificationManagerCompat.from(appContext)
-            val notification = NotificationCompat.Builder(appContext, "price_channel")
+            val notification = NotificationCompat.Builder(appContext, "price_alert_channel")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Price Drop: ${entry.gameName}")
+                .setContentTitle("Price Drop: ${entry.name}")
                 .setContentText("Now only ₹$currentPrice!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
@@ -73,7 +84,7 @@ class PriceCheckWorker(
 
             notificationManager.notify(entry.appId, notification)
         } catch (e: Exception) {
-            Log.e("PriceCheckWorker", "Failed to show notification", e)
+            Log.e("PriceAlertWorker", "Failed to show notification", e)
         }
     }
 }

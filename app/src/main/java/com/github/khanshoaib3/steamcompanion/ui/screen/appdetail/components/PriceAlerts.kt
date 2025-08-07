@@ -35,7 +35,7 @@ import com.github.khanshoaib3.steamcompanion.R
 import kotlin.text.toFloat
 
 @Composable
-fun PriceTrackingRow(
+fun PriceAlertRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -59,7 +59,7 @@ fun PriceTrackingRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PriceTrackingSheet(
+fun PriceAlertSheet(
     sheetState: SheetState,
     targetPrice: Float,
     maxPrice: Float,

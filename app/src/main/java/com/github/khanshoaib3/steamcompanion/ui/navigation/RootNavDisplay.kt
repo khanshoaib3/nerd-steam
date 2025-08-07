@@ -33,11 +33,11 @@ import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
-import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.NavWrapper
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailViewModel
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailsScreen
 import com.github.khanshoaib3.steamcompanion.ui.screen.bookmark.BookmarkScreenRoot
+import com.github.khanshoaib3.steamcompanion.ui.screen.pricealerts.PriceAlertScreenRoot
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
 import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
@@ -84,9 +84,7 @@ fun RootNavDisplay(
                 rememberViewModelStoreNavEntryDecorator(),
             ),
             entryProvider = entryProvider {
-                entry<Route.Bookmark>(
-                    metadata = TwoPaneScene.setAsFirst()
-                ) {
+                entry<Route.Bookmark> {
                     BookmarkScreenRoot(
                         navigateBackCallback = { rootBackStack.removeLastOrNull() },
                         addAppDetailPane = {
@@ -97,9 +95,18 @@ fun RootNavDisplay(
                     )
                 }
 
-                entry<Route.AppDetail>(
-                    metadata = TwoPaneScene.setAsSecond()
-                ) { key ->
+                entry<Route.Alerts> {
+                    PriceAlertScreenRoot(
+                        navigateBackCallback = { rootBackStack.removeLastOrNull() },
+                        addAppDetailPane = {
+                            rootBackStack.add(Route.AppDetail(it))
+                            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        },
+                        modifier = Modifier.padding(innerPadding),
+                    )
+                }
+
+                entry<Route.AppDetail> { key ->
                     val viewModel =
                         hiltViewModel<AppDetailViewModel, AppDetailViewModel.Factory>(
                             // Note: We need a new ViewModel for every new RouteB instance. Usually

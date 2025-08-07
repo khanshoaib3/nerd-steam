@@ -7,7 +7,7 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.github.khanshoaib3.steamcompanion.data.worker.PriceCheckWorker
+import com.github.khanshoaib3.steamcompanion.data.worker.PriceAlertsWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 
@@ -17,12 +17,12 @@ class MainApplication : Application() {
         super.onCreate()
         createNotificationChannel(this)
 
-        val workRequest = PeriodicWorkRequestBuilder<PriceCheckWorker>(
+        val workRequest = PeriodicWorkRequestBuilder<PriceAlertsWorker>(
             1, TimeUnit.DAYS
         ).build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "price_check_work",
+            "price_alert_work",
             ExistingPeriodicWorkPolicy.KEEP,
             workRequest
         )
