@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -34,9 +35,11 @@ import androidx.compose.ui.unit.dp
 import com.github.khanshoaib3.steamcompanion.R
 import kotlin.text.toFloat
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PriceAlertRow(
     onClick: () -> Unit,
+    alertAlreadySet: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -44,15 +47,29 @@ fun PriceAlertRow(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FilledIconButton(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) {
-            Text(
-                text = "Set Price Alert",
-                fontWeight = FontWeight.Medium,
-                style = MaterialTheme.typography.bodyLarge
-            )
+        if (alertAlreadySet) {
+            OutlinedButton(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text(
+                    text = "Edit Price Alert",
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLargeEmphasized
+                )
+            }
+        }
+        else {
+            FilledIconButton(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text(
+                    text = "Set Price Alert",
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyLargeEmphasized
+                )
+            }
         }
     }
 }
@@ -69,7 +86,7 @@ fun PriceAlertSheet(
     onSelectedNotificationOptionIndexChange: (Int) -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
-    priceAlreadyTracked: Boolean,
+    alertAlreadySet: Boolean,
     onStop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -86,7 +103,7 @@ fun PriceAlertSheet(
             onSelectedNotificationOptionIndexChange = onSelectedNotificationOptionIndexChange,
             onCancel = onCancel,
             onConfirm = onConfirm,
-            priceAlreadyTracked = priceAlreadyTracked,
+            alertAlreadySet = alertAlreadySet,
             onStop = onStop,
             modifier = modifier
         )
@@ -103,7 +120,7 @@ fun PriceTrackingSheetContent(
     onSelectedNotificationOptionIndexChange: (Int) -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
-    priceAlreadyTracked: Boolean,
+    alertAlreadySet: Boolean,
     onStop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -165,7 +182,7 @@ fun PriceTrackingSheetContent(
                 }
             }
         }
-        if (priceAlreadyTracked) {
+        if (alertAlreadySet) {
             Spacer(Modifier.height(32.dp))
             FilledTonalButton(onClick = onStop, modifier = Modifier.fillMaxWidth(0.9f)) {
                 Text("Remove Alert")
@@ -195,7 +212,7 @@ fun PriceTrackingSheetContent(
                     .weight(1f)
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
-                Text(if (priceAlreadyTracked) "Update" else "Start Tracking")
+                Text(if (alertAlreadySet) "Update" else "Start Tracking")
             }
         }
     }
@@ -215,7 +232,7 @@ fun PriceTrackingSheetPreview() {
         onSelectedNotificationOptionIndexChange = {},
         onCancel = {},
         onConfirm = {},
-        priceAlreadyTracked = true,
+        alertAlreadySet = true,
         onStop = {}
     )
 }

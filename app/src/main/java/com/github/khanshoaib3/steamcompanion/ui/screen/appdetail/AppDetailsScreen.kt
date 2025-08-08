@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,7 +81,10 @@ fun AppDetailsScreen(
     val view = LocalView.current
     val context = LocalContext.current
 
-    var storedPriceAlertInfo: PriceAlert? by remember { mutableStateOf(null) }
+    var storedPriceAlertInfo: PriceAlert? by remember(appData.steamAppId) { mutableStateOf(null) }
+    LaunchedEffect(appData.steamAppId) {
+        storedPriceAlertInfo = viewModel.getPriceTrackingInfo()
+    }
     val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
         val toast = Toast.makeText(
             context,

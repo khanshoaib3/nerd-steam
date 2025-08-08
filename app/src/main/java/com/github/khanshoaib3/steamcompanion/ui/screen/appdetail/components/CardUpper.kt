@@ -117,7 +117,8 @@ fun CardUpper(
             if (!commonAppDetails.isFree && commonAppDetails.isReleased && commonAppDetails.originalPrice != 0f) {
                 PriceAlertRow(
                     onClick = { scope.launch { sheetState.show() } },
-                    modifier = Modifier.fillMaxWidth()
+                    alertAlreadySet = storedPriceAlertInfo != null,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -137,7 +138,7 @@ fun CardUpper(
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
                     scope.launch { sheetState.hide() }
                 },
-                priceAlreadyTracked = storedPriceAlertInfo != null,
+                alertAlreadySet = storedPriceAlertInfo != null,
                 onStop = {
                     stopPriceTracking()
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
