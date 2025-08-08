@@ -19,16 +19,16 @@ enum class PriceAlertTableSortOrder {
 }
 
 data class PriceAlertDataState(
-    val alerts: List<PriceAlert>
+    val alerts: List<PriceAlert>,
 )
 
 data class PriceAlertViewState(
-    val tableSortOrder: PriceAlertTableSortOrder = PriceAlertTableSortOrder.Default
+    val tableSortOrder: PriceAlertTableSortOrder = PriceAlertTableSortOrder.Default,
 )
 
 @HiltViewModel
 class PriceAlertViewModel @Inject constructor(
-    priceAlertRepository: PriceAlertRepository
+    priceAlertRepository: PriceAlertRepository,
 ) : ViewModel() {
     val priceAlertDataState: StateFlow<PriceAlertDataState> =
         priceAlertRepository.getAllPriceAlerts()
@@ -78,17 +78,15 @@ class PriceAlertViewModel @Inject constructor(
 
     fun toggleSortOrderOfTypePrice() = updateSortOrder(
         newSortOrder = when (priceAlertViewState.value.tableSortOrder) {
-            PriceAlertTableSortOrder.NameAsc, PriceAlertTableSortOrder.NameDesc -> PriceAlertTableSortOrder.PriceAsc
             PriceAlertTableSortOrder.PriceAsc -> PriceAlertTableSortOrder.PriceDesc
-            else -> PriceAlertTableSortOrder.Default
+            else -> PriceAlertTableSortOrder.PriceAsc
         }
     )
 
     fun toggleSortOrderOfTypeName() = updateSortOrder(
         newSortOrder = when (priceAlertViewState.value.tableSortOrder) {
-            PriceAlertTableSortOrder.PriceAsc, PriceAlertTableSortOrder.PriceDesc -> PriceAlertTableSortOrder.NameAsc
             PriceAlertTableSortOrder.NameAsc -> PriceAlertTableSortOrder.NameDesc
-            else -> PriceAlertTableSortOrder.Default
+            else -> PriceAlertTableSortOrder.NameAsc
         }
     )
 }

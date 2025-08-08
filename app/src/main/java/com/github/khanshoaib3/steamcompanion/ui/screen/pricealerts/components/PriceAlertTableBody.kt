@@ -33,7 +33,7 @@ fun PriceAlertTableBody(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
     ) {
         items(alerts) { alert ->
             Row(

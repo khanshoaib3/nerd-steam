@@ -46,7 +46,7 @@ fun PriceAlertScreenRoot(
         priceAlertViewModel.toggleSortOrderOfTypeName()
         localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
     }
-    val onTimeHeaderClick: () -> Unit = {
+    val onPriceHeaderClick: () -> Unit = {
         priceAlertViewModel.toggleSortOrderOfTypePrice()
         localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
     }
@@ -68,7 +68,7 @@ fun PriceAlertScreenRoot(
             alerts = sortedAlerts,
             onGameClick = addAppDetailPane,
             onNameHeaderClick = onGameHeaderClick,
-            onPriceHeaderClick = onTimeHeaderClick,
+            onPriceHeaderClick = onPriceHeaderClick,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             modifier = Modifier.padding(top = innerPadding.calculateTopPadding())

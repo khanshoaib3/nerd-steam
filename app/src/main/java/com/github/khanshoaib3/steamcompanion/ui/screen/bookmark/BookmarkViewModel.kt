@@ -95,7 +95,6 @@ class BookmarkViewModel @Inject constructor(
 
     fun toggleSortOrderOfTypeTime() = updateSortOrder(
         newSortOrder = when (bookmarkViewState.value.tableSortOrder) {
-            BookmarkTableSortOrder.NameAsc, BookmarkTableSortOrder.NameDesc -> BookmarkTableSortOrder.TimeAsc
             BookmarkTableSortOrder.TimeAsc -> BookmarkTableSortOrder.TimeDesc
             else -> BookmarkTableSortOrder.TimeAsc
         }
@@ -103,7 +102,6 @@ class BookmarkViewModel @Inject constructor(
 
     fun toggleSortOrderOfTypeName() = updateSortOrder(
         newSortOrder = when (bookmarkViewState.value.tableSortOrder) {
-            BookmarkTableSortOrder.TimeAsc, BookmarkTableSortOrder.TimeDesc -> BookmarkTableSortOrder.NameAsc
             BookmarkTableSortOrder.NameAsc -> BookmarkTableSortOrder.NameDesc
             else -> BookmarkTableSortOrder.NameAsc
         }
