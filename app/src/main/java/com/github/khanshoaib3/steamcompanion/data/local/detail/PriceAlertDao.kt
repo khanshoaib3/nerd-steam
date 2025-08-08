@@ -8,7 +8,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import kotlinx.coroutines.flow.Flow
-import kotlin.time.ExperimentalTime
 
 @Dao
 interface PriceAlertDao {

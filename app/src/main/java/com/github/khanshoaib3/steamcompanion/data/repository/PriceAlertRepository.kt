@@ -1,8 +1,8 @@
 package com.github.khanshoaib3.steamcompanion.data.repository
 
+import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.local.detail.PriceAlertDao
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
-import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -26,10 +26,12 @@ class LocalPriceAlertRepository @Inject constructor(
 ) : PriceAlertRepository {
 
     override suspend fun addPriceAlert(priceAlert: PriceAlert) {
+        Log.d(TAG, "Adding to price alert table: $priceAlert")
         priceAlertDao.insert(priceAlert)
     }
 
     override suspend fun updatePriceAlert(priceAlert: PriceAlert) {
+        Log.d(TAG, "Updating tuple in price alert table: $priceAlert")
         priceAlertDao.update(priceAlert)
     }
 
@@ -41,6 +43,7 @@ class LocalPriceAlertRepository @Inject constructor(
     }
 
     override suspend fun removePriceAlert(appId: Int) {
+        Log.d(TAG, "Removing tuple from price alert table with appId:$appId")
         priceAlertDao.deleteWithId(appId)
     }
 

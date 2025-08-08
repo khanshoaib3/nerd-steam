@@ -2,19 +2,13 @@ package com.github.khanshoaib3.steamcompanion.ui.utils
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessAlarm
-import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccessAlarm
-import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
@@ -40,20 +34,6 @@ sealed interface Route : NavKey {
         override val name = "Alerts"
         override val icon = Icons.Outlined.AccessAlarm
         override val selectedIcon = Icons.Filled.AccessAlarm
-    }
-
-    @Serializable
-    data object Settings : Route {
-        override val name = "Settings"
-        override val icon = Icons.Outlined.Settings
-        override val selectedIcon = Icons.Filled.Settings
-    }
-
-    @Serializable
-    data object AboutNFeedback : Route {
-        override val name = "About and Feedback"
-        override val icon = Icons.Outlined.Feedback
-        override val selectedIcon = Icons.Filled.Feedback
     }
 
     val name: String

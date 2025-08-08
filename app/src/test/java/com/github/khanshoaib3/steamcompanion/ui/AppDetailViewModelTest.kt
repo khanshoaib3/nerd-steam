@@ -8,10 +8,9 @@ import com.github.khanshoaib3.steamcompanion.data.model.appdetail.Media
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.Requirement
 import com.github.khanshoaib3.steamcompanion.data.repository.LocalBookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.LocalPriceAlertRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineIsThereAnyDealRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.ScraperSteamChartsRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
 import com.github.khanshoaib3.steamcompanion.di.AppModule
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppDetailViewModel
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
