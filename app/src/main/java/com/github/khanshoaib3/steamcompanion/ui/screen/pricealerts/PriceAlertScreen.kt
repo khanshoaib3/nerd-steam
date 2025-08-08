@@ -16,7 +16,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.steamcompanion.ui.screen.pricealerts.components.PriceAlertTable
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
@@ -58,7 +57,7 @@ fun PriceAlertScreenRoot(
                 showMenuButton = false,
                 onMenuButtonClick = {},
                 navigateBackCallback = navigateBackCallback,
-                forRoute = Route.Bookmark,
+                forRoute = Route.Alerts,
                 windowInsets = WindowInsets()
             )
         },
@@ -78,7 +77,7 @@ fun PriceAlertScreenRoot(
 
 @Composable
 fun PriceAlertScreen(
-    alerts: List<PriceAlert>,
+    alerts: List<PriceAlertDisplay>,
     onGameClick: (Int) -> Unit,
     onNameHeaderClick: () -> Unit,
     onPriceHeaderClick: () -> Unit,

@@ -18,6 +18,22 @@ enum class PriceAlertTableSortOrder {
     Default, NameAsc, NameDesc, PriceAsc, PriceDesc
 }
 
+data class PriceAlertDisplay(
+    val name: String,
+    val appId: Int,
+    val imageUrl: String,
+    val currentPrice: Float,
+    val currency: String,
+)
+
+fun PriceAlert.toDisplayModel() = PriceAlertDisplay(
+    name = this.name,
+    appId = this.appId,
+    imageUrl = "https://cdn.cloudflare.steamstatic.com/steam/apps/${this.appId}/library_600x900.jpg",
+    currentPrice = this.lastFetchedPrice,
+    currency = this.currency,
+)
+
 data class PriceAlertDataState(
     val alerts: List<PriceAlert>,
 )
@@ -43,28 +59,29 @@ class PriceAlertViewModel @Inject constructor(
     private val _priceAlertViewState = MutableStateFlow(PriceAlertViewState())
     val priceAlertViewState: StateFlow<PriceAlertViewState> = _priceAlertViewState
 
-    val sortedAlerts: StateFlow<List<PriceAlert>> = combine(
+    val sortedAlerts: StateFlow<List<PriceAlertDisplay>> = combine(
         priceAlertDataState,
         priceAlertViewState
     ) { dataState, viewState ->
         when (viewState.tableSortOrder) {
             PriceAlertTableSortOrder.PriceAsc -> dataState.alerts
                 .sortedBy { it.lastFetchedPrice }
-//                .map { it.toDisplayModel() }
+                .map { it.toDisplayModel() }
 
             PriceAlertTableSortOrder.PriceDesc -> dataState.alerts
                 .sortedByDescending { it.lastFetchedPrice }
-//                .map { it.toDisplayModel() }
+                .map { it.toDisplayModel() }
 
             PriceAlertTableSortOrder.NameAsc -> dataState.alerts
                 .sortedBy { it.name.lowercase() }
-//                .map { it.toDisplayModel() }
+                .map { it.toDisplayModel() }
 
             PriceAlertTableSortOrder.NameDesc -> dataState.alerts
                 .sortedByDescending { it.name.lowercase() }
-//                .map { it.toDisplayModel() }
+                .map { it.toDisplayModel() }
 
             PriceAlertTableSortOrder.Default -> dataState.alerts
+                .map { it.toDisplayModel() }
         }
     }.stateIn(
         scope = viewModelScope,

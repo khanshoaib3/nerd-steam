@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,13 +21,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.steamcompanion.ui.screen.pricealerts.PriceAlertDisplay
+import com.github.khanshoaib3.steamcompanion.utils.getNumberFormatFromCurrencyCode
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PriceAlertTableBody(
     modifier: Modifier = Modifier,
-    alerts: List<PriceAlert>,
+    alerts: List<PriceAlertDisplay>,
     onGameClick: (Int) -> Unit,
     imageWidth: Dp,
     imageHeight: Dp
@@ -36,6 +39,7 @@ fun PriceAlertTableBody(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
     ) {
         items(alerts) { alert ->
+            val currencyFormatter = getNumberFormatFromCurrencyCode(alert.currency)
             Row(
                 Modifier.clickable(true, onClick = { onGameClick(alert.appId) }),
                 verticalAlignment = Alignment.CenterVertically
@@ -46,7 +50,7 @@ fun PriceAlertTableBody(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AsyncImage(
-                        model = "https://cdn.cloudflare.steamstatic.com/steam/apps/${alert.appId}/library_600x900.jpg",
+                        model = alert.imageUrl,
                         contentDescription = alert.name,
                         placeholder = painterResource(R.drawable.preview_image_300x450),
                         modifier = Modifier
@@ -56,19 +60,19 @@ fun PriceAlertTableBody(
                     Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
                     CenterAlignedSelectableText(
                         text = alert.name,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyLargeEmphasized,
                         fontWeight = FontWeight.Bold,
                     )
                 }
                 CenterAlignedSelectableText(
-                    modifier = Modifier.weight(0.2f),
-                    text = alert.appId.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(0.3f),
+                    text = currencyFormatter.format(alert.currentPrice),
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
                 CenterAlignedSelectableText(
-                    modifier = Modifier.weight(0.2f),
-                    text = alert.lastFetchedPrice.toString(),
+                    modifier = Modifier.weight(0.15f),
+                    text = alert.appId.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )

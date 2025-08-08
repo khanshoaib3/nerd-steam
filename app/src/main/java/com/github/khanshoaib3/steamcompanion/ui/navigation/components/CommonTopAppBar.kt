@@ -51,7 +51,7 @@ fun CommonTopAppBar(
         title = { Text(title) },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            if (forRoute is Route.Bookmark) {
+            if (forRoute !is TopLevelRoute) {
                 IconButton(onClick = navigateBackCallback) {
                     Icon(Icons.Default.Close, contentDescription = "Close page")
                 }

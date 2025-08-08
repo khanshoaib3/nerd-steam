@@ -12,11 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
 import com.github.khanshoaib3.steamcompanion.R
-import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
+import com.github.khanshoaib3.steamcompanion.ui.screen.pricealerts.PriceAlertDisplay
 
 @Composable
 fun PriceAlertTable(
-    alerts: List<PriceAlert>,
+    alerts: List<PriceAlertDisplay>,
     onGameClick: (Int) -> Unit,
     onNameHeaderClick: () -> Unit,
     onPriceHeaderClick: () -> Unit,

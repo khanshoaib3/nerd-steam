@@ -35,26 +35,26 @@ fun PriceAlertTableHeader(
             )
         }
         Row(
-            Modifier.weight(0.2f),
+            modifier = Modifier
+                .weight(0.3f)
+                .clickable(true, onClick = onPriceHeaderClick, role = Role.Button),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "AppId",
+                "Current Price",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Center
             )
         }
         Row(
-            Modifier
-                .weight(0.2f)
-                .clickable(true, onClick = onPriceHeaderClick, role = Role.Button),
+            modifier = Modifier.weight(0.15f),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Price",
+                "AppId",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Center
