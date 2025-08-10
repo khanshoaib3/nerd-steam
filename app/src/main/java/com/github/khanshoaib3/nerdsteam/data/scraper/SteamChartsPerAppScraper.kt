@@ -1,7 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.data.scraper
 
 import android.util.Log
-import com.github.khanshoaib3.nerdsteam.data.model.appdetail.MonthlyPlayerStatistic
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt
@@ -17,6 +16,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private const val TAG = "SteamChartsPerAppScraper"
+
+data class MonthlyPlayerStatistic(
+    val month: String,
+    val avgPlayers: String,
+    val gain: String,
+    val percGain: String,
+    val peakPlayers: String,
+)
 
 data class SteamChartsPerAppScrapedData(
     var httpStatusCode: Int = 0,
