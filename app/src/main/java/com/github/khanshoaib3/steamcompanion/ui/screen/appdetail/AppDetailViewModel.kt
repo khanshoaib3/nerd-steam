@@ -16,11 +16,12 @@ import com.github.khanshoaib3.steamcompanion.data.repository.IsThereAnyDealRepos
 import com.github.khanshoaib3.steamcompanion.data.repository.PriceAlertRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
 import com.github.khanshoaib3.steamcompanion.data.scraper.SteamChartsPerAppScraper
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.FAILED
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADED
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADING
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.NOT_QUEUED
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
+import com.github.khanshoaib3.steamcompanion.utils.Progress
+import com.github.khanshoaib3.steamcompanion.utils.Progress.FAILED
+import com.github.khanshoaib3.steamcompanion.utils.Progress.LOADED
+import com.github.khanshoaib3.steamcompanion.utils.Progress.LOADING
+import com.github.khanshoaib3.steamcompanion.utils.Progress.NOT_QUEUED
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -32,10 +33,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-
-enum class Progress {
-    NOT_QUEUED, LOADING, LOADED, FAILED
-}
 
 enum class DataType {
     COMMON_APP_DETAILS, IS_THERE_ANY_DEAL_PRICE_INFO, STEAM_CHARTS_PLAYER_STATS
@@ -110,19 +107,21 @@ class AppDetailViewModel @AssistedInject constructor(
         ) {
             _appViewState.update {
                 it.copy(
-                    steamStatus = FAILED,
-                    isThereAnyDealGameInfoStatus = FAILED
+                    steamStatus = FAILED("Unable to fetch data from steam"),
+                    isThereAnyDealGameInfoStatus = FAILED(isThereAnyDealResponse.exceptionOrNull()?.message)
                 )
             }
             return
         }
 
         if ((steamResponse != null && !steamResponse.success) || steamResponse == null) {
-            _appViewState.update { it.copy(steamStatus = FAILED) }
+            _appViewState.update { it.copy(steamStatus = FAILED("Unable to fetch data from steam")) }
         }
 
         if (isThereAnyDealResponse.isFailure) {
-            _appViewState.update { it.copy(isThereAnyDealGameInfoStatus = FAILED) }
+            _appViewState.update {
+                it.copy(isThereAnyDealGameInfoStatus = FAILED(isThereAnyDealResponse.exceptionOrNull()?.message))
+            }
         }
 
         _appData.update {
@@ -138,8 +137,9 @@ class AppDetailViewModel @AssistedInject constructor(
 
         _appViewState.update {
             it.copy(
-                steamStatus = if (it.steamStatus == FAILED) FAILED else LOADED,
-                isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus == FAILED) FAILED else LOADED,
+                steamStatus = if (it.steamStatus is FAILED) FAILED("Unable to fetch data from steam") else LOADED,
+                isThereAnyDealGameInfoStatus = if (it.isThereAnyDealGameInfoStatus is FAILED)
+                    FAILED(isThereAnyDealResponse.exceptionOrNull()?.message) else LOADED,
             )
         }
     }
@@ -159,8 +159,8 @@ class AppDetailViewModel @AssistedInject constructor(
                 }
                 _appViewState.update { it.copy(steamChartsStatus = LOADED) }
             }
-            .onFailure {
-                _appViewState.update { it.copy(steamChartsStatus = FAILED) }
+            .onFailure { throwable ->
+                _appViewState.update { it.copy(steamChartsStatus = FAILED(throwable.message)) }
             }
     }
 
@@ -174,8 +174,8 @@ class AppDetailViewModel @AssistedInject constructor(
                 .onSuccess { response ->
                     _appData.update { it.copy(isThereAnyDealId = response.id) }
                 }
-                .onFailure {
-                    _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
+                .onFailure { throwable ->
+                    _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED(throwable.message)) }
                     return
                 }
         }
@@ -185,8 +185,8 @@ class AppDetailViewModel @AssistedInject constructor(
                 _appData.update { it.copy(isThereAnyDealPriceInfo = response.toITADPriceInfo()) }
                 _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = LOADED) }
             }
-            .onFailure {
-                _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED) }
+            .onFailure { throwable ->
+                _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED(throwable.message)) }
                 return
             }
     }

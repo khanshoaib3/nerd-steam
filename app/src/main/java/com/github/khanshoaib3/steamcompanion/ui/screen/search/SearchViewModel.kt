@@ -2,7 +2,8 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.search
 
 import androidx.lifecycle.ViewModel
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppSearchResponse
-import com.github.khanshoaib3.steamcompanion.data.repository.SearchRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.SteamRepository
+import com.github.khanshoaib3.steamcompanion.utils.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +13,7 @@ import javax.inject.Inject
 data class AppSearchResultDisplay(
     val appId: Int,
     val name: String,
-    val iconUrl: String
+    val iconUrl: String,
 )
 
 fun AppSearchResponse.toDisplayData(): AppSearchResultDisplay {
@@ -28,19 +29,30 @@ data class SearchDataState(
     val searchQuery: String = "",
 )
 
+data class SearchViewState(
+    val searchStatus: Progress = Progress.NOT_QUEUED,
+)
+
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val searchRepository: SearchRepository
+    private val steamRepository: SteamRepository,
 ) : ViewModel() {
     private val _searchDataState = MutableStateFlow(SearchDataState())
-    val searchDataStateFlow: StateFlow<SearchDataState> = _searchDataState
+    val searchDataState: StateFlow<SearchDataState> = _searchDataState
 
-    suspend fun runSearchQuery(query: String){
-        val result = searchRepository.runSearchQuery(query).map { it.toDisplayData() }
-        _searchDataState.update {
-            it.copy(
-                searchResults = result
-            )
+    private val _searchViewState = MutableStateFlow(SearchViewState())
+    val searchViewState: StateFlow<SearchViewState> = _searchViewState
+
+    suspend fun runSearchQuery(query: String) {
+        _searchViewState.update { it.copy(searchStatus = Progress.LOADING) }
+
+        steamRepository.runSearchQuery(query).onSuccess { responses ->
+            _searchDataState.update {
+                it.copy(searchResults = responses.map { e -> e.toDisplayData() })
+            }
+            _searchViewState.update { it.copy(searchStatus = Progress.LOADED) }
+        }.onFailure {throwable ->
+            _searchViewState.update { it.copy(searchStatus = Progress.FAILED(throwable.message)) }
         }
     }
 

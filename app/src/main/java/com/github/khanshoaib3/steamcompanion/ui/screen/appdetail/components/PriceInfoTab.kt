@@ -59,9 +59,9 @@ import com.github.khanshoaib3.steamcompanion.ui.components.CenterAlignedSelectab
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.utils.OpenWebPage
+import com.github.khanshoaib3.steamcompanion.utils.Progress
 import com.github.khanshoaib3.steamcompanion.utils.getNumberFormatFromCurrencyCode
 import java.text.NumberFormat
 import java.util.Locale
@@ -92,9 +92,12 @@ fun PriceInfoTab(
                 LoadingIndicator()
             }
 
-            Progress.FAILED -> {
+            is Progress.FAILED -> {
                 Icon(Icons.Default.ErrorOutline, "Error")
-                Text("Unable to load!", style = MaterialTheme.typography.bodyMediumEmphasized)
+                Text(
+                    text = appViewState.isThereAnyDealPriceInfoStatus.reason ?: "Unable to load!",
+                    style = MaterialTheme.typography.bodyMediumEmphasized
+                )
             }
 
             Progress.LOADED -> appData.isThereAnyDealPriceInfo?.let { priceInfo ->

@@ -52,14 +52,13 @@ import com.github.khanshoaib3.steamcompanion.R
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.steamcompanion.ui.components.TwoPaneScene
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.FAILED
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress.LOADED
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components.CardLower
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.components.CardUpper
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Side
 import com.github.khanshoaib3.steamcompanion.ui.utils.plus
 import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
+import com.github.khanshoaib3.steamcompanion.utils.Progress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -112,16 +111,16 @@ fun AppDetailsScreen(
 
     val fetchDataFromSourceCallback: (DataType) -> Unit = viewModel::fetchDataFromSource
 
-    if (viewState.isThereAnyDealGameInfoStatus != LOADED && viewState.steamStatus != LOADED) {
+    if (viewState.isThereAnyDealGameInfoStatus != Progress.LOADED && viewState.steamStatus != Progress.LOADED) {
         Column(
             Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (viewState.isThereAnyDealGameInfoStatus == FAILED && viewState.steamStatus == FAILED) {
+            if (viewState.isThereAnyDealGameInfoStatus is Progress.FAILED && viewState.steamStatus is Progress.FAILED) {
                 Icon(Icons.Default.ErrorOutline, contentDescription = "Error icon")
                 Text(
-                    "Unable to fetch data for the app!!",
+                    "Unable to fetch data for the app!",
                     Modifier.padding(dimensionResource(R.dimen.padding_medium))
                 )
             } else {

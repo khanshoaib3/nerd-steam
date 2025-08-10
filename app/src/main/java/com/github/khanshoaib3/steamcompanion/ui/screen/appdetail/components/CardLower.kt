@@ -22,8 +22,8 @@ import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
+import com.github.khanshoaib3.steamcompanion.utils.Progress
 import kotlinx.serialization.json.Json
 
 data class TabItem(

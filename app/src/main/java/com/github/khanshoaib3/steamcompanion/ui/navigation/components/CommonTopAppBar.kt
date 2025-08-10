@@ -40,11 +40,10 @@ fun CommonTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
 ) {
     val title: String = when (forRoute) {
-        TopLevelRoute.Home -> stringResource(R.string.app_name)
-        TopLevelRoute.Search -> "Search"
+        is TopLevelRoute -> stringResource(R.string.app_name)
         Route.Bookmark -> "Bookmarks"
         Route.Alerts -> "Price Alerts"
-        else -> stringResource(R.string.app_name)
+        else -> forRoute.name
     }
 
     CenterAlignedTopAppBar(

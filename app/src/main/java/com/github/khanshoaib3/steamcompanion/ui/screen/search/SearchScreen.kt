@@ -3,6 +3,8 @@ package com.github.khanshoaib3.steamcompanion.ui.screen.search
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,10 +19,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -33,7 +38,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -49,10 +56,8 @@ import com.github.khanshoaib3.steamcompanion.ui.navigation.components.CommonTopA
 import com.github.khanshoaib3.steamcompanion.ui.screen.search.components.SearchResultRow
 import com.github.khanshoaib3.steamcompanion.ui.theme.SteamCompanionTheme
 import com.github.khanshoaib3.steamcompanion.ui.utils.Route
-import com.github.khanshoaib3.steamcompanion.ui.utils.Side
 import com.github.khanshoaib3.steamcompanion.ui.utils.TopLevelRoute
-import com.github.khanshoaib3.steamcompanion.ui.utils.plus
-import com.github.khanshoaib3.steamcompanion.ui.utils.removePaddings
+import com.github.khanshoaib3.steamcompanion.utils.Progress
 import com.github.khanshoaib3.steamcompanion.utils.TopLevelBackStack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,9 +72,10 @@ fun SearchScreenRoot(
     addAppDetailPane: (Int) -> Unit,
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
-    searchViewModel: SearchViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
+    searchViewModel: SearchViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner),
 ) {
-    val searchDataState by searchViewModel.searchDataStateFlow.collectAsState()
+    val dataState by searchViewModel.searchDataState.collectAsState()
+    val viewState by searchViewModel.searchViewState.collectAsState()
 
     val localView = LocalView.current
 
@@ -100,8 +106,9 @@ fun SearchScreenRoot(
     if (isWideScreen) {
         SearchScreen(
             onSearch = onSearch,
-            searchResults = searchDataState.searchResults,
-            searchQuery = searchDataState.searchQuery,
+            searchResults = dataState.searchResults,
+            searchStatus = viewState.searchStatus,
+            searchQuery = dataState.searchQuery,
             onSearchQueryChange = onSearchQueryChange,
             onGameClick = addAppDetailPane,
             imageWidth = imageWidth,
@@ -111,8 +118,9 @@ fun SearchScreenRoot(
     } else {
         SearchScreenWithScaffold(
             onSearch = onSearch,
-            searchResults = searchDataState.searchResults,
-            searchQuery = searchDataState.searchQuery,
+            searchResults = dataState.searchResults,
+            searchStatus = viewState.searchStatus,
+            searchQuery = dataState.searchQuery,
             onSearchQueryChange = onSearchQueryChange,
             onGameClick = addAppDetailPane,
             showMenuButton = !isShowingNavRail,
@@ -131,6 +139,7 @@ fun SearchScreenRoot(
 fun SearchScreenWithScaffold(
     onSearch: (String) -> Unit,
     searchResults: List<AppSearchResultDisplay>,
+    searchStatus: Progress,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onGameClick: (Int) -> Unit,
@@ -140,7 +149,7 @@ fun SearchScreenWithScaffold(
     topAppBarScrollBehavior: TopAppBarScrollBehavior,
     imageWidth: Dp,
     imageHeight: Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -154,25 +163,30 @@ fun SearchScreenWithScaffold(
             )
         },
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-    ) {
+    ) { innerPadding ->
         SearchScreen(
             onSearch = onSearch,
             searchResults = searchResults,
+            searchStatus = searchStatus,
             searchQuery = searchQuery,
             onSearchQueryChange = onSearchQueryChange,
             onGameClick = onGameClick,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
-            modifier = modifier.padding(it.removePaddings(Side.End + Side.Start + Side.Bottom))
+            modifier = modifier.padding(top = innerPadding.calculateTopPadding())
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
 fun SearchScreen(
     onSearch: (String) -> Unit,
     searchResults: List<AppSearchResultDisplay>,
+    searchStatus: Progress,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onGameClick: (Int) -> Unit,
@@ -180,53 +194,110 @@ fun SearchScreen(
     imageHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier.fillMaxSize()) {
+    LookaheadScope {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            SearchBarDefaults.InputField(
-                query = searchQuery,
-                onQueryChange = { onSearchQueryChange(it) },
-                onSearch = { onSearch(it) },
-                placeholder = { Text("Search..") },
-                expanded = false,
-                onExpandedChange = {},
-                leadingIcon = {
-                    IconButton(onClick = { onSearchQueryChange("") }) {
-                        Icon(
-                            if (searchQuery.isEmpty()) Icons.Default.Search else Icons.Default.Clear,
-                            contentDescription = if (searchQuery.isEmpty()) "Enter search query" else "Clear input text"
-                        )
-                    }
-                },
-                trailingIcon = {
-                    if (!searchQuery.isEmpty())
-                        IconButton(onClick = { onSearch(searchQuery) }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Send,
-                                contentDescription = "Send search query"
-                            )
-                        }
-                }
-            )
-            Spacer(Modifier.height(dimensionResource(R.dimen.padding_large)))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(0.8f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Column(
+                modifier = Modifier.animateBounds(this@LookaheadScope),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                items(searchResults) {
-                    SearchResultRow(
-                        it,
-                        onClick = onGameClick,
-                        imageWidth = imageWidth,
-                        imageHeight = imageHeight
+                if (searchStatus is Progress.NOT_QUEUED) {
+                    Text(
+                        text = "Enter Something",
+                        style = MaterialTheme.typography.headlineLargeEmphasized.copy(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary,
+                                )
+                            )
+                        )
                     )
                 }
+                SearchBarDefaults.InputField(
+                    query = searchQuery,
+                    onQueryChange = { onSearchQueryChange(it) },
+                    onSearch = { onSearch(it) },
+                    expanded = false,
+                    placeholder = { Text("Search") },
+                    onExpandedChange = {},
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_large)),
+                    leadingIcon = {
+                        IconButton(onClick = { onSearchQueryChange("") }) {
+                            Icon(
+                                if (searchQuery.isEmpty()) Icons.Default.Search else Icons.Default.Clear,
+                                contentDescription = if (searchQuery.isEmpty()) "Enter search query" else "Clear input text"
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (!searchQuery.isEmpty()) {
+                            IconButton(onClick = { onSearch(searchQuery) }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = "Send search query"
+                                )
+                            }
+                        }
+                    }
+                )
             }
-            Spacer(Modifier.height(dimensionResource(R.dimen.padding_large)))
+
+            when (searchStatus) {
+                Progress.NOT_QUEUED -> {}
+
+                is Progress.FAILED -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(searchStatus.reason ?: "Unable to search")
+                    }
+                }
+
+                Progress.LOADING,
+                    -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        LoadingIndicator()
+                    }
+                }
+
+                Progress.LOADED -> {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .padding(dimensionResource(R.dimen.padding_small))
+                            .weight(1f),
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            items(searchResults) {
+                                SearchResultRow(
+                                    it,
+                                    onClick = onGameClick,
+                                    imageWidth = imageWidth,
+                                    imageHeight = imageHeight
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -249,7 +320,8 @@ private fun SearchScreenWithScaffoldPreview() {
         SearchScreenWithScaffold(
             onSearch = {},
             searchResults = listOf(),
-            searchQuery = "Ello",
+            searchStatus = Progress.NOT_QUEUED,
+            searchQuery = "",
             onSearchQueryChange = {},
             onGameClick = {},
             showMenuButton = true,
@@ -289,6 +361,7 @@ private fun SearchScreenPreview() {
                     iconUrl = "bru"
                 ),
             ),
+            searchStatus = Progress.LOADED,
             searchQuery = "Ello",
             onSearchQueryChange = {},
             onGameClick = {},

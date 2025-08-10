@@ -27,9 +27,9 @@ import com.github.khanshoaib3.steamcompanion.ui.components.SteamChartsFooter
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.DataType
-import com.github.khanshoaib3.steamcompanion.ui.screen.appdetail.Progress
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangeNegative
 import com.github.khanshoaib3.steamcompanion.ui.theme.steamChartsChangePositive
+import com.github.khanshoaib3.steamcompanion.utils.Progress
 import com.github.marlonlom.utilities.timeago.TimeAgo
 import java.text.NumberFormat
 
@@ -59,9 +59,9 @@ fun PlayerStatsTab(
                 LoadingIndicator()
             }
 
-            Progress.FAILED -> {
+            is Progress.FAILED -> {
                 Icon(Icons.Default.ErrorOutline, "Error")
-                Text("Unable to load!", style = MaterialTheme.typography.bodyMediumEmphasized)
+                Text(appViewState.steamChartsStatus.reason?: "Unable to load!", style = MaterialTheme.typography.bodyMediumEmphasized)
             }
 
             else -> appData.playerStatistics?.let { playerStatistics ->

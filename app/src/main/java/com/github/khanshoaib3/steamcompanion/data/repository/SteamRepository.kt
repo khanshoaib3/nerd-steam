@@ -2,7 +2,10 @@ package com.github.khanshoaib3.steamcompanion.data.repository
 
 import android.util.Log
 import com.github.khanshoaib3.steamcompanion.data.model.api.AppDetailsResponse
+import com.github.khanshoaib3.steamcompanion.data.model.api.AppSearchResponse
+import com.github.khanshoaib3.steamcompanion.data.remote.SteamCommunityApiService
 import com.github.khanshoaib3.steamcompanion.data.remote.SteamInternalWebApiService
+import com.github.khanshoaib3.steamcompanion.utils.runSafeSuspendCatching
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
@@ -16,12 +19,23 @@ import javax.inject.Inject
 private const val TAG = "GameDetailRepository"
 
 interface SteamRepository {
+    suspend fun runSearchQuery(query: String): Result<List<AppSearchResponse>>
+
     suspend fun fetchDataForAppId(appId: Int): AppDetailsResponse?
 }
 
 class OnlineSteamRepository @Inject constructor(
+    private val steamCommunityApiService: SteamCommunityApiService,
     private val steamInternalWebApiService: SteamInternalWebApiService,
 ) : SteamRepository {
+    override suspend fun runSearchQuery(query: String): Result<List<AppSearchResponse>> =
+        runSafeSuspendCatching {
+            Log.d(TAG, "Fetching search results with query: $query...")
+            val result = steamCommunityApiService.searchApp(query)
+            if(result.isEmpty()) throw Exception("Nothing found for the query")
+            result
+        }
+
     // TODO Use Result here
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun fetchDataForAppId(appId: Int): AppDetailsResponse? {

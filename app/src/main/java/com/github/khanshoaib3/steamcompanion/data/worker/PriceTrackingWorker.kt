@@ -28,7 +28,10 @@ class PriceAlertsWorker(
         AppModule().provideSteamInternalWebApiService()
 
     private val steamRepository =
-        OnlineSteamRepository(steamInternalWebApiService = steamInternalWebApiService)
+        OnlineSteamRepository(
+            steamInternalWebApiService = steamInternalWebApiService,
+            steamCommunityApiService = AppModule().provideSteamCommunityService()
+        )
     private val priceAlertRepository = LocalPriceAlertRepository(priceAlertDao = db.priceAlertDao())
 
     @OptIn(ExperimentalTime::class)

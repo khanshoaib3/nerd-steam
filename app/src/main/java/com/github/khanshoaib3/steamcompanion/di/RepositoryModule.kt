@@ -1,17 +1,15 @@
 package com.github.khanshoaib3.steamcompanion.di
 
 import com.github.khanshoaib3.steamcompanion.data.repository.BookmarkRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.SearchRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.SteamRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.IsThereAnyDealRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.LocalBookmarkRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.LocalPriceAlertRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.OnlineIsThereAnyDealRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.PriceAlertRepository
-import com.github.khanshoaib3.steamcompanion.data.repository.RemoteSearchRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.ScraperSteamChartsRepository
 import com.github.khanshoaib3.steamcompanion.data.repository.SteamChartsRepository
+import com.github.khanshoaib3.steamcompanion.data.repository.SteamRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -39,12 +37,6 @@ abstract class RepositoryModule {
     abstract fun bindBookmarkRepository(
         bookmarkRepository: LocalBookmarkRepository
     ): BookmarkRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindSearchRepository(
-        searchRepository: RemoteSearchRepository
-    ): SearchRepository
 
     @Binds
     @Singleton
