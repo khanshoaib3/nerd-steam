@@ -16,7 +16,7 @@ plugins {
 }
 
 android {
-    namespace = "com.github.khanshoaib3.steamcompanion"
+    namespace = "com.github.khanshoaib3.nerdsteam"
     compileSdk = 36
 
     val secretProperties = Properties()
@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.github.khanshoaib3.steamcompanion"
+        applicationId = "com.github.khanshoaib3.nerdsteam"
         minSdk = 30
         targetSdk = 36
         versionCode = 1

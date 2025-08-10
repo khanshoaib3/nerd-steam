@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Steam Companion"
+rootProject.name = "NerdSteam"
 include(":app")
  
