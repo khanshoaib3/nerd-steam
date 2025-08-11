@@ -41,6 +41,7 @@ enum class DataType {
 data class AppData(
     val steamAppId: Int,
     val isThereAnyDealId: String? = null,
+    val isThereAnyDealSlug: String? = null,
     val commonDetails: CommonAppDetails? = null,
     val isBookmarked: Boolean = false,
     val priceAlertInfo: PriceAlert? = null,
@@ -131,6 +132,7 @@ class AppDetailViewModel @AssistedInject constructor(
                     _isThereAnyDealResponse = isThereAnyDealResponse.getOrNull()
                 ),
                 isThereAnyDealId = isThereAnyDealResponse.getOrNull()?.id,
+                isThereAnyDealSlug = isThereAnyDealResponse.getOrNull()?.slug,
                 isBookmarked = bookmarkRepository.isBookmarked(key.appId)
             )
         }

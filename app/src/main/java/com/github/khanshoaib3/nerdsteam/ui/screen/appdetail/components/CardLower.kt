@@ -80,6 +80,12 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
             )
         }
     ),
+    TabItem(
+        name = "External Links",
+        content = {
+            ExternalLinksTab(modifier = modifier, appData = appData)
+        }
+    )
 )
 
 @Composable
@@ -119,7 +125,7 @@ fun CardLower(
 
             tabItems[selectedTabIndex].content(
                 TabScope(
-                    Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+                    Modifier.padding(dimensionResource(R.dimen.padding_small)),
                     appData,
                     appViewState,
                     fetchDataFromSourceCallback

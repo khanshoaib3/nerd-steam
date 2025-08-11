@@ -82,21 +82,21 @@ fun OverviewTable(
                 Row(modifier = mod) {
                     if (commonAppDetails.platforms.windows) {
                         Icon(
-                            painter = painterResource(R.drawable.windows_icon),
+                            painter = painterResource(R.drawable.brands_windows),
                             contentDescription = "Windows",
                             modifier = Modifier.size(20.dp)
                         )
                     }
                     if (commonAppDetails.platforms.linux) {
                         Icon(
-                            painter = painterResource(R.drawable.linux_icon),
+                            painter = painterResource(R.drawable.brands_linux),
                             contentDescription = "Linux",
                             modifier = Modifier.size(20.dp)
                         )
                     }
                     if (commonAppDetails.platforms.mac) {
                         Icon(
-                            painter = painterResource(R.drawable.mac_icon),
+                            painter = painterResource(R.drawable.brands_mac),
                             contentDescription = "MacOS",
                             modifier = Modifier.size(20.dp)
                         )

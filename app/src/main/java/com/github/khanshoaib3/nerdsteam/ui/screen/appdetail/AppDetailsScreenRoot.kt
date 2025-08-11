@@ -66,7 +66,7 @@ import kotlinx.serialization.json.Json
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AppDetailsScreen(
+fun AppDetailsScreenRoot(
     isWideScreen: Boolean,
     isInTwoPaneScene: Boolean,
     onUpButtonClick: () -> Unit,
@@ -141,7 +141,7 @@ fun AppDetailsScreen(
     val updateSelectedTabIndexCallback: (Int) -> Unit = viewModel::updateSelectedTabIndex
 
     if (isInTwoPaneScene && TwoPaneScene.IsActive) {
-        AppDetailsCard(
+        AppDetailsScreen(
             modifier = modifier,
             appData = appData,
             appViewState = viewState,
@@ -181,7 +181,7 @@ fun AppDetailsScreen(
                 windowInsets = WindowInsets()
             )
         }) { innerPadding ->
-        AppDetailsCard(
+        AppDetailsScreen(
             appData = appData,
             appViewState = viewState,
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
@@ -201,7 +201,7 @@ fun AppDetailsScreen(
 }
 
 @Composable
-fun AppDetailsCard(
+fun AppDetailsScreen(
     appData: AppData,
     appViewState: AppViewState,
     fetchDataFromSourceCallback: (DataType) -> Unit,
@@ -290,7 +290,7 @@ private fun GameDetailScreenPreview() {
     val json = Json { ignoreUnknownKeys = true }
     val gameData = json.decodeFromString<AppDetailsResponse>(gameRawData)
     NerdSteamTheme {
-        AppDetailsCard(
+        AppDetailsScreen(
             appData = AppData(steamAppId = 220),
             appViewState = AppViewState(),
             fetchDataFromSourceCallback = {},

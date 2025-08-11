@@ -29,7 +29,7 @@ class AppDetailViewModelTest {
         context = mock<Context> { }
 
         viewmodel = AppDetailViewModel(
-            steamRepository = OnlineSteamRepository(appModule.provideSteamInternalWebApiService()),
+            steamRepository = OnlineSteamRepository(appModule.provideSteamCommunityService(), appModule.provideSteamInternalWebApiService()),
             isThereAnyDealRepository = OnlineIsThereAnyDealRepository(appModule.provideIsThereAnyDealApiService()),
             bookmarkRepository = LocalBookmarkRepository(appModule.provideBookmarkDao(context)),
             priceAlertRepository = LocalPriceAlertRepository(appModule.providePriceAlertDao(context)),
@@ -41,7 +41,6 @@ class AppDetailViewModelTest {
                 localDataStoreRepository = appModule.provideLocalDatastoreRepository(context),
             ),
         )
-
     }
 
     @Test

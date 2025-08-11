@@ -35,7 +35,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_L
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.github.khanshoaib3.nerdsteam.ui.navigation.components.NavWrapper
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppDetailViewModel
-import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppDetailsScreen
+import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppDetailsScreenRoot
 import com.github.khanshoaib3.nerdsteam.ui.screen.bookmark.BookmarkScreenRoot
 import com.github.khanshoaib3.nerdsteam.ui.screen.pricealerts.PriceAlertScreenRoot
 import com.github.khanshoaib3.nerdsteam.ui.utils.Route
@@ -121,7 +121,7 @@ fun RootNavDisplay(
                                 factory.create(key)
                             }
                         )
-                    AppDetailsScreen(
+                    AppDetailsScreenRoot(
                         viewModel = viewModel,
                         isWideScreen = isWideScreen,
                         isInTwoPaneScene = false,

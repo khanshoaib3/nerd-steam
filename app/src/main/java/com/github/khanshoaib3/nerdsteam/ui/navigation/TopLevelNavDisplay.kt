@@ -34,7 +34,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.github.khanshoaib3.nerdsteam.ui.components.TwoPaneScene
 import com.github.khanshoaib3.nerdsteam.ui.components.TwoPaneSceneStrategy
-import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppDetailsScreen
+import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppDetailsScreenRoot
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppDetailViewModel
 import com.github.khanshoaib3.nerdsteam.ui.screen.home.HomeScreenRoot
 import com.github.khanshoaib3.nerdsteam.ui.screen.search.SearchScreenRoot
@@ -130,7 +130,7 @@ fun TopLevelNavDisplay(
                                 factory.create(key)
                             }
                         )
-                    AppDetailsScreen(
+                    AppDetailsScreenRoot(
                         viewModel = viewModel,
                         isWideScreen = isWideScreen,
                         isInTwoPaneScene = true,

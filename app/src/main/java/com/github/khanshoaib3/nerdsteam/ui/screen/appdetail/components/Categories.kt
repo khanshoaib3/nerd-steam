@@ -87,10 +87,10 @@ fun CategoryChip(modifier: Modifier = Modifier, category: Category) {
         AsyncImage(
             model = category.url,
             contentDescription = category.name,
-            placeholder = painterResource(R.drawable.windows_icon),
+            placeholder = painterResource(R.drawable.loading),
             modifier = Modifier
                 .size(28.dp)
-                .padding(start = dimensionResource(R.dimen.padding_very_small))
+                .padding(start = dimensionResource(R.dimen.padding_very_small)),
         )
         AnimatedVisibility(isOpen) {
             Text(
