@@ -10,13 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,9 +31,11 @@ import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.khanshoaib3.nerdsteam.R
@@ -41,7 +44,9 @@ import com.github.khanshoaib3.nerdsteam.ui.utils.NAV_OTHER_ROUTES
 import com.github.khanshoaib3.nerdsteam.ui.utils.NAV_TOP_LEVEL_ROUTES
 import com.github.khanshoaib3.nerdsteam.ui.utils.Route
 import com.github.khanshoaib3.nerdsteam.ui.utils.TopLevelRoute
+import com.github.khanshoaib3.nerdsteam.utils.OpenWebPage
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavRail(
     currentTopLevelRoute: Route,
@@ -51,6 +56,14 @@ fun NavRail(
     modifier: Modifier = Modifier,
     showNavRail: Boolean,
 ) {
+    val context = LocalContext.current
+    val links = listOf(
+        Pair("Steam", "https://store.steampowered.com/"),
+        Pair("SteamCharts", "https://steamcharts.com/"),
+        Pair("IsThereAnyDeal", "https://isthereanydeal.com/"),
+        Pair("Next Steam Sale", "https://steamdb.info/sales/history/"),
+        Pair("About", "https://github.com/khanshoaib3/nerd-steam"),
+    )
     ModalWideNavigationRail(
         state = railState,
         hideOnCollapse = !showNavRail,
@@ -85,7 +98,7 @@ fun NavRail(
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .requiredWidth(IntrinsicSize.Max)
+                .width(IntrinsicSize.Max),
         ) {
             Column {
                 NAV_TOP_LEVEL_ROUTES.forEach { route ->
@@ -97,7 +110,12 @@ fun NavRail(
                                 ?: Icons.Default.QuestionMark
                             Icon(imageVector = imageVector, contentDescription = route.name)
                         },
-                        label = { Text(route.name) },
+                        label = {
+                            Text(
+                                text = route.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        },
                         selected = isSelected,
                         onClick = { navigateTo(route) }
                     )
@@ -122,13 +140,35 @@ fun NavRail(
                                 val imageVector = route.icon ?: Icons.Default.QuestionMark
                                 Icon(imageVector = imageVector, contentDescription = route.name)
                             },
-                            label = { Text(route.name) },
+                            label = {
+                                Text(
+                                    text = route.name,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            },
                             selected = false,
                             onClick = { navigateTo(route) },
                         )
                     }
                 }
-                Spacer(Modifier.height(31.dp))
+                Column {
+                    links.forEach {
+                        WideNavigationRailItem(
+                            railExpanded = true,
+                            icon = { },
+                            label = {
+                                Text(
+                                    text = it.first,
+                                    style = MaterialTheme.typography.bodyLargeEmphasized,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            onClick = { OpenWebPage(it.second, context) },
+                            selected = false,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(28.dp))
             }
         }
     }
@@ -146,7 +186,7 @@ private fun NavRailExpandedPreview() {
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
                 onRailButtonClicked = {},
-                showNavRail = true
+                showNavRail = true,
             )
         }
     }
@@ -164,7 +204,7 @@ private fun NavRailCollapsedPreview() {
                 navigateTo = {},
                 railState = rememberWideNavigationRailState(WideNavigationRailValue.Collapsed),
                 onRailButtonClicked = {},
-                showNavRail = true
+                showNavRail = true,
             )
         }
     }

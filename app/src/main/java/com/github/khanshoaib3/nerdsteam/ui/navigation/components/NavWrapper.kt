@@ -106,6 +106,6 @@ fun NavWrapper(
                 }
             }
         },
-        showNavRail = showNavRail
+        showNavRail = showNavRail,
     )
 }
