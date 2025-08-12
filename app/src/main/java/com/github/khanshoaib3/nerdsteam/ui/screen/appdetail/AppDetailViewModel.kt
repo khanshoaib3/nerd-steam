@@ -4,6 +4,7 @@ package com.github.khanshoaib3.nerdsteam.ui.screen.appdetail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.CommonAppDetails
+import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Dlc
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.ITADPriceInfo
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PlayerStatistics
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
@@ -46,15 +47,15 @@ data class AppData(
     val priceAlertInfo: PriceAlert? = null,
     val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
     val playerStatistics: PlayerStatistics? = null,
-    val dlcs: Any? = null,
+    val dlcs: List<Dlc>? = null,
 )
 
 data class AppViewState(
     val selectedTabIndex: Int = 0,
-    val steamChartsStatus: Progress = NOT_QUEUED,
-    val isThereAnyDealPriceInfoStatus: Progress = NOT_QUEUED,
     val steamStatus: Progress = NOT_QUEUED,
     val isThereAnyDealGameInfoStatus: Progress = NOT_QUEUED,
+    val steamChartsStatus: Progress = NOT_QUEUED,
+    val isThereAnyDealPriceInfoStatus: Progress = NOT_QUEUED,
     val dlcsStatus: Progress = NOT_QUEUED,
 )
 
@@ -190,10 +191,20 @@ class AppDetailViewModel @AssistedInject constructor(
 
     suspend fun fetchDlcs() {
         if (appViewState.value.dlcsStatus != NOT_QUEUED) return
+        if (appData.value.commonDetails?.dlcIds.isNullOrEmpty()){
+            _appViewState.update { it.copy(dlcsStatus = FAILED("No DLCs found!")) }
+            return
+        }
 
         _appViewState.update { it.copy(dlcsStatus = LOADING) }
-
-        _appViewState.update { it.copy(dlcsStatus = FAILED("Unable to fetch!")) }
+        steamRepository.fetchDataForDlcs(appData.value.commonDetails!!.dlcIds!!)
+            .onSuccess { result ->
+                _appData.update { it.copy(dlcs = result) }
+                _appViewState.update { it.copy(dlcsStatus = LOADED) }
+            }
+            .onFailure { throwable ->
+                _appViewState.update { it.copy(dlcsStatus = FAILED(throwable.message)) }
+            }
     }
 
     suspend fun toggleBookmarkStatus() = appData.value.apply {

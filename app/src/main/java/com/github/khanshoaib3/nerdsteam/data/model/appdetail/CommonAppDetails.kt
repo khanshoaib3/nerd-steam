@@ -29,6 +29,7 @@ data class CommonAppDetails(
     val reviews: List<Reviews>?,
     val requirements: List<Requirement>,
     val media: Media?,
+    val dlcIds: List<Int>?,
 ) {
     companion object {
         internal fun fromIsThereAnyDealAndSteam(
@@ -116,7 +117,8 @@ data class CommonAppDetails(
                 media = if (steamResponse?.screenshots != null) Media(
                     screenshots = steamResponse.screenshots.map { it.pathFull },
                     movies = steamResponse.movies?.map { it.webm.low }
-                ) else null
+                ) else null,
+                dlcIds = steamResponse?.dlc
             )
         }
     }

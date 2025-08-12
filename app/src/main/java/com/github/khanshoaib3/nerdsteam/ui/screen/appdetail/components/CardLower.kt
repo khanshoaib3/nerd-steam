@@ -81,6 +81,17 @@ fun getDefaultTabItems(): List<TabItem> = listOf(
         }
     ),
     TabItem(
+        name = "DLCs",
+        content = {
+            DlcsTab(
+                modifier = modifier,
+                appData = appData,
+                appViewState = appViewState,
+                fetchDataFromSourceCallback = fetchDataFromSourceCallback,
+            )
+        }
+    ),
+    TabItem(
         name = "External Links",
         content = {
             ExternalLinksTab(modifier = modifier, appData = appData)
@@ -125,10 +136,10 @@ fun CardLower(
 
             tabItems[selectedTabIndex].content(
                 TabScope(
-                    Modifier.padding(dimensionResource(R.dimen.padding_small)),
-                    appData,
-                    appViewState,
-                    fetchDataFromSourceCallback
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                    appData = appData,
+                    appViewState = appViewState,
+                    fetchDataFromSourceCallback = fetchDataFromSourceCallback,
                 )
             )
         }
@@ -148,7 +159,7 @@ private fun GameDetailScreenPreview() {
             appData = AppData(220),
             appViewState = AppViewState(steamChartsStatus = Progress.NOT_QUEUED),
             fetchDataFromSourceCallback = {},
-            updateSelectedTabIndexCallback = {}
+            updateSelectedTabIndexCallback = {},
         )
     }
 }

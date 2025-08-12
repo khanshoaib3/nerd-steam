@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import com.github.khanshoaib3.nerdsteam.ui.components.CenterAlignedSelectableTex
 import com.github.khanshoaib3.nerdsteam.ui.screen.search.AppSearchResultDisplay
 import com.github.khanshoaib3.nerdsteam.ui.theme.NerdSteamTheme
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SearchResultRow(
     searchResult: AppSearchResultDisplay,
@@ -63,8 +65,8 @@ fun SearchResultRow(
             Column {
                 CenterAlignedSelectableText(
                     text = searchResult.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.titleLargeEmphasized,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start
                 )
                 Spacer(Modifier.height(dimensionResource(R.dimen.padding_small)))

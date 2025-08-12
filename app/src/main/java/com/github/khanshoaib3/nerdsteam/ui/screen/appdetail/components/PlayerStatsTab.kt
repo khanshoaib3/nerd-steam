@@ -6,13 +6,10 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +25,7 @@ import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.MonthlyPlayerStatisticDisplay
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PlayerStatistics
 import com.github.khanshoaib3.nerdsteam.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.components.SteamChartsFooter
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppViewState
@@ -68,11 +66,7 @@ fun PlayerStatsTab(
             }
 
             is Progress.FAILED -> {
-                Icon(Icons.Default.ErrorOutline, "Error")
-                Text(
-                    appViewState.steamChartsStatus.reason ?: "Unable to load!",
-                    style = MaterialTheme.typography.bodyMediumEmphasized
-                )
+                ErrorColumn(reason = appViewState.steamChartsStatus.reason)
             }
 
             else -> appData.playerStatistics?.let { playerStatistics ->

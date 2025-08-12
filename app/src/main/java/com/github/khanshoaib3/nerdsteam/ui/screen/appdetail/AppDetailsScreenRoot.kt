@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -51,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
+import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.components.TwoPaneScene
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components.CardLower
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components.CardUpper
@@ -118,10 +118,9 @@ fun AppDetailsScreenRoot(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (viewState.isThereAnyDealGameInfoStatus is Progress.FAILED && viewState.steamStatus is Progress.FAILED) {
-                Icon(Icons.Default.ErrorOutline, contentDescription = "Error icon")
-                Text(
-                    "Unable to fetch data for the app!",
-                    Modifier.padding(dimensionResource(R.dimen.padding_medium))
+                ErrorColumn(
+                    reason = null,
+                    title = "Unable to fetch data for the app!",
                 )
             } else {
                 LoadingIndicator(Modifier.scale(2.5f))
@@ -248,7 +247,7 @@ fun AppDetailsScreen(
                     appData = appData,
                     appViewState = appViewState,
                     fetchDataFromSourceCallback = fetchDataFromSourceCallback,
-                    updateSelectedTabIndexCallback = updateSelectedTabIndexCallback
+                    updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 )
             }
         }
@@ -274,7 +273,7 @@ fun AppDetailsScreen(
                     appData = appData,
                     appViewState = appViewState,
                     fetchDataFromSourceCallback = fetchDataFromSourceCallback,
-                    updateSelectedTabIndexCallback = updateSelectedTabIndexCallback
+                    updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 )
             }
         }
@@ -299,7 +298,7 @@ private fun GameDetailScreenPreview() {
             startPriceTracking = { _, _ -> },
             stopPriceTracking = {},
             isBookmarkActive = true,
-            updateSelectedTabIndexCallback = {}
+            updateSelectedTabIndexCallback = {},
         )
     }
 }

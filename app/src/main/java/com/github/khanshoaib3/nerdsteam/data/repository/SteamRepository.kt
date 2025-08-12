@@ -1,28 +1,38 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
+import android.content.res.Resources
 import android.util.Log
+import androidx.compose.ui.platform.LocalGraphicsContext
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppSearchResponse
+import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Dlc
+import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toDlc
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamCommunityApiService
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamInternalWebApiService
 import com.github.khanshoaib3.nerdsteam.utils.runSafeSuspendCatching
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import retrofit2.http.Query
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import java.util.Locale
 import javax.inject.Inject
 
-private const val TAG = "GameDetailRepository"
+private const val TAG = "SteamRepository"
+private val json = Json { ignoreUnknownKeys = true }
 
 interface SteamRepository {
     suspend fun runSearchQuery(query: String): Result<List<AppSearchResponse>>
 
     suspend fun fetchDataForAppId(appId: Int): Result<AppDetailDataResponse>
+
+    suspend fun fetchDataForDlcs(dlcs: List<Int>): Result<List<Dlc>>
 }
 
 class OnlineSteamRepository @Inject constructor(
@@ -39,19 +49,29 @@ class OnlineSteamRepository @Inject constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun fetchDataForAppId(appId: Int): Result<AppDetailDataResponse> =
-        runSafeSuspendCatching {
-            var result = steamInternalWebApiService.getAppDetails(appId)
-            val json = Json { ignoreUnknownKeys = true }
-            Log.d("GameDetailRepository", "$result")
+        fetchDataForAppId(appId = appId, isRetryAttempt = false)
 
+
+    @Suppress("JoinDeclarationAndAssignment")
+    @OptIn(ExperimentalSerializationApi::class)
+    suspend fun fetchDataForAppId(
+        appId: Int,
+        isRetryAttempt: Boolean
+    ): Result<AppDetailDataResponse> =
+        runSafeSuspendCatching {
+            var result: JsonObject
             lateinit var appDetail: AppDetailsResponse
             var missingField = false
+
+            result = if (isRetryAttempt) steamInternalWebApiService.getAppDetails(appId, "us")
+            else steamInternalWebApiService.getAppDetails(appId)
+
             try {
                 appDetail =
                     json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$appId")!!)
             } catch (_: MissingFieldException) {
-                Log.d(TAG, "Unable to serialize data for $appId because of missing fields.")
-                Log.d(TAG, "Attempting to fetch updated App ID from redirect url...")
+                Log.e(TAG, "Unable to serialize data for $appId because of missing fields.")
+                Log.e(TAG, "Attempting to fetch updated App ID from redirect url...")
                 missingField = true
             }
 
@@ -63,14 +83,44 @@ class OnlineSteamRepository @Inject constructor(
             if (newAppId == null) throw Exception("Unable to fetch data for appid: $appId")
             Log.d(TAG, "New app id: $newAppId")
 
-            result = steamInternalWebApiService.getAppDetails(newAppId)
-            appDetail =
-                json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$newAppId")!!)
+            result = if (isRetryAttempt) steamInternalWebApiService.getAppDetails(newAppId, "us")
+            else steamInternalWebApiService.getAppDetails(newAppId)
+
+            if (isRetryAttempt) {
+                appDetail =
+                    json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$newAppId")!!)
+            } else {
+                missingField = false
+                try {
+                    appDetail =
+                        json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$newAppId")!!)
+                } catch (_: MissingFieldException) {
+                    missingField = true
+                }
+
+                if (missingField || !appDetail.success || appDetail.data == null) {
+                    Log.e(TAG, "Unable to serialize data with new appid $newAppId.")
+                    Log.e(TAG, "Retrying with us country code...")
+                    return fetchDataForAppId(appId = appId, isRetryAttempt = true)
+                }
+            }
             if (!appDetail.success || appDetail.data == null) {
                 throw Exception("Unable to fetch data for appid: $appId")
             }
 
+            Log.d(TAG, result.toString())
             appDetail.data
+        }
+
+    override suspend fun fetchDataForDlcs(dlcs: List<Int>): Result<List<Dlc>> =
+        runSafeSuspendCatching {
+            buildList {
+                dlcs.forEach { appId ->
+                    fetchDataForAppId(appId)
+                        .onSuccess { add(it.toDlc()) }
+                        .onFailure { Log.e(TAG, "Unable to fetch dlc info with id: $appId") }
+                }
+            }
         }
 
     private fun getUpdatedAppIdFromRedirectUrl(currentAppId: Int): Int? {

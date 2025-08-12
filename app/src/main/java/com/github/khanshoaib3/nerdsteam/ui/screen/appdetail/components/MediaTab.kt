@@ -2,7 +2,6 @@ package com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.github.khanshoaib3.nerdsteam.R
+import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,43 +30,47 @@ import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 fun MediaTab(
     appData: AppData,
     modifier: Modifier = Modifier,
-) = appData.commonDetails?.let { commonAppDetails ->
-    Column(
-        modifier = modifier.padding(
-            vertical = dimensionResource(R.dimen.padding_small),
-            horizontal = dimensionResource(R.dimen.padding_medium)
-        ),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if ((commonAppDetails.media?.screenshots?.size ?: 0) <= 0) return null
-
-        Text(
-            "Screenshots",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
+) {
+    if (appData.commonDetails?.media?.screenshots.isNullOrEmpty()){
+        ErrorColumn(
+            reason = null,
+            title = "No screenshots found!",
         )
-
-        HorizontalDivider()
-
-        HorizontalMultiBrowseCarousel(
-            state = rememberCarouselState {
-                commonAppDetails.media?.screenshots?.size ?: 0
-            },
-            modifier = Modifier.fillMaxWidth(),
-            preferredItemWidth = 421.dp,
-            itemSpacing = 8.dp,
-            contentPadding = PaddingValues(horizontal = 16.dp)
+    } else appData.commonDetails.let { commonAppDetails ->
+        Column(
+            modifier = modifier.padding(
+                vertical = dimensionResource(R.dimen.padding_small),
+                horizontal = dimensionResource(R.dimen.padding_medium)
+            ),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AsyncImage(
-                model = commonAppDetails.media?.screenshots?.get(it) ?: "",
-                contentDescription = null, // TODO Add description
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(8.dp))
+            Text(
+                "Screenshots",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
             )
+
+            HorizontalDivider()
+
+            HorizontalMultiBrowseCarousel(
+                state = rememberCarouselState {
+                    commonAppDetails.media?.screenshots?.size ?: 0
+                },
+                modifier = Modifier.fillMaxWidth(),
+                preferredItemWidth = 421.dp,
+                itemSpacing = dimensionResource(R.dimen.padding_medium),
+            ) {
+                AsyncImage(
+                    model = commonAppDetails.media?.screenshots?.get(it) ?: "",
+                    contentDescription = null, // TODO Add description
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_medium)))
+                )
+            }
         }
     }
 }

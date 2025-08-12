@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +46,7 @@ fun <T : SteamChartsItem> SteamChartsTableRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
 //            .fillMaxWidth()
-            .clickable(true, onClick = { onClick(item.appId) })
+            .clickable(role = Role.Tab) { onClick(item.appId) }
     ) {
         Row(
             modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically

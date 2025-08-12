@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -57,6 +56,7 @@ import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.ITADPriceDealsInfo
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.ITADPriceInfo
 import com.github.khanshoaib3.nerdsteam.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.DataType
@@ -94,11 +94,7 @@ fun PriceInfoTab(
             }
 
             is Progress.FAILED -> {
-                Icon(Icons.Default.ErrorOutline, "Error")
-                Text(
-                    text = appViewState.isThereAnyDealPriceInfoStatus.reason ?: "Unable to load!",
-                    style = MaterialTheme.typography.bodyMediumEmphasized
-                )
+                ErrorColumn(reason = appViewState.isThereAnyDealPriceInfoStatus.reason)
             }
 
             Progress.LOADED -> appData.isThereAnyDealPriceInfo?.let { priceInfo ->
