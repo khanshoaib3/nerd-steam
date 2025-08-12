@@ -14,6 +14,8 @@ import it.skrape.selects.html5.table
 import it.skrape.selects.html5.tbody
 import it.skrape.selects.html5.td
 import it.skrape.selects.html5.tr
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "SteamChartsScraper"
 
@@ -26,7 +28,7 @@ data class SteamChartsScrapedData(
 )
 
 class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") {
-    fun scrape(): SteamChartsScrapedData {
+    suspend fun scrape(): SteamChartsScrapedData = withContext(Dispatchers.IO) {
         val extracted = skrape(HttpFetcher) {
             request {
                 url = _url
@@ -145,12 +147,11 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
             }
         }
 
-        // TODO Add exception handling
         Log.d(TAG, extracted.trendingGames.toString())
         Log.d(TAG, extracted.topGames.toString())
         Log.d(TAG, extracted.topRecords.toString())
 
-        return extracted
+        return@withContext extracted
     }
 }
 

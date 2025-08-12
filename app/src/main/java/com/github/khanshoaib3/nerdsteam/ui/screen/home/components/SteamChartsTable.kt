@@ -35,6 +35,7 @@ fun <T : SteamChartsItem> SteamChartsTable(
     gamesList: List<T>,
     tableType: SteamChartsTableType,
     isTableExpanded: Boolean = true,
+    isLoading: Boolean = false,
     onCollapseButtonClick: () -> Unit = {},
     onGameRowClick: (appId: Int) -> Unit = {}
 ) {
@@ -73,7 +74,8 @@ fun <T : SteamChartsItem> SteamChartsTable(
                         gamesList = gamesList,
                         imageWidth = imageWidth,
                         imageHeight = imageHeight,
-                        onRowClick = onGameRowClick
+                        onRowClick = onGameRowClick,
+                        isLoading = isLoading,
                     )
                     SteamChartsFooter(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_very_small)))
                 }

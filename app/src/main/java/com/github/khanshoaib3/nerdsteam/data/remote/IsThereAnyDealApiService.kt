@@ -9,6 +9,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import java.util.Locale
 
 // Ref: https://docs.isthereanydeal.com/
 interface IsThereAnyDealApiService {
@@ -29,7 +30,7 @@ interface IsThereAnyDealApiService {
     @POST("/games/prices/v3")
     suspend fun prices(
         @Body gameIds: List<String>,
-        @Query("country") countryCode: String = "in",
+        @Query("country") countryCode: String = Locale.getDefault().country,
         @Query("deals") getOnlyDeals: Boolean? = null,
         @Query("vouchers") allowVouchers: Boolean? = null,
         @Query("capacity") @IntRange(from = 0) capacity: Int? = null,

@@ -20,13 +20,14 @@ fun <T : SteamChartsItem> SteamChartsTableBody(
     gamesList: List<T>,
     imageWidth: Dp,
     imageHeight: Dp,
+    isLoading: Boolean,
     onRowClick: (appId: Int) -> Unit = {}
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
     ) {
-        if (gamesList.isEmpty()) {
+        if (isLoading) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 LoadingIndicator()
             }

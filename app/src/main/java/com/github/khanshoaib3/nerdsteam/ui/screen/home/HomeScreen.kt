@@ -5,21 +5,26 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
@@ -32,6 +37,7 @@ import com.github.khanshoaib3.nerdsteam.ui.utils.Side
 import com.github.khanshoaib3.nerdsteam.ui.utils.TopLevelRoute
 import com.github.khanshoaib3.nerdsteam.ui.utils.plus
 import com.github.khanshoaib3.nerdsteam.ui.utils.removePaddings
+import com.github.khanshoaib3.nerdsteam.utils.Progress
 import com.github.khanshoaib3.nerdsteam.utils.TopLevelBackStack
 
 // https://www.youtube.com/watch?v=W3R_ETKMj0E
@@ -144,39 +150,62 @@ fun HomeScreen(
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
-        modifier = modifier.verticalScroll(rememberScrollState())
-    ) {
-        SteamChartsTable(
-            gamesList = homeDataState.trendingGames,
-            tableType = SteamChartsTableType.TrendingGames,
-            isTableExpanded = homeViewState.isTrendingGamesExpanded,
-            onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
-            onGameRowClick = onGameClick,
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_small))
-                .animateContentSize()
-        )
-        SteamChartsTable(
-            gamesList = homeDataState.topGames,
-            tableType = SteamChartsTableType.TopGames,
-            isTableExpanded = homeViewState.isTopGamesExpanded,
-            onCollapseButtonClick = onTopGamesCollapseButtonClick,
-            onGameRowClick = onGameClick,
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_small))
-                .animateContentSize()
-        )
-        SteamChartsTable(
-            gamesList = homeDataState.topRecords,
-            tableType = SteamChartsTableType.TopRecords,
-            isTableExpanded = homeViewState.isTopRecordsExpanded,
-            onCollapseButtonClick = onTopRecordsCollapseButtonClick,
-            onGameRowClick = onGameClick,
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_small))
-                .animateContentSize()
-        )
+    if (homeViewState.fetchStatus is Progress.FAILED) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Unable to fetch data!",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            if (!homeViewState.fetchStatus.reason.isNullOrBlank()) {
+                Text(
+                    text = homeViewState.fetchStatus.reason,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        }
+    } else {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
+            modifier = modifier.verticalScroll(rememberScrollState())
+        ) {
+            SteamChartsTable(
+                gamesList = homeDataState.trendingGames,
+                tableType = SteamChartsTableType.TrendingGames,
+                isTableExpanded = homeViewState.isTrendingGamesExpanded,
+                isLoading = homeViewState.fetchStatus is Progress.LOADING,
+                onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+                onGameRowClick = onGameClick,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_small))
+                    .animateContentSize()
+            )
+            SteamChartsTable(
+                gamesList = homeDataState.topGames,
+                tableType = SteamChartsTableType.TopGames,
+                isTableExpanded = homeViewState.isTopGamesExpanded,
+                isLoading = homeViewState.fetchStatus is Progress.LOADING,
+                onCollapseButtonClick = onTopGamesCollapseButtonClick,
+                onGameRowClick = onGameClick,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_small))
+                    .animateContentSize()
+            )
+            SteamChartsTable(
+                gamesList = homeDataState.topRecords,
+                tableType = SteamChartsTableType.TopRecords,
+                isTableExpanded = homeViewState.isTopRecordsExpanded,
+                isLoading = homeViewState.fetchStatus is Progress.LOADING,
+                onCollapseButtonClick = onTopRecordsCollapseButtonClick,
+                onGameRowClick = onGameClick,
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_small))
+                    .animateContentSize()
+            )
+        }
     }
 }

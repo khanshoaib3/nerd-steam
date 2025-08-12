@@ -201,7 +201,7 @@ fun SearchScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Column(
-                modifier = Modifier.animateBounds(this@LookaheadScope),
+                modifier = if (searchStatus != Progress.LOADED) Modifier.animateBounds(this@LookaheadScope) else Modifier,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {

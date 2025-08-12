@@ -7,18 +7,18 @@ import kotlinx.serialization.json.JsonElement
 @Serializable
 data class AppDetailsResponse(
     @SerialName("success") val success: Boolean,
-    @SerialName("data") val data: AppDetail? = null
+    @SerialName("data") val data: AppDetailDataResponse? = null
 )
 
 @Serializable
-data class AppDetail(
+data class AppDetailDataResponse(
     @SerialName("type") val type: String,
     @SerialName("name") val name: String,
     @SerialName("steam_appid") val steamAppId: Int,
     @SerialName("required_age") val requiredAge: Int,
     @SerialName("is_free") val isFree: Boolean,
     @SerialName("controller_support") val controllerSupport: String? = null,
-//    @SerialName("dlc") val dlc: List<Int>? = null,
+    @SerialName("dlc") val dlc: List<Int>? = null,
     @SerialName("detailed_description") val detailedDescription: String,
     @SerialName("about_the_game") val aboutTheGame: String,
     @SerialName("short_description") val shortDescription: String,
@@ -81,23 +81,6 @@ data class Category(
 )
 
 @Serializable
-data class Genre(
-    @SerialName("id") val id: String,
-    @SerialName("description") val description: String
-)
-
-@Serializable
-data class Metacritic(
-    @SerialName("score") val score: Int,
-    @SerialName("url") val url: String
-)
-
-@Serializable
-data class Recommendations(
-    @SerialName("total") val total: Int
-)
-
-@Serializable
 data class ReleaseDate(
     @SerialName("coming_soon") val comingSoon: Boolean,
     @SerialName("date") val date: String
@@ -122,28 +105,4 @@ data class Screenshot(
     @SerialName("id") val id: Int,
     @SerialName("path_thumbnail") val pathThumbnail: String,
     @SerialName("path_full") val pathFull: String
-)
-
-@Serializable
-data class PackageGroup(
-    @SerialName("name") val name: String,
-    @SerialName("title") val title: String,
-    @SerialName("description") val description: String,
-    @SerialName("selection_text") val selectionText: String,
-    @SerialName("save_text") val saveText: String? = null,
-    @SerialName("display_type") val displayType: Int,
-    @SerialName("is_recurring_subscription") val isRecurringSubscription: String,
-    @SerialName("subs") val subs: List<Sub>
-)
-
-@Serializable
-data class Sub(
-    @SerialName("packageid") val packageId: Int,
-    @SerialName("percent_savings_text") val percentSavingsText: String,
-    @SerialName("percent_savings") val percentSavings: Int,
-    @SerialName("option_text") val optionText: String,
-    @SerialName("option_description") val optionDescription: String,
-    @SerialName("can_get_free_license") val canGetFreeLicense: String,
-    @SerialName("is_free_license") val isFreeLicense: Boolean,
-    @SerialName("price_in_cents_with_discount") val priceInCentsWithDiscount: Int
 )

@@ -1,6 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.data.model.appdetail
 
-import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
+import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.GameInfoResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.Platforms
 import com.github.khanshoaib3.nerdsteam.data.model.api.Requirements
@@ -31,13 +31,10 @@ data class CommonAppDetails(
     val media: Media?,
 ) {
     companion object {
-        @Suppress("LocalVariableName")
         internal fun fromIsThereAnyDealAndSteam(
-            _steamResponse: AppDetailsResponse?,
-            _isThereAnyDealResponse: GameInfoResponse?,
+            steamResponse: AppDetailDataResponse?,
+            isThereAnyDealResponse: GameInfoResponse?,
         ): CommonAppDetails {
-            val steamResponse = if (_steamResponse?.success == true) _steamResponse.data else null
-            val isThereAnyDealResponse = _isThereAnyDealResponse
 
             val requirements = mutableListOf<Requirement>()
 

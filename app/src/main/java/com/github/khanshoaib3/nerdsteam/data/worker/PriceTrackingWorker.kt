@@ -67,10 +67,9 @@ class PriceAlertsWorker(
     }
 
     private suspend fun fetchCurrentPrice(appId: Int): Float? {
-        val result = steamRepository.fetchDataForAppId(appId)
-        return if (result?.success == true) {
-            result.data?.priceOverview?.finalPrice?.div(100f)
-        } else null
+        steamRepository.fetchDataForAppId(appId)
+            .onSuccess { return it.priceOverview?.finalPrice?.div(100f) }
+        return null
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)

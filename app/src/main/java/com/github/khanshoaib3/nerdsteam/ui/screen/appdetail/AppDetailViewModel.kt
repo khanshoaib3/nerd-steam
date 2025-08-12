@@ -10,12 +10,11 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toITADPriceInfo
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toPlayerStatistics
 import com.github.khanshoaib3.nerdsteam.data.model.bookmark.Bookmark
-import com.github.khanshoaib3.nerdsteam.data.repository.SteamRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.BookmarkRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.IsThereAnyDealRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.PriceAlertRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.SteamChartsRepository
-import com.github.khanshoaib3.nerdsteam.data.scraper.SteamChartsPerAppScraper
+import com.github.khanshoaib3.nerdsteam.data.repository.SteamRepository
 import com.github.khanshoaib3.nerdsteam.ui.utils.Route
 import com.github.khanshoaib3.nerdsteam.utils.Progress
 import com.github.khanshoaib3.nerdsteam.utils.Progress.FAILED
@@ -35,7 +34,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 enum class DataType {
-    COMMON_APP_DETAILS, IS_THERE_ANY_DEAL_PRICE_INFO, STEAM_CHARTS_PLAYER_STATS
+    COMMON_APP_DETAILS, IS_THERE_ANY_DEAL_PRICE_INFO, STEAM_CHARTS_PLAYER_STATS, DLCS
 }
 
 data class AppData(
@@ -47,6 +46,7 @@ data class AppData(
     val priceAlertInfo: PriceAlert? = null,
     val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
     val playerStatistics: PlayerStatistics? = null,
+    val dlcs: Any? = null,
 )
 
 data class AppViewState(
@@ -55,6 +55,7 @@ data class AppViewState(
     val isThereAnyDealPriceInfoStatus: Progress = NOT_QUEUED,
     val steamStatus: Progress = NOT_QUEUED,
     val isThereAnyDealGameInfoStatus: Progress = NOT_QUEUED,
+    val dlcsStatus: Progress = NOT_QUEUED,
 )
 
 @HiltViewModel(assistedFactory = AppDetailViewModel.Factory::class)
@@ -87,6 +88,7 @@ class AppDetailViewModel @AssistedInject constructor(
                 DataType.COMMON_APP_DETAILS -> fetchCommonAppDetails()
                 DataType.STEAM_CHARTS_PLAYER_STATS -> fetchSteamChartsPlayerStats()
                 DataType.IS_THERE_ANY_DEAL_PRICE_INFO -> fetchISTDPriceInfo()
+                DataType.DLCS -> fetchDlcs()
             }
         }
 
@@ -103,9 +105,7 @@ class AppDetailViewModel @AssistedInject constructor(
         val isThereAnyDealResponse =
             isThereAnyDealRepository.getGameInfoFromAppId(key.appId)
 
-        if (((steamResponse != null && !steamResponse.success) || steamResponse == null)
-            && isThereAnyDealResponse.isFailure
-        ) {
+        if (steamResponse.isFailure && isThereAnyDealResponse.isFailure) {
             _appViewState.update {
                 it.copy(
                     steamStatus = FAILED("Unable to fetch data from steam"),
@@ -115,7 +115,7 @@ class AppDetailViewModel @AssistedInject constructor(
             return
         }
 
-        if ((steamResponse != null && !steamResponse.success) || steamResponse == null) {
+        if (steamResponse.isFailure) {
             _appViewState.update { it.copy(steamStatus = FAILED("Unable to fetch data from steam")) }
         }
 
@@ -128,8 +128,8 @@ class AppDetailViewModel @AssistedInject constructor(
         _appData.update {
             it.copy(
                 commonDetails = CommonAppDetails.fromIsThereAnyDealAndSteam(
-                    _steamResponse = steamResponse,
-                    _isThereAnyDealResponse = isThereAnyDealResponse.getOrNull()
+                    steamResponse = steamResponse.getOrNull(),
+                    isThereAnyDealResponse = isThereAnyDealResponse.getOrNull()
                 ),
                 isThereAnyDealId = isThereAnyDealResponse.getOrNull()?.id,
                 isThereAnyDealSlug = isThereAnyDealResponse.getOrNull()?.slug,
@@ -152,13 +152,8 @@ class AppDetailViewModel @AssistedInject constructor(
         _appViewState.update { it.copy(steamChartsStatus = LOADING) }
 
         steamChartsRepository.fetchDataForApp(key.appId)
-            .onSuccess {
-                _appData.update {
-                    it.copy(
-                        playerStatistics = SteamChartsPerAppScraper(key.appId).scrape()
-                            .toPlayerStatistics()
-                    )
-                }
+            .onSuccess { result ->
+                _appData.update { it.copy(playerStatistics = result.toPlayerStatistics()) }
                 _appViewState.update { it.copy(steamChartsStatus = LOADED) }
             }
             .onFailure { throwable ->
@@ -191,6 +186,14 @@ class AppDetailViewModel @AssistedInject constructor(
                 _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = FAILED(throwable.message)) }
                 return
             }
+    }
+
+    suspend fun fetchDlcs() {
+        if (appViewState.value.dlcsStatus != NOT_QUEUED) return
+
+        _appViewState.update { it.copy(dlcsStatus = LOADING) }
+
+        _appViewState.update { it.copy(dlcsStatus = FAILED("Unable to fetch!")) }
     }
 
     suspend fun toggleBookmarkStatus() = appData.value.apply {

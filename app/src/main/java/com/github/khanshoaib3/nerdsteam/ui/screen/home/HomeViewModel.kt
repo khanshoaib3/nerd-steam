@@ -6,6 +6,7 @@ import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TrendingGame
 import com.github.khanshoaib3.nerdsteam.data.repository.SteamChartsRepository
+import com.github.khanshoaib3.nerdsteam.utils.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +25,7 @@ data class HomeDataState(
 )
 
 data class HomeViewState(
+    val fetchStatus: Progress = Progress.NOT_QUEUED,
     val isTrendingGamesExpanded: Boolean = true,
     val isTopGamesExpanded: Boolean = true,
     val isTopRecordsExpanded: Boolean = true,
@@ -32,13 +35,6 @@ data class HomeViewState(
 class HomeViewModel @Inject constructor(
     private val steamChartsRepository: SteamChartsRepository
 ) : ViewModel() {
-    init {
-        // https://stackoverflow.com/a/70574508/12026423
-        viewModelScope.launch(Dispatchers.IO) {
-            steamChartsRepository.fetchAndStoreData()
-        }
-    }
-
     val homeDataState: StateFlow<HomeDataState> = combine(
         steamChartsRepository.getAllTrendingGames(),
         steamChartsRepository.getAllTopGames(),
@@ -48,23 +44,39 @@ class HomeViewModel @Inject constructor(
             trendingGames = trendingGames, topGames = topGames, topRecords = topRecords
         )
     }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = HomeDataState(listOf(), listOf(), listOf())
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = HomeDataState(listOf(), listOf(), listOf())
+    )
 
     private val _homeViewState = MutableStateFlow(HomeViewState())
     val homeViewState: StateFlow<HomeViewState> = _homeViewState
 
+    init {
+        // https://stackoverflow.com/a/70574508/12026423
+        viewModelScope.launch(Dispatchers.IO) {
+            _homeViewState.update { it.copy(fetchStatus = Progress.LOADING) }
+
+            steamChartsRepository.fetchAndStoreData()
+                .onSuccess { _homeViewState.update { it.copy(fetchStatus = Progress.LOADED) } }
+                .onFailure { throwable ->
+                    _homeViewState.update { it.copy(fetchStatus = Progress.FAILED(throwable.message)) }
+                }
+        }
+    }
+
     fun toggleTrendingGamesExpandState() {
-        _homeViewState.value = _homeViewState.value.copy(isTrendingGamesExpanded = !_homeViewState.value.isTrendingGamesExpanded)
+        _homeViewState.value =
+            _homeViewState.value.copy(isTrendingGamesExpanded = !_homeViewState.value.isTrendingGamesExpanded)
     }
 
     fun toggleTopGamesExpandState() {
-        _homeViewState.value = _homeViewState.value.copy(isTopGamesExpanded = !_homeViewState.value.isTopGamesExpanded)
+        _homeViewState.value =
+            _homeViewState.value.copy(isTopGamesExpanded = !_homeViewState.value.isTopGamesExpanded)
     }
 
     fun toggleTopRecordsExpandState() {
-        _homeViewState.value = _homeViewState.value.copy(isTopRecordsExpanded = !_homeViewState.value.isTopRecordsExpanded)
+        _homeViewState.value =
+            _homeViewState.value.copy(isTopRecordsExpanded = !_homeViewState.value.isTopRecordsExpanded)
     }
 }

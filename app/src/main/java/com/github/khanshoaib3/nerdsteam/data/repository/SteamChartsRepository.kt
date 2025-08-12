@@ -23,7 +23,7 @@ import javax.inject.Inject
 private const val TAG = "SteamChartsRepository"
 
 interface SteamChartsRepository {
-    suspend fun fetchAndStoreData()
+    suspend fun fetchAndStoreData(): Result<Unit>
 
     fun getAllTrendingGames(): Flow<List<TrendingGame>>
 
@@ -43,25 +43,20 @@ class ScraperSteamChartsRepository @Inject constructor(
     private val topRecordDao: TopRecordDao,
     private val localDataStoreRepository: LocalDataStoreRepository,
 ) : SteamChartsRepository {
-    // TODO Use Result here
-    override suspend fun fetchAndStoreData() {
+    override suspend fun fetchAndStoreData(): Result<Unit> = runSafeSuspendCatching {
         val steamChartsFetchTime = localDataStoreRepository.steamChartsFetchTimeSnapshot()
         if (steamChartsFetchTime.isNotEmpty()) {
             val oldDateTime = LocalDateTime.parse(steamChartsFetchTime, formatter)
             val currentDateTime = LocalDateTime.now()
 
-            if (currentDateTime.hour <= oldDateTime.hour
-                && currentDateTime.dayOfYear <= oldDateTime.dayOfYear
-                && currentDateTime.year <= oldDateTime.year
-            ) {
+            if (oldDateTime.plusHours(1).isAfter(currentDateTime)) {
                 Log.d(TAG, "Records already present, with timestamp $steamChartsFetchTime")
-                return
+                return@runSafeSuspendCatching
             }
 
             // Deleting the contents does not reset the primary key index,
             // and since we can't use DROP, we have to manually delete the primary index as well.
             // https://medium.com/@sdevpremthakur/how-to-reset-room-db-completely-including-primary-keys-android-6382f00df87b
-
             trendingGameDao.deleteAll()
             trendingGameDao.deletePrimaryKeyIndex()
             topGameDao.deleteAll()

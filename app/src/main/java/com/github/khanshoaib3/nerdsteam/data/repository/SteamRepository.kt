@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
 import android.util.Log
+import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppSearchResponse
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamCommunityApiService
@@ -21,7 +22,7 @@ private const val TAG = "GameDetailRepository"
 interface SteamRepository {
     suspend fun runSearchQuery(query: String): Result<List<AppSearchResponse>>
 
-    suspend fun fetchDataForAppId(appId: Int): AppDetailsResponse?
+    suspend fun fetchDataForAppId(appId: Int): Result<AppDetailDataResponse>
 }
 
 class OnlineSteamRepository @Inject constructor(
@@ -32,37 +33,45 @@ class OnlineSteamRepository @Inject constructor(
         runSafeSuspendCatching {
             Log.d(TAG, "Fetching search results with query: $query...")
             val result = steamCommunityApiService.searchApp(query)
-            if(result.isEmpty()) throw Exception("Nothing found for the query")
+            if (result.isEmpty()) throw Exception("Nothing found for the query")
             result
         }
 
-    // TODO Use Result here
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun fetchDataForAppId(appId: Int): AppDetailsResponse? {
-        var result = steamInternalWebApiService.getAppDetails(appId)
-        val json = Json { ignoreUnknownKeys = true }
-        Log.d("GameDetailRepository", "$result")
+    override suspend fun fetchDataForAppId(appId: Int): Result<AppDetailDataResponse> =
+        runSafeSuspendCatching {
+            var result = steamInternalWebApiService.getAppDetails(appId)
+            val json = Json { ignoreUnknownKeys = true }
+            Log.d("GameDetailRepository", "$result")
 
-        lateinit var appDetail: AppDetailsResponse
-        var missingField = false
-        try {
+            lateinit var appDetail: AppDetailsResponse
+            var missingField = false
+            try {
+                appDetail =
+                    json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$appId")!!)
+            } catch (_: MissingFieldException) {
+                Log.d(TAG, "Unable to serialize data for $appId because of missing fields.")
+                Log.d(TAG, "Attempting to fetch updated App ID from redirect url...")
+                missingField = true
+            }
+
+            if (!missingField && appDetail.success && appDetail.data != null) {
+                return@runSafeSuspendCatching appDetail.data
+            }
+
+            val newAppId = getUpdatedAppIdFromRedirectUrl(appId)
+            if (newAppId == null) throw Exception("Unable to fetch data for appid: $appId")
+            Log.d(TAG, "New app id: $newAppId")
+
+            result = steamInternalWebApiService.getAppDetails(newAppId)
             appDetail =
-                json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$appId")!!)
-        } catch (_: MissingFieldException) {
-            Log.d(TAG, "Unable to serialize data for $appId because of missing fields.")
-            Log.d(TAG, "Attempting to fetch updated App ID from redirect url...")
-            missingField = true
+                json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$newAppId")!!)
+            if (!appDetail.success || appDetail.data == null) {
+                throw Exception("Unable to fetch data for appid: $appId")
+            }
+
+            appDetail.data
         }
-
-        if (!missingField && appDetail.success) return appDetail
-
-        val newAppId = getUpdatedAppIdFromRedirectUrl(appId)
-        if (newAppId == null) return null
-        Log.d(TAG, "New app id: $newAppId")
-
-        result = steamInternalWebApiService.getAppDetails(newAppId)
-        return json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$newAppId")!!)
-    }
 
     private fun getUpdatedAppIdFromRedirectUrl(currentAppId: Int): Int? {
         val regex =
