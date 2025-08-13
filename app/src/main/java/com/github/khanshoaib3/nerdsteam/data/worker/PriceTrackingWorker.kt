@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.github.khanshoaib3.nerdsteam.PRICE_ALERT_CHANNEL_ID
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.local.MainDatabase
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
@@ -15,6 +16,8 @@ import com.github.khanshoaib3.nerdsteam.data.remote.SteamInternalWebApiService
 import com.github.khanshoaib3.nerdsteam.data.repository.LocalPriceAlertRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.nerdsteam.di.AppModule
+import com.github.khanshoaib3.nerdsteam.utils.getNumberFormatFromCurrencyCode
+import kotlinx.coroutines.flow.firstOrNull
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -38,26 +41,24 @@ class PriceAlertsWorker(
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
         return try {
-            priceAlertRepository.getAllPriceAlerts().collect {
-                it.onEach { entry ->
-                    val currentPrice = fetchCurrentPrice(entry.appId)
-                    if (currentPrice == null) return@onEach
+            priceAlertRepository.getAllPriceAlerts().firstOrNull()?.forEach { entry ->
+                val currentPrice = fetchCurrentPrice(entry.appId)
+                if (currentPrice == null) return@forEach
 
-                    if (currentPrice <= entry.targetPrice) {
-                        showNotification(entry, currentPrice)
-                        if (!entry.notifyEveryDay) {
-                            priceAlertRepository.removePriceAlert(entry.appId)
-                            return@onEach
-                        }
+                if (currentPrice <= entry.targetPrice) {
+                    showNotification(entry, currentPrice, entry.currency)
+                    if (!entry.notifyEveryDay) {
+                        priceAlertRepository.removePriceAlert(entry.appId)
+                        return@forEach
                     }
-
-                    priceAlertRepository.updatePriceAlert(
-                        entry.copy(
-                            lastFetchedPrice = currentPrice,
-                            lastFetchedTime = Clock.System.now().toEpochMilliseconds()
-                        )
-                    )
                 }
+
+                priceAlertRepository.updatePriceAlert(
+                    entry.copy(
+                        lastFetchedPrice = currentPrice,
+                        lastFetchedTime = Clock.System.now().toEpochMilliseconds()
+                    )
+                )
             }
             Result.success()
         } catch (e: Exception) {
@@ -67,19 +68,19 @@ class PriceAlertsWorker(
     }
 
     private suspend fun fetchCurrentPrice(appId: Int): Float? {
-        steamRepository.fetchDataForAppId(appId)
-            .onSuccess { return it.priceOverview?.finalPrice?.div(100f) }
-        return null
+        val response = steamRepository.fetchDataForAppId(appId)
+        return response.getOrNull()?.priceOverview?.finalPrice?.div(100f)
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun showNotification(entry: PriceAlert, currentPrice: Float) {
+    private fun showNotification(entry: PriceAlert, currentPrice: Float, currencyCode: String) {
         try {
+            val currencyFormatter = getNumberFormatFromCurrencyCode(currencyCode)
             val notificationManager = NotificationManagerCompat.from(appContext)
-            val notification = NotificationCompat.Builder(appContext, "price_alert_channel")
+            val notification = NotificationCompat.Builder(appContext, PRICE_ALERT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Price Drop: ${entry.name}")
-                .setContentText("Now only ₹$currentPrice!")
+                .setContentText("Now only ${currencyFormatter.format(currentPrice)}!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .build()

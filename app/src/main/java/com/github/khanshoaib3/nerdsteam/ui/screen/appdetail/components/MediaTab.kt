@@ -31,20 +31,20 @@ fun MediaTab(
     appData: AppData,
     modifier: Modifier = Modifier,
 ) {
-    if (appData.commonDetails?.media?.screenshots.isNullOrEmpty()){
-        ErrorColumn(
-            reason = null,
-            title = "No screenshots found!",
-        )
-    } else appData.commonDetails.let { commonAppDetails ->
-        Column(
-            modifier = modifier.padding(
-                vertical = dimensionResource(R.dimen.padding_small),
-                horizontal = dimensionResource(R.dimen.padding_medium)
-            ),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Column(
+        modifier = modifier.padding(
+            vertical = dimensionResource(R.dimen.padding_small),
+            horizontal = dimensionResource(R.dimen.padding_medium)
+        ),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (appData.commonDetails?.media?.screenshots.isNullOrEmpty()) {
+            ErrorColumn(
+                reason = null,
+                title = "No screenshots found!",
+            )
+        } else appData.commonDetails.let { commonAppDetails ->
             Text(
                 "Screenshots",
                 style = MaterialTheme.typography.headlineSmall,

@@ -11,6 +11,8 @@ import com.github.khanshoaib3.nerdsteam.data.worker.PriceAlertsWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 
+internal const val PRICE_ALERT_CHANNEL_ID = "price_alerts_channel"
+
 @HiltAndroidApp
 class MainApplication : Application() {
     override fun onCreate() {
@@ -27,12 +29,13 @@ class MainApplication : Application() {
             workRequest
         )
     }
-    /*
+
+    /* For testing
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel(this)
 
-        val workRequest = OneTimeWorkRequestBuilder<PriceCheckWorker>()
+        val workRequest = OneTimeWorkRequestBuilder<PriceAlertsWorker>()
             .setInitialDelay(10, TimeUnit.SECONDS) // short delay for testing
             .build()
 
@@ -40,9 +43,8 @@ class MainApplication : Application() {
     }
     */
 
-
     private fun createNotificationChannel(context: Context) {
-        val channelId = "price_channel"
+        val channelId = PRICE_ALERT_CHANNEL_ID
         val name = "Price Drop Alerts"
         val descriptionText = "Notifies when a game's price drops below your target"
         val importance = NotificationManager.IMPORTANCE_HIGH

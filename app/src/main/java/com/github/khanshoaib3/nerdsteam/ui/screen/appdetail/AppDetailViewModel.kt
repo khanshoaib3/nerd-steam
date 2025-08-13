@@ -110,7 +110,7 @@ class AppDetailViewModel @AssistedInject constructor(
             _appViewState.update {
                 it.copy(
                     steamStatus = FAILED("Unable to fetch data from steam"),
-                    isThereAnyDealGameInfoStatus = FAILED(isThereAnyDealResponse.exceptionOrNull()?.message)
+                    isThereAnyDealGameInfoStatus = FAILED(steamResponse.exceptionOrNull()?.message)
                 )
             }
             return

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -28,11 +29,13 @@ fun ErrorColumn(
             text = title,
             style = MaterialTheme.typography.bodyLargeEmphasized,
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
         )
         if (!reason.isNullOrBlank()) {
             Text(
                 text = reason,
                 style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
             )
         }
     }

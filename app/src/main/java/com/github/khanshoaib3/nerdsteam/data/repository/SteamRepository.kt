@@ -62,6 +62,7 @@ class OnlineSteamRepository @Inject constructor(
             var result: JsonObject
             lateinit var appDetail: AppDetailsResponse
             var missingField = false
+            Log.d(TAG, "Fetching data from steam for $appId")
 
             result = if (isRetryAttempt) steamInternalWebApiService.getAppDetails(appId, "us")
             else steamInternalWebApiService.getAppDetails(appId)
@@ -70,14 +71,16 @@ class OnlineSteamRepository @Inject constructor(
                 appDetail =
                     json.decodeFromJsonElement<AppDetailsResponse>(result.get(key = "$appId")!!)
             } catch (_: MissingFieldException) {
-                Log.e(TAG, "Unable to serialize data for $appId because of missing fields.")
-                Log.e(TAG, "Attempting to fetch updated App ID from redirect url...")
                 missingField = true
             }
 
             if (!missingField && appDetail.success && appDetail.data != null) {
+                Log.d(TAG, "Data fetched: ${appDetail.data.name}")
                 return@runSafeSuspendCatching appDetail.data
             }
+
+            Log.d(TAG, "Unable to serialize data for $appId because of missing fields.")
+            Log.d(TAG, "Attempting to fetch updated App ID from redirect url...")
 
             val newAppId = getUpdatedAppIdFromRedirectUrl(appId)
             if (newAppId == null) throw Exception("Unable to fetch data for appid: $appId")
@@ -99,8 +102,8 @@ class OnlineSteamRepository @Inject constructor(
                 }
 
                 if (missingField || !appDetail.success || appDetail.data == null) {
-                    Log.e(TAG, "Unable to serialize data with new appid $newAppId.")
-                    Log.e(TAG, "Retrying with us country code...")
+                    Log.d(TAG, "Unable to serialize data with new appid $newAppId.")
+                    Log.d(TAG, "Retrying with us country code...")
                     return fetchDataForAppId(appId = appId, isRetryAttempt = true)
                 }
             }
@@ -108,7 +111,7 @@ class OnlineSteamRepository @Inject constructor(
                 throw Exception("Unable to fetch data for appid: $appId")
             }
 
-            Log.d(TAG, result.toString())
+            Log.d(TAG, "Data fetched: ${appDetail.data.name}")
             appDetail.data
         }
 
