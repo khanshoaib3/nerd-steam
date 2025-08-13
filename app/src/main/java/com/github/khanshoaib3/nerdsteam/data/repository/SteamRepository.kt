@@ -1,8 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
-import android.content.res.Resources
 import android.util.Log
-import androidx.compose.ui.platform.LocalGraphicsContext
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppSearchResponse
@@ -16,12 +14,10 @@ import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import retrofit2.http.Query
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.Locale
 import javax.inject.Inject
 
 private const val TAG = "SteamRepository"

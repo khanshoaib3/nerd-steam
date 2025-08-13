@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
@@ -18,7 +18,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,9 +61,7 @@ fun NavBar(
                         imageVector = (if (isSelected) route.selectedIcon else route.icon)
                             ?: Icons.Default.QuestionMark,
                         contentDescription = route.name,
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .scale(1.25f)
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             )
