@@ -30,13 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -80,10 +76,6 @@ fun AppDetailsScreenRoot(
     val view = LocalView.current
     val context = LocalContext.current
 
-    var storedPriceAlertInfo: PriceAlert? by remember(appData.steamAppId) { mutableStateOf(null) }
-    LaunchedEffect(appData.steamAppId) {
-        storedPriceAlertInfo = viewModel.getPriceTrackingInfo()
-    }
     val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
         val toast = Toast.makeText(
             context,
@@ -91,8 +83,7 @@ fun AppDetailsScreenRoot(
             Toast.LENGTH_SHORT
         )
         scope.launch(context = Dispatchers.IO) {
-            viewModel.startPriceTracking(targetPrice, notifyEveryDay)
-            storedPriceAlertInfo = viewModel.getPriceTrackingInfo()
+            viewModel.updatePriceAlert(targetPrice, notifyEveryDay)
             toast.show()
         }
     }
@@ -103,8 +94,7 @@ fun AppDetailsScreenRoot(
             Toast.LENGTH_SHORT
         )
         scope.launch(context = Dispatchers.IO) {
-            viewModel.stopPriceTracking()
-            storedPriceAlertInfo = viewModel.getPriceTrackingInfo()
+            viewModel.removePriceAlert()
             toast.show()
         }
     }
@@ -147,7 +137,7 @@ fun AppDetailsScreenRoot(
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
             isBookmarkActive = isBookmarked,
-            storedPriceAlertInfo = storedPriceAlertInfo,
+            storedPriceAlertInfo = appData.priceAlertInfo,
             startPriceTracking = startPriceTracking,
             stopPriceTracking = stopPriceTracking,
             updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
@@ -186,7 +176,7 @@ fun AppDetailsScreenRoot(
             fetchDataFromSourceCallback = fetchDataFromSourceCallback,
             onBookmarkClick = toggleBookmarkStatus,
             isBookmarkActive = isBookmarked,
-            storedPriceAlertInfo = storedPriceAlertInfo,
+            storedPriceAlertInfo = appData.priceAlertInfo,
             startPriceTracking = startPriceTracking,
             stopPriceTracking = stopPriceTracking,
             updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,

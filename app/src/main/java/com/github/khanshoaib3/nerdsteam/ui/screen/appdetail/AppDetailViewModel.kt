@@ -114,8 +114,13 @@ class AppDetailViewModel @AssistedInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val cacheResponse = cacheRepository.getCachedData(key.appId)
             cacheResponse.onSuccess { data ->
-                Log.d(TAG, "Loading data from cache for ${key.appId}...")
-                _appData.update { data.toAppData() }
+                Log.d(TAG, "[${key.appId}] Loading data from cache...")
+                _appData.update {
+                    data.toAppData().copy(
+                        isBookmarked = bookmarkRepository.isBookmarked(key.appId),
+                        priceAlertInfo = getPriceAlertInfo(),
+                    )
+                }
                 _appViewState.update {
                     AppViewState(
                         steamStatus = if (data.commonDetails == null) NOT_QUEUED else LOADED,
@@ -125,16 +130,19 @@ class AppDetailViewModel @AssistedInject constructor(
                         dlcsStatus = if (data.dlcs == null) NOT_QUEUED else LOADED,
                     )
                 }
-                cacheRepository.storeCachedData(data)
             }.onFailure {
-                Log.d(TAG, "Loading data from internet for ${key.appId}...")
+                Log.d(TAG, "[${key.appId}] Loading data from internet...")
                 fetchDataFromSource(DataType.COMMON_APP_DETAILS)
+                _appData.update {
+                    it.copy(
+                        isBookmarked = bookmarkRepository.isBookmarked(key.appId),
+                        priceAlertInfo = getPriceAlertInfo(),
+                    )
+                }
             }
-        }
 
-        viewModelScope.launch(Dispatchers.IO) {
             _appData
-                .drop(2)
+                .drop(1)
                 .distinctUntilChanged()
                 .collect { data ->
                     cacheRepository.storeCachedData(data.toSerializableAppData())
@@ -162,6 +170,7 @@ class AppDetailViewModel @AssistedInject constructor(
             && appViewState.value.isThereAnyDealGameInfoStatus != NOT_QUEUED
         ) return
 
+        Log.d(TAG, "[${key.appId}] Fetching common info from steam and ISTAD...")
         _appViewState.update {
             it.copy(steamStatus = LOADING, isThereAnyDealGameInfoStatus = LOADING)
         }
@@ -198,7 +207,6 @@ class AppDetailViewModel @AssistedInject constructor(
                 ),
                 isThereAnyDealId = isThereAnyDealResponse.getOrNull()?.id,
                 isThereAnyDealSlug = isThereAnyDealResponse.getOrNull()?.slug,
-                isBookmarked = bookmarkRepository.isBookmarked(key.appId)
             )
         }
 
@@ -214,6 +222,7 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchSteamChartsPlayerStats() {
         if (appViewState.value.steamChartsStatus != NOT_QUEUED) return
 
+        Log.d(TAG, "[${key.appId}] Fetching steam charts per app info...")
         _appViewState.update { it.copy(steamChartsStatus = LOADING) }
 
         steamChartsRepository.fetchDataForApp(key.appId)
@@ -229,6 +238,7 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchISTDPriceInfo() {
         if (appViewState.value.isThereAnyDealPriceInfoStatus != NOT_QUEUED) return
 
+        Log.d(TAG, "[${key.appId}] Fetching ISTAD Price info...")
         _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = LOADING) }
 
         if (appData.value.isThereAnyDealId == null) {
@@ -260,6 +270,7 @@ class AppDetailViewModel @AssistedInject constructor(
             return
         }
 
+        Log.d(TAG, "[${key.appId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})...")
         _appViewState.update { it.copy(dlcsStatus = LOADING) }
         steamRepository.fetchDataForDlcs(appData.value.commonDetails!!.dlcIds!!)
             .onSuccess { result ->
@@ -275,6 +286,7 @@ class AppDetailViewModel @AssistedInject constructor(
         if (appData.value.commonDetails == null) return@apply
 
         if (!isBookmarked) {
+            Log.d(TAG, "[${key.appId}] Removing bookmark...")
             bookmarkRepository.addBookmark(
                 Bookmark(
                     appId = key.appId,
@@ -283,34 +295,39 @@ class AppDetailViewModel @AssistedInject constructor(
             )
             _appData.update { it.copy(isBookmarked = true) }
         } else {
+            Log.d(TAG, "[${key.appId}] Adding bookmark...")
             bookmarkRepository.removeBookmark(key.appId)
             _appData.update { it.copy(isBookmarked = false) }
         }
     }
 
-    suspend fun getPriceTrackingInfo(): PriceAlert? {
+    suspend fun getPriceAlertInfo(): PriceAlert? {
         return priceAlertRepository.getPriceAlert(appId = key.appId)
     }
 
     @OptIn(ExperimentalTime::class)
-    suspend fun startPriceTracking(targetPrice: Float, notifyEveryDay: Boolean) =
-        appData.value.commonDetails?.let {
+    suspend fun updatePriceAlert(targetPrice: Float, notifyEveryDay: Boolean) =
+        appData.value.commonDetails?.let { commonAppDetails ->
+            Log.d(TAG, "[${key.appId}] Adding price alert...")
             priceAlertRepository.addPriceAlert(
                 PriceAlert(
                     appId = key.appId,
-                    name = it.name,
+                    name = commonAppDetails.name,
                     targetPrice = targetPrice,
                     notifyEveryDay = notifyEveryDay,
                     lastFetchedTime = Clock.System.now().toEpochMilliseconds(),
-                    lastFetchedPrice = it.currentPrice,
-                    originalPrice = it.originalPrice,
-                    currency = it.currency,
+                    lastFetchedPrice = commonAppDetails.currentPrice,
+                    originalPrice = commonAppDetails.originalPrice,
+                    currency = commonAppDetails.currency,
                 )
             )
+            _appData.update { it.copy(priceAlertInfo = getPriceAlertInfo()) }
         }
 
-    suspend fun stopPriceTracking() {
+    suspend fun removePriceAlert() {
+        Log.d(TAG, "[${key.appId}] Removing price alert...")
         priceAlertRepository.removePriceAlert(appId = key.appId)
+        _appData.update { it.copy(priceAlertInfo = getPriceAlertInfo()) }
     }
 
     fun updateSelectedTabIndex(index: Int) {
