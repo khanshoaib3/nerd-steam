@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -144,6 +145,7 @@ class AppDetailViewModel @AssistedInject constructor(
             _appData
                 .drop(1)
                 .distinctUntilChanged()
+                .distinctUntilChangedBy { it.commonDetails to it.isThereAnyDealId to it.isThereAnyDealSlug to it.isThereAnyDealPriceInfo to it.dlcs }
                 .collect { data ->
                     cacheRepository.storeCachedData(data.toSerializableAppData())
                 }
@@ -270,7 +272,10 @@ class AppDetailViewModel @AssistedInject constructor(
             return
         }
 
-        Log.d(TAG, "[${key.appId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})...")
+        Log.d(
+            TAG,
+            "[${key.appId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})..."
+        )
         _appViewState.update { it.copy(dlcsStatus = LOADING) }
         steamRepository.fetchDataForDlcs(appData.value.commonDetails!!.dlcIds!!)
             .onSuccess { result ->
