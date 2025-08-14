@@ -88,7 +88,7 @@ fun PlayerStatsTab(
                                 style = MaterialTheme.typography.headlineMediumEmphasized
                             )
                             Text(
-                                text = TimeAgo.using(playerStatistics.lastHourTime.toEpochMilliseconds()),
+                                text = TimeAgo.using(playerStatistics.lastHourTime),
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
@@ -212,7 +212,7 @@ private fun PlayerStatsTabPreview() {
                 steamAppId = 220,
                 playerStatistics = PlayerStatistics(
                     lastHourCount = 232323232,
-                    lastHourTime = Instant.DISTANT_PAST,
+                    lastHourTime = Instant.DISTANT_PAST.toEpochMilliseconds(),
                     twentyFourHourPeak = 232323232,
                     allTimePeak = 23232,
                     perMonthPlayerStats = listOf(

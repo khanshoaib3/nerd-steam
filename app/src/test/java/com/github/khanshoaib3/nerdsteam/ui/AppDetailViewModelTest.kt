@@ -7,6 +7,7 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.CommonAppDetails
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Media
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Requirement
 import com.github.khanshoaib3.nerdsteam.data.repository.LocalBookmarkRepository
+import com.github.khanshoaib3.nerdsteam.data.repository.LocalCacheRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.LocalPriceAlertRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.OnlineIsThereAnyDealRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.OnlineSteamRepository
@@ -40,6 +41,7 @@ class AppDetailViewModelTest {
                 topRecordDao = appModule.provideTopRecordDao(context),
                 localDataStoreRepository = appModule.provideLocalDatastoreRepository(context),
             ),
+            cacheRepository = LocalCacheRepository(context)
         )
     }
 
@@ -105,6 +107,7 @@ class AppDetailViewModelTest {
                 "http://video.akamai.steamstatic.com/store_trailers/257074217/movie480_vp9.webm?t=1732069594",
                 "http://video.akamai.steamstatic.com/store_trailers/904/movie480_vp9.webm?t=1732069598"
             )
-        )
+        ),
+        dlcIds = null,
     )
 }

@@ -16,6 +16,8 @@ import com.github.khanshoaib3.nerdsteam.data.local.steamcharts.TrendingGameDao
 import com.github.khanshoaib3.nerdsteam.data.remote.IsThereAnyDealApiService
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamCommunityApiService
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamInternalWebApiService
+import com.github.khanshoaib3.nerdsteam.data.repository.CacheRepository
+import com.github.khanshoaib3.nerdsteam.data.repository.LocalCacheRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -69,6 +71,13 @@ class AppModule {
     @Singleton
     fun provideLocalDatastoreRepository(@ApplicationContext context: Context): LocalDataStoreRepository {
         return LocalDataStoreRepository(context.dataStore)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideCacheRepository(@ApplicationContext context: Context): CacheRepository {
+        return LocalCacheRepository(context)
     }
 
     @Provides

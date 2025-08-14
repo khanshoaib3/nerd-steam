@@ -4,10 +4,12 @@ import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.GameInfoResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.Platforms
 import com.github.khanshoaib3.nerdsteam.data.model.api.Requirements
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
+@Serializable
 data class CommonAppDetails(
     val name: String,
     val type: String,
@@ -125,22 +127,26 @@ data class CommonAppDetails(
 }
 
 
+@Serializable
 data class Category(
     val name: String,
     val url: String,
 )
 
+@Serializable
 data class Requirement(
     val platform: String,
     val minimumRequirements: String?,
     val recommendedRequirements: String?,
 )
 
+@Serializable
 data class Media(
     val screenshots: List<String>,
     val movies: List<String>?,
 )
 
+@Serializable
 data class Reviews(
     val score: Int,
     val name: String,

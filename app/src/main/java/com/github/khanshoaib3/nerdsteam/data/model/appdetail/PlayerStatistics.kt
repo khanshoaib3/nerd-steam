@@ -7,7 +7,7 @@ import kotlin.time.Instant
 
 data class PlayerStatistics @OptIn(ExperimentalTime::class) constructor(
     val lastHourCount: Int,
-    val lastHourTime: Instant,
+    val lastHourTime: Long,
     val twentyFourHourPeak: Int,
     val allTimePeak: Int,
     val perMonthPlayerStats: List<MonthlyPlayerStatisticDisplay>,
@@ -54,7 +54,7 @@ fun MonthlyPlayerStatistic.toDisplayModel() = MonthlyPlayerStatisticDisplay(
 fun SteamChartsPerAppScrapedData.toPlayerStatistics() =
     PlayerStatistics(
         lastHourCount = this.lastHourCount.toInt(),
-        lastHourTime = Instant.parse(this.lastHourTime),
+        lastHourTime = Instant.parse(this.lastHourTime).toEpochMilliseconds(),
         twentyFourHourPeak = this.twentyFourHourPeak.toInt(),
         allTimePeak = this.allTimePeak.toInt(),
         perMonthPlayerStats = this.monthlyPlayerStats.map { it.toDisplayModel() }

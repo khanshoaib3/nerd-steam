@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.github.khanshoaib3.nerdsteam.di
 
 import com.github.khanshoaib3.nerdsteam.data.repository.BookmarkRepository

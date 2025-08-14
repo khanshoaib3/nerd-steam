@@ -5,30 +5,28 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.github.khanshoaib3.nerdsteam.R
+import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.nerdsteam.ui.screen.home.components.SteamChartsTable
 import com.github.khanshoaib3.nerdsteam.ui.screen.home.components.SteamChartsTableType
@@ -140,6 +138,7 @@ fun HomeScreenWithScaffold(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -151,23 +150,12 @@ fun HomeScreen(
     homeViewState: HomeViewState,
 ) {
     if (homeViewState.fetchStatus is Progress.FAILED) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "Unable to fetch data!",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            if (!homeViewState.fetchStatus.reason.isNullOrBlank()) {
-                Text(
-                    text = homeViewState.fetchStatus.reason,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
-        }
+        ErrorColumn(
+            reason = homeViewState.fetchStatus.reason,
+            title = "Unable to fetch data!",
+            titleStyle = MaterialTheme.typography.headlineMediumEmphasized,
+            reasonStyle = MaterialTheme.typography.bodyMedium,
+        )
     } else {
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),

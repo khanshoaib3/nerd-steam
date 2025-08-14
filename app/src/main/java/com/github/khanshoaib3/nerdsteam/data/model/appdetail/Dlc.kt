@@ -1,7 +1,9 @@
 package com.github.khanshoaib3.nerdsteam.data.model.appdetail
 
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Dlc(
     val appId: Int,
     val name: String,

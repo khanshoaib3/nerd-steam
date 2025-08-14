@@ -2,7 +2,9 @@ package com.github.khanshoaib3.nerdsteam.data.model.appdetail
 
 import com.github.khanshoaib3.nerdsteam.data.model.api.PriceInfoResponse
 import com.github.khanshoaib3.nerdsteam.utils.DateTimeUtils
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ITADPriceInfo(
     val currency: String?,
     val historicLow: Float?,
@@ -11,6 +13,7 @@ data class ITADPriceInfo(
     val deals: List<ITADPriceDealsInfo> = listOf(),
 )
 
+@Serializable
 data class ITADPriceDealsInfo(
     val shopName: String,
     val url: String,

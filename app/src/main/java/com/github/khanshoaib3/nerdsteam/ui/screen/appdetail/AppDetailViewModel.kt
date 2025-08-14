@@ -1,6 +1,7 @@
 package com.github.khanshoaib3.nerdsteam.ui.screen.appdetail
 // Ref(assisted inject): https://medium.com/@cgaisl/how-to-pass-arguments-to-a-hiltviewmodel-from-compose-97c74a75f772
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.CommonAppDetails
@@ -12,6 +13,7 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toITADPriceInfo
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toPlayerStatistics
 import com.github.khanshoaib3.nerdsteam.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.nerdsteam.data.repository.BookmarkRepository
+import com.github.khanshoaib3.nerdsteam.data.repository.CacheRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.IsThereAnyDealRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.PriceAlertRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.SteamChartsRepository
@@ -29,10 +31,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+
+private const val TAG = "AppDetailViewModel"
 
 enum class DataType {
     COMMON_APP_DETAILS, IS_THERE_ANY_DEAL_PRICE_INFO, STEAM_CHARTS_PLAYER_STATS, DLCS
@@ -48,6 +55,34 @@ data class AppData(
     val isThereAnyDealPriceInfo: ITADPriceInfo? = null,
     val playerStatistics: PlayerStatistics? = null,
     val dlcs: List<Dlc>? = null,
+)
+
+@Serializable
+data class SerializableAppData(
+    val steamAppId: Int,
+    val isThereAnyDealId: String?,
+    val isThereAnyDealSlug: String?,
+    val commonDetails: CommonAppDetails?,
+    val isThereAnyDealPriceInfo: ITADPriceInfo?,
+    val dlcs: List<Dlc>?,
+)
+
+fun AppData.toSerializableAppData() = SerializableAppData(
+    steamAppId = this.steamAppId,
+    isThereAnyDealId = this.isThereAnyDealId,
+    isThereAnyDealSlug = this.isThereAnyDealSlug,
+    commonDetails = this.commonDetails,
+    isThereAnyDealPriceInfo = this.isThereAnyDealPriceInfo,
+    dlcs = this.dlcs,
+)
+
+fun SerializableAppData.toAppData() = AppData(
+    steamAppId = this.steamAppId,
+    isThereAnyDealId = this.isThereAnyDealId,
+    isThereAnyDealSlug = this.isThereAnyDealSlug,
+    commonDetails = this.commonDetails,
+    isThereAnyDealPriceInfo = this.isThereAnyDealPriceInfo,
+    dlcs = this.dlcs,
 )
 
 data class AppViewState(
@@ -66,6 +101,7 @@ class AppDetailViewModel @AssistedInject constructor(
     private val isThereAnyDealRepository: IsThereAnyDealRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val priceAlertRepository: PriceAlertRepository,
+    private val cacheRepository: CacheRepository,
     @Assisted val key: Route.AppDetail,
 ) : ViewModel() {
     private val _appData = MutableStateFlow(AppData(key.appId))
@@ -75,7 +111,35 @@ class AppDetailViewModel @AssistedInject constructor(
     val appViewState: StateFlow<AppViewState> = _appViewState
 
     init {
-        fetchDataFromSource(DataType.COMMON_APP_DETAILS)
+        viewModelScope.launch(Dispatchers.IO) {
+            val cacheResponse = cacheRepository.getCachedData(key.appId)
+            cacheResponse.onSuccess { data ->
+                Log.d(TAG, "Loading data from cache for ${key.appId}...")
+                _appData.update { data.toAppData() }
+                _appViewState.update {
+                    AppViewState(
+                        steamStatus = if (data.commonDetails == null) NOT_QUEUED else LOADED,
+                        isThereAnyDealGameInfoStatus = if (data.isThereAnyDealSlug == null) NOT_QUEUED else LOADED,
+                        steamChartsStatus = NOT_QUEUED,
+                        isThereAnyDealPriceInfoStatus = if (data.isThereAnyDealPriceInfo == null) NOT_QUEUED else LOADED,
+                        dlcsStatus = if (data.dlcs == null) NOT_QUEUED else LOADED,
+                    )
+                }
+                cacheRepository.storeCachedData(data)
+            }.onFailure {
+                Log.d(TAG, "Loading data from internet for ${key.appId}...")
+                fetchDataFromSource(DataType.COMMON_APP_DETAILS)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _appData
+                .drop(2)
+                .distinctUntilChanged()
+                .collect { data ->
+                    cacheRepository.storeCachedData(data.toSerializableAppData())
+                }
+        }
     }
 
     @AssistedFactory
@@ -191,7 +255,7 @@ class AppDetailViewModel @AssistedInject constructor(
 
     suspend fun fetchDlcs() {
         if (appViewState.value.dlcsStatus != NOT_QUEUED) return
-        if (appData.value.commonDetails?.dlcIds.isNullOrEmpty()){
+        if (appData.value.commonDetails?.dlcIds.isNullOrEmpty()) {
             _appViewState.update { it.copy(dlcsStatus = FAILED("No DLCs found!")) }
             return
         }
