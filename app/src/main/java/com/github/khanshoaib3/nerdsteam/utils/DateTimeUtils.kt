@@ -1,11 +1,15 @@
 package com.github.khanshoaib3.nerdsteam.utils
 
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.datetime.toKotlinLocalDateTime
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
 
 class DateTimeUtils {
@@ -29,8 +33,18 @@ class DateTimeUtils {
             return formatter.format(localDateTime)
         }
 
-//        fun getTimeAgoText(timeStamp: String) : String {
-//            return TimeAgo.using(playerStatistics.lastHourTime.toEpochMilli())
-//        }
+        // Steam refreshes the data at 10am PST, so we use that as the start of the new day
+        fun getSteamDay(): LocalDate {
+            val nowUtc = Instant.now().atZone(ZoneOffset.UTC)
+            val steamDayStartUtc = nowUtc.withHour(17).withMinute(0).withSecond(0).withNano(0)
+
+            return if (nowUtc.isBefore(steamDayStartUtc)) {
+                // Still in previous "Steam day"
+                nowUtc.minusDays(1).toLocalDate().toKotlinLocalDate()
+            } else {
+                // Already in today's "Steam day"
+                nowUtc.toLocalDate().toKotlinLocalDate()
+            }
+        }
     }
 }

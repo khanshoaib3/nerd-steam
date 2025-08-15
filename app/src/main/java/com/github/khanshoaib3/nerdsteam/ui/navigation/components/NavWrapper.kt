@@ -55,7 +55,7 @@ fun NavWrapper(
         leftInsetInDp =
             WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current).toDp()
     }
-    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -233,6 +234,7 @@ fun DealCard(
                         horizontal = dimensionResource(R.dimen.padding_large),
                         vertical = dimensionResource(R.dimen.padding_small),
                     )
+                    .height(IntrinsicSize.Max)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start,
@@ -255,22 +257,11 @@ fun DealCard(
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                     )
                 }
-                Row {
-                    Text(
-                        text = "Date: ${deal.timeStamp}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    )
-                    if (deal.expiry != null) {
-                        Text(
-                            text = " (expires ${deal.expiry})",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.End,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        )
-                    }
-                }
+                Text(
+                    text = "Date: ${deal.timeStamp}" + if (deal.expiry.isNullOrBlank()) "" else " (expires ${deal.expiry})",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
             }
 
             // Price and discount percentage
@@ -341,6 +332,8 @@ fun DealCard(
                                 style = MaterialTheme.typography.bodyMediumEmphasized,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSecondary,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.widthIn(min = Dp.Unspecified, max = 75.dp)
                             )
                             Spacer(Modifier.width(dimensionResource(R.dimen.padding_very_small)))
                             Icon(
@@ -433,9 +426,9 @@ private fun PriceInfoTabPreview() {
                     regularPrice = 5.99f,
                     currency = "CAD",
                     discountPercentage = 25,
-                    voucher = "ERODE",
+                    voucher = "EXTREMELYLARGEVOUCHERRRRRRRRRRRRR",
                     timeStamp = "25 Jul 2025",
-                    expiry = null,
+                    expiry = "25 Jul 2025",
                     drms = listOf(),
                 ), ITADPriceDealsInfo(
                     shopName = "Steam",
@@ -444,7 +437,7 @@ private fun PriceInfoTabPreview() {
                     regularPrice = 2579f,
                     currency = "INR",
                     discountPercentage = 0,
-                    voucher = null,
+                    voucher = "ERODE",
                     timeStamp = "25 Jul 2025",
                     expiry = null,
                     drms = listOf(

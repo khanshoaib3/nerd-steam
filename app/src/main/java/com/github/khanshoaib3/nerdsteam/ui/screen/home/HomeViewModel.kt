@@ -26,6 +26,7 @@ data class HomeDataState(
 
 data class HomeViewState(
     val fetchStatus: Progress = Progress.NOT_QUEUED,
+    val refreshStatus: Progress = Progress.NOT_QUEUED,
     val isTrendingGamesExpanded: Boolean = true,
     val isTopGamesExpanded: Boolean = true,
     val isTopRecordsExpanded: Boolean = true,
@@ -65,18 +66,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun refresh() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _homeViewState.update { it.copy(refreshStatus = Progress.LOADING) }
+
+            steamChartsRepository.fetchAndStoreData()
+                .onSuccess { _homeViewState.update { it.copy(refreshStatus = Progress.LOADED) } }
+                .onFailure { throwable ->
+                    _homeViewState.update { it.copy(refreshStatus = Progress.FAILED(throwable.message)) }
+                }
+        }
+    }
+
     fun toggleTrendingGamesExpandState() {
-        _homeViewState.value =
-            _homeViewState.value.copy(isTrendingGamesExpanded = !_homeViewState.value.isTrendingGamesExpanded)
+        _homeViewState.update {
+            it.copy(isTrendingGamesExpanded = !it.isTrendingGamesExpanded)
+        }
     }
 
     fun toggleTopGamesExpandState() {
-        _homeViewState.value =
-            _homeViewState.value.copy(isTopGamesExpanded = !_homeViewState.value.isTopGamesExpanded)
+        _homeViewState.update {
+            it.copy(isTopGamesExpanded = !it.isTopGamesExpanded)
+        }
     }
 
     fun toggleTopRecordsExpandState() {
-        _homeViewState.value =
-            _homeViewState.value.copy(isTopRecordsExpanded = !_homeViewState.value.isTopRecordsExpanded)
+        _homeViewState.update {
+            it.copy(isTopRecordsExpanded = !it.isTopRecordsExpanded)
+        }
     }
 }

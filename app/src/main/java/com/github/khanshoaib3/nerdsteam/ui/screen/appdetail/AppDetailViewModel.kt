@@ -93,6 +93,7 @@ data class AppViewState(
     val steamChartsStatus: Progress = NOT_QUEUED,
     val isThereAnyDealPriceInfoStatus: Progress = NOT_QUEUED,
     val dlcsStatus: Progress = NOT_QUEUED,
+    val refreshStatus: Progress = NOT_QUEUED,
 )
 
 @HiltViewModel(assistedFactory = AppDetailViewModel.Factory::class)
@@ -167,6 +168,26 @@ class AppDetailViewModel @AssistedInject constructor(
             }
         }
 
+    fun refresh() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _appViewState.update {
+                it.copy(
+                    refreshStatus = LOADING,
+                    selectedTabIndex = 0,
+                    steamStatus = NOT_QUEUED,
+                    isThereAnyDealGameInfoStatus = NOT_QUEUED,
+                    steamChartsStatus = NOT_QUEUED,
+                    isThereAnyDealPriceInfoStatus = NOT_QUEUED,
+                    dlcsStatus = NOT_QUEUED,
+                )
+            }
+
+            fetchCommonAppDetails()
+
+            _appViewState.update { it.copy(refreshStatus = LOADED) }
+        }
+    }
+
     suspend fun fetchCommonAppDetails() {
         if (appViewState.value.steamStatus != NOT_QUEUED
             && appViewState.value.isThereAnyDealGameInfoStatus != NOT_QUEUED
@@ -176,6 +197,7 @@ class AppDetailViewModel @AssistedInject constructor(
         _appViewState.update {
             it.copy(steamStatus = LOADING, isThereAnyDealGameInfoStatus = LOADING)
         }
+        fetchDataFromSource(DataType.COMMON_APP_DETAILS)
 
         val steamResponse = steamRepository.fetchDataForAppId(key.appId)
         val isThereAnyDealResponse =

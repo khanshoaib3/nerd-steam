@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,9 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -40,7 +45,10 @@ import com.github.khanshoaib3.nerdsteam.utils.TopLevelBackStack
 
 // https://www.youtube.com/watch?v=W3R_ETKMj0E
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3ExpressiveApi::class
+)
 @Composable
 fun HomeScreenRoot(
     topLevelBackStack: TopLevelBackStack<Route>,
@@ -71,29 +79,47 @@ fun HomeScreenRoot(
         view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
     }
 
-    if (isWideScreen) {
-        HomeScreen(
-            onGameClick = addAppDetailPane,
-            onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
-            onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
-            onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
-            homeDataState = homeDataState,
-            homeViewState = homeViewState,
-            modifier = modifier
-        )
-    } else {
-        HomeScreenWithScaffold(
-            onGameClick = addAppDetailPane,
-            onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
-            onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
-            onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
-            showMenuButton = !isShowingNavRail,
-            onMenuButtonClick = onMenuButtonClick,
-            homeDataState = homeDataState,
-            homeViewState = homeViewState,
-            topAppBarScrollBehavior = topAppBarScrollBehavior,
-            navigateBackCallback = { topLevelBackStack.removeLast() }
-        )
+    val refreshState = rememberPullToRefreshState()
+    PullToRefreshBox(
+        isRefreshing = homeViewState.refreshStatus == Progress.LOADING,
+        onRefresh = {
+            homeViewModel.refresh()
+            view.performHapticFeedback(HapticFeedbackConstantsCompat.CONTEXT_CLICK)
+        },
+        state = refreshState,
+        indicator = {
+            LoadingIndicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                isRefreshing = homeViewState.refreshStatus == Progress.LOADING,
+                state = refreshState,
+            )
+        },
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (isWideScreen) {
+            HomeScreen(
+                onGameClick = addAppDetailPane,
+                onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+                onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+                onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+                homeDataState = homeDataState,
+                homeViewState = homeViewState,
+            )
+        } else {
+            HomeScreenWithScaffold(
+                onGameClick = addAppDetailPane,
+                onTrendingGamesCollapseButtonClick = onTrendingGamesCollapseButtonClick,
+                onTopGamesCollapseButtonClick = onTopGamesCollapseButtonClick,
+                onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
+                showMenuButton = !isShowingNavRail,
+                onMenuButtonClick = onMenuButtonClick,
+                homeDataState = homeDataState,
+                homeViewState = homeViewState,
+                topAppBarScrollBehavior = topAppBarScrollBehavior,
+                navigateBackCallback = { topLevelBackStack.removeLast() },
+                modifier = modifier
+            )
+        }
     }
 }
 
@@ -124,7 +150,7 @@ fun HomeScreenWithScaffold(
                 windowInsets = WindowInsets()
             )
         },
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+        modifier = modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) {
         HomeScreen(
             onGameClick = onGameClick,
@@ -133,7 +159,7 @@ fun HomeScreenWithScaffold(
             onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
             homeDataState = homeDataState,
             homeViewState = homeViewState,
-            modifier = modifier.padding(it.removePaddings(Side.End + Side.Start + Side.Bottom))
+            modifier = Modifier.padding(it.removePaddings(Side.End + Side.Start + Side.Bottom))
         )
     }
 }
@@ -149,18 +175,22 @@ fun HomeScreen(
     homeDataState: HomeDataState,
     homeViewState: HomeViewState,
 ) {
-    if (homeViewState.fetchStatus is Progress.FAILED) {
-        ErrorColumn(
-            reason = homeViewState.fetchStatus.reason,
-            title = "Unable to fetch data!",
-            titleStyle = MaterialTheme.typography.headlineMediumEmphasized,
-            reasonStyle = MaterialTheme.typography.bodyMedium,
-        )
-    } else {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
-            modifier = modifier.verticalScroll(rememberScrollState())
-        ) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = if (homeViewState.fetchStatus is Progress.FAILED) Arrangement.Center
+        else Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (homeViewState.fetchStatus is Progress.FAILED) {
+            ErrorColumn(
+                reason = homeViewState.fetchStatus.reason,
+                title = "Unable to fetch data!",
+                titleStyle = MaterialTheme.typography.headlineMediumEmphasized,
+                reasonStyle = MaterialTheme.typography.bodyMedium,
+            )
+        } else {
             SteamChartsTable(
                 gamesList = homeDataState.trendingGames,
                 tableType = SteamChartsTableType.TrendingGames,

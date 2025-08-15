@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -25,6 +26,7 @@ fun ErrorColumn(
 ) {
     Column(
         modifier = modifier,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(Icons.Default.ErrorOutline, "Error")
