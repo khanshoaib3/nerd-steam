@@ -66,10 +66,10 @@ fun BookmarkScreenRoot(
                 onMenuButtonClick = {},
                 navigateBackCallback = navigateBackCallback,
                 forRoute = Route.Bookmark,
-                windowInsets = WindowInsets()
+                windowInsets = WindowInsets(),
             )
         },
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { innerPadding ->
         BookmarkScreen(
             bookmarks = sortedBookmarks,

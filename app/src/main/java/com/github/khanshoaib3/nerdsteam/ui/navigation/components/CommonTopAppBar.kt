@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
@@ -38,6 +39,7 @@ fun CommonTopAppBar(
     forRoute: Route,
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
+    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
 ) {
     val title: String = when (forRoute) {
         is TopLevelRoute -> stringResource(R.string.app_name)
@@ -61,7 +63,8 @@ fun CommonTopAppBar(
             }
         },
         windowInsets = windowInsets,
-        modifier = modifier
+        modifier = modifier,
+        colors = colors,
     )
 }
 

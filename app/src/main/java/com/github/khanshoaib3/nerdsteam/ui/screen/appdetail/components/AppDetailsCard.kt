@@ -41,8 +41,7 @@ fun AppDetailsCard(
 ) {
     if (isWideScreen) {
         Row(
-            modifier = modifier
-                .padding(dimensionResource(R.dimen.padding_small)),
+            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             OutlinedCard(
@@ -79,7 +78,7 @@ fun AppDetailsCard(
     } else {
         Box(
             modifier = modifier
-                .padding(dimensionResource(R.dimen.padding_small))
+                .padding(horizontal = dimensionResource(R.dimen.padding_small))
                 .verticalScroll(rememberScrollState())
         ) {
             OutlinedCard {
