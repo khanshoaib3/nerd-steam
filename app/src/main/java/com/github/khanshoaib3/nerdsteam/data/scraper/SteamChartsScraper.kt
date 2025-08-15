@@ -147,10 +147,7 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
             }
         }
 
-        Log.d(TAG, extracted.trendingGames.toString())
-        Log.d(TAG, extracted.topGames.toString())
-        Log.d(TAG, extracted.topRecords.toString())
-
+        Log.d(TAG, "Data found!")
         return@withContext extracted
     }
 }

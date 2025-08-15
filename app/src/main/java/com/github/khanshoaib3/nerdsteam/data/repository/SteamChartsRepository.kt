@@ -23,7 +23,7 @@ import javax.inject.Inject
 private const val TAG = "SteamChartsRepository"
 
 interface SteamChartsRepository {
-    suspend fun fetchAndStoreData(): Result<Unit>
+    suspend fun fetchAndStoreData(forceFetch: Boolean = false): Result<Unit>
 
     fun getAllTrendingGames(): Flow<List<TrendingGame>>
 
@@ -43,38 +43,41 @@ class ScraperSteamChartsRepository @Inject constructor(
     private val topRecordDao: TopRecordDao,
     private val localDataStoreRepository: LocalDataStoreRepository,
 ) : SteamChartsRepository {
-    override suspend fun fetchAndStoreData(): Result<Unit> = runSafeSuspendCatching {
-        val steamChartsFetchTime = localDataStoreRepository.steamChartsFetchTimeSnapshot()
-        if (steamChartsFetchTime.isNotEmpty()) {
-            val oldDateTime = LocalDateTime.parse(steamChartsFetchTime, formatter)
-            val currentDateTime = LocalDateTime.now()
+    override suspend fun fetchAndStoreData(forceFetch: Boolean): Result<Unit> =
+        runSafeSuspendCatching {
+            val steamChartsFetchTime = localDataStoreRepository.steamChartsFetchTimeSnapshot()
+            if (!forceFetch && steamChartsFetchTime.isNotEmpty()) {
+                val oldDateTime = LocalDateTime.parse(steamChartsFetchTime, formatter)
+                val currentDateTime = LocalDateTime.now()
 
-            if (oldDateTime.plusHours(1).isAfter(currentDateTime)) {
-                Log.d(TAG, "Records already present, with timestamp $steamChartsFetchTime")
-                return@runSafeSuspendCatching
+                if (oldDateTime.plusHours(1).isAfter(currentDateTime)) {
+                    Log.d(TAG, "Records already present, with timestamp $steamChartsFetchTime")
+                    return@runSafeSuspendCatching
+                }
             }
 
-            // Deleting the contents does not reset the primary key index,
-            // and since we can't use DROP, we have to manually delete the primary index as well.
-            // https://medium.com/@sdevpremthakur/how-to-reset-room-db-completely-including-primary-keys-android-6382f00df87b
-            trendingGameDao.deleteAll()
-            trendingGameDao.deletePrimaryKeyIndex()
-            topGameDao.deleteAll()
-            topGameDao.deletePrimaryKeyIndex()
-            topRecordDao.deleteAll()
-            topRecordDao.deletePrimaryKeyIndex()
-            Log.d(TAG, "Deleted old records, adding new ones...")
+            if (forceFetch || steamChartsFetchTime.isNotEmpty()) {
+                // Deleting the contents does not reset the primary key index,
+                // and since we can't use DROP, we have to manually delete the primary index as well.
+                // https://medium.com/@sdevpremthakur/how-to-reset-room-db-completely-including-primary-keys-android-6382f00df87b
+                trendingGameDao.deleteAll()
+                trendingGameDao.deletePrimaryKeyIndex()
+                topGameDao.deleteAll()
+                topGameDao.deletePrimaryKeyIndex()
+                topRecordDao.deleteAll()
+                topRecordDao.deletePrimaryKeyIndex()
+                Log.d(TAG, "Deleted old records, adding new ones...")
+            }
+
+            val rawData = SteamChartsScraper().scrape()
+            trendingGameDao.insertMany(rawData.parseAndGetTrendingGamesList())
+            topGameDao.insertMany(rawData.parseAndGetTopGamesList())
+            topRecordDao.insertMany(rawData.parseAndGetTopRecordsList())
+
+            val timeStamp = LocalDateTime.now().format(formatter)
+            localDataStoreRepository.saveData(timeStamp)
+            Log.d(TAG, "Added records to the tables. with timestamp $timeStamp")
         }
-
-        val rawData = SteamChartsScraper().scrape()
-        trendingGameDao.insertMany(rawData.parseAndGetTrendingGamesList())
-        topGameDao.insertMany(rawData.parseAndGetTopGamesList())
-        topRecordDao.insertMany(rawData.parseAndGetTopRecordsList())
-
-        val timeStamp = LocalDateTime.now().format(formatter)
-        localDataStoreRepository.saveData(timeStamp)
-        Log.d(TAG, "Added records to the tables. with timestamp $timeStamp")
-    }
 
     override fun getAllTrendingGames(): Flow<List<TrendingGame>> {
         return trendingGameDao.getAll()

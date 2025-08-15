@@ -68,12 +68,29 @@ class HomeViewModel @Inject constructor(
 
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
-            _homeViewState.update { it.copy(refreshStatus = Progress.LOADING) }
+            _homeViewState.update {
+                it.copy(
+                    refreshStatus = Progress.LOADING,
+                    fetchStatus = Progress.LOADING
+                )
+            }
 
-            steamChartsRepository.fetchAndStoreData()
-                .onSuccess { _homeViewState.update { it.copy(refreshStatus = Progress.LOADED) } }
+            steamChartsRepository.fetchAndStoreData(forceFetch = true)
+                .onSuccess {
+                    _homeViewState.update {
+                        it.copy(
+                            refreshStatus = Progress.LOADED,
+                            fetchStatus = Progress.LOADED
+                        )
+                    }
+                }
                 .onFailure { throwable ->
-                    _homeViewState.update { it.copy(refreshStatus = Progress.FAILED(throwable.message)) }
+                    _homeViewState.update {
+                        it.copy(
+                            refreshStatus = Progress.FAILED(throwable.message),
+                            fetchStatus = Progress.FAILED(throwable.message),
+                        )
+                    }
                 }
         }
     }
