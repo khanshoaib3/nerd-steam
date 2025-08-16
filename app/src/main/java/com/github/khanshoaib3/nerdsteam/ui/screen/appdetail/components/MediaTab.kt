@@ -64,7 +64,7 @@ fun MediaTab(
             ) {
                 AsyncImage(
                     model = commonAppDetails.media?.screenshots?.get(it) ?: "",
-                    contentDescription = null, // TODO Add description
+                    contentDescription = "Screenshot $it",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()

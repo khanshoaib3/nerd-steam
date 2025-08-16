@@ -5,9 +5,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Locale
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Entity(tableName = "bookmark")
-data class Bookmark(
+data class Bookmark @OptIn(ExperimentalTime::class) constructor(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
@@ -18,7 +20,7 @@ data class Bookmark(
     val name: String,
 
     @ColumnInfo(name = "time_stamp")
-    val timeStamp: Long = System.currentTimeMillis() // TODO Change this to LocalDateTime
+    val timeStamp: Long = Clock.System.now().toEpochMilliseconds()
 )
 
 fun Long.formattedTimestamp(): String {

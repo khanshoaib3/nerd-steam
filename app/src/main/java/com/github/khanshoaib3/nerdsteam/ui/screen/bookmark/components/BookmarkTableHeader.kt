@@ -61,6 +61,5 @@ fun BookmarkTableHeader(
             )
         }
     }
-
 }
 

@@ -64,7 +64,6 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
                                                     row.td { findByIndex(0) { text } }, // Name
                                                     row.td { findByIndex(1) { text } }, // Gain/24 hours Change
                                                     row.td { findByIndex(3) { text } }, // Current Players
-                                                    // TODO Try to add the graph
                                                 )
                                             )
                                         }
@@ -130,7 +129,6 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
                                                     row.td { findByIndex(0) { text } }, // Name
                                                     row.td { findByIndex(1) { text } }, // Peak Players
                                                     row.td { findByIndex(2) { text } }, // Time
-                                                    // TODO Try to add the graph
                                                 )
                                             )
                                         }
