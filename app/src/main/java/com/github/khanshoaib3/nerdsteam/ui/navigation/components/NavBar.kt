@@ -7,9 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.Icon
@@ -35,11 +36,15 @@ fun NavBar(
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
+    // Ref: https://stackoverflow.com/questions/74848618/how-to-detect-whether-gesture-navigation-or-button-navigation-is-active
+    val isInGestureNavMode =
+        WindowInsets.systemGestures.getLeft(density, LocalLayoutDirection.current) > 0
+                || WindowInsets.systemGestures.getRight(density, LocalLayoutDirection.current) > 0
     val customWindowInsets = WindowInsets(
         top = 0,
-        left = WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current),
-        right = WindowInsets.systemBars.getRight(density, LocalLayoutDirection.current),
-        bottom = WindowInsets.systemBars.getBottom(density) / 3
+        left = WindowInsets.navigationBars.getLeft(density, LocalLayoutDirection.current),
+        right = WindowInsets.navigationBars.getRight(density, LocalLayoutDirection.current),
+        bottom = WindowInsets.navigationBars.getBottom(density) / (if (isInGestureNavMode) 3 else 1)
     )
 
     NavigationBar(

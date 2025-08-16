@@ -32,11 +32,13 @@ fun ExternalLinksTab(
             "store.steampowered.com/app/${appData.steamAppId}/",
             "https://store.steampowered.com/app/${appData.steamAppId}/"
         ))
-        add(Triple(
-            "IsThereAnyDeal",
-            "isthereanydeal.com/game/${appData.isThereAnyDealSlug}/",
-            "https://isthereanydeal.com/game/${appData.isThereAnyDealSlug}/",
-        ))
+        if (!appData.isThereAnyDealSlug.isNullOrBlank()) {
+            add(Triple(
+                "IsThereAnyDeal",
+                "isthereanydeal.com/game/${appData.isThereAnyDealSlug}/",
+                "https://isthereanydeal.com/game/${appData.isThereAnyDealSlug}/",
+            ))
+        }
         add(Triple(
             "SteamCharts",
             "steamcharts.com/app/${appData.steamAppId}/",
