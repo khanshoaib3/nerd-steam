@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -56,7 +57,6 @@ fun HomeScreenRoot(
     addAppDetailPane: (Int) -> Unit,
     isWideScreen: Boolean,
     isShowingNavRail: Boolean,
-    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
 ) {
@@ -115,7 +115,7 @@ fun HomeScreenRoot(
                 onMenuButtonClick = onMenuButtonClick,
                 homeDataState = homeDataState,
                 homeViewState = homeViewState,
-                topAppBarScrollBehavior = topAppBarScrollBehavior,
+                topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
                 navigateBackCallback = { topLevelBackStack.removeLast() },
                 modifier = modifier
             )

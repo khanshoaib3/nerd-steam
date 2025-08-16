@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.WideNavigationRailState
 import androidx.compose.material3.WideNavigationRailValue.Expanded
 import androidx.compose.material3.rememberWideNavigationRailState
@@ -25,7 +24,6 @@ import kotlinx.coroutines.launch
 
 class NavSuiteScope @OptIn(ExperimentalMaterial3Api::class) constructor(
     val railState: WideNavigationRailState,
-    val topAppBarScrollBehavior: TopAppBarScrollBehavior,
     val modifier: Modifier = Modifier,
 )
 
@@ -55,11 +53,12 @@ fun NavWrapper(
         leftInsetInDp =
             WindowInsets.systemBars.getLeft(density, LocalLayoutDirection.current).toDp()
     }
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val modifier: Modifier =
+        if (isWideScreen) Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+        else Modifier
     Scaffold(
-        modifier = Modifier
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-            .padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp),
+        modifier = modifier.padding(start = if (showNavRail) leftInsetInDp + 96.dp else 0.dp),
         topBar = {
             if (isWideScreen) {
                 CommonTopAppBar(
@@ -82,7 +81,6 @@ fun NavWrapper(
     ) { innerPaddings ->
         NavSuiteScope(
             railState = railState,
-            topAppBarScrollBehavior = topAppBarScrollBehavior,
             modifier = Modifier.padding(innerPaddings),
         ).content()
     }

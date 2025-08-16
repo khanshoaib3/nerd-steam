@@ -69,7 +69,6 @@ fun SearchScreenRoot(
     isShowingNavRail: Boolean,
     onMenuButtonClick: () -> Unit,
     addAppDetailPane: (Int) -> Unit,
-    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner),
 ) {
@@ -125,7 +124,7 @@ fun SearchScreenRoot(
             showMenuButton = !isShowingNavRail,
             onMenuButtonClick = onMenuButtonClick,
             navigateBackCallback = { topLevelBackStack.removeLast() },
-            topAppBarScrollBehavior = topAppBarScrollBehavior,
+            topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             modifier = modifier

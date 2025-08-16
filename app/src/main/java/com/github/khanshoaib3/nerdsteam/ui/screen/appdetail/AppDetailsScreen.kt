@@ -55,7 +55,6 @@ fun AppDetailsScreenRoot(
     isWideScreen: Boolean,
     isInTwoPaneScene: Boolean,
     onUpButtonClick: () -> Unit,
-    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     viewModel: AppDetailViewModel = hiltViewModel(),
 ) {
@@ -134,7 +133,7 @@ fun AppDetailsScreenRoot(
         onUpButtonClick = onUpButtonClick,
         modifier = modifier,
         isWideScreen = isWideScreen,
-        topAppBarScrollBehavior = topAppBarScrollBehavior,
+        topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
     )
 }
 

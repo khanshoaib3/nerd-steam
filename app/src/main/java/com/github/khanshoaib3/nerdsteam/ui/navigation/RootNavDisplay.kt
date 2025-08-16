@@ -15,7 +15,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -127,7 +126,6 @@ fun RootNavDisplay(
                         isInTwoPaneScene = false,
                         onUpButtonClick = { rootBackStack.removeLastOrNull() },
                         modifier = Modifier.padding(innerPadding),
-                        topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
                     )
                 }
 
@@ -152,7 +150,6 @@ fun RootNavDisplay(
                                     view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                                 }
                             },
-                            topAppBarScrollBehavior = topAppBarScrollBehavior,
                             modifier = modifier
                         )
                     }
