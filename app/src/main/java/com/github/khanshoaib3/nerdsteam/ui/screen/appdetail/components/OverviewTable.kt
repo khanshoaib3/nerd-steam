@@ -52,7 +52,9 @@ fun OverviewTable(
             AsyncImage(
                 model = commonAppDetails.imageUrl,
                 contentDescription = "Hero capsule for ${commonAppDetails.name}",
-                placeholder = painterResource(R.drawable.preview_image_300x450),
+                placeholder = painterResource(R.drawable.placeholder_image_hero),
+                error = painterResource(R.drawable.placeholder_image_hero),
+                fallback = painterResource(R.drawable.placeholder_image_hero),
                 modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
             )
         }

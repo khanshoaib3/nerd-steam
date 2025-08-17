@@ -78,7 +78,7 @@ class PriceAlertsWorker(
             val currencyFormatter = getNumberFormatFromCurrencyCode(currencyCode)
             val notificationManager = NotificationManagerCompat.from(appContext)
             val notification = NotificationCompat.Builder(appContext, PRICE_ALERT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Price Drop: ${entry.name}")
                 .setContentText("Now only ${currencyFormatter.format(currentPrice)}!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

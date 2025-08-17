@@ -1,0 +1,11 @@
+Icon generated with the help of icon.kitchen/
+
+Properties:
+- Padding: 10%
+- Bg gradient:
+	- First: 6795E4
+	- Second: 415F91
+- I generated once with the regular foreground and once with the monochrome and then replaced the monochrome images from mipmap-* of regular with the one generated in monochrome.
+
+
+- Placeholders' background color: 20242A
