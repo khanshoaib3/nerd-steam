@@ -11,11 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -95,12 +95,9 @@ fun AppDetailsScreenRoot(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (viewState.isThereAnyDealGameInfoStatus is Progress.FAILED && viewState.steamStatus is Progress.FAILED) {
-                ErrorColumn(
-                    reason = null,
-                    title = "Unable to fetch data for the app!",
-                )
+                ErrorColumn(reason = (viewState.steamStatus as Progress.FAILED).reason)
             } else {
-                LoadingIndicator(Modifier.scale(2.5f))
+                CircularWavyProgressIndicator(Modifier.scale(2.5f))
             }
         }
         return

@@ -17,7 +17,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -89,7 +89,7 @@ fun HomeScreenRoot(
         },
         state = refreshState,
         indicator = {
-            LoadingIndicator(
+            PullToRefreshDefaults.LoadingIndicator(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = homeViewState.refreshStatus == Progress.LOADING,
                 state = refreshState,
