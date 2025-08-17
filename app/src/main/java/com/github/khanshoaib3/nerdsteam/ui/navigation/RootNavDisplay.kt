@@ -161,7 +161,11 @@ fun RootNavDisplay(
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { it } togetherWith
                             slideOutHorizontally(tween(easing = LinearOutSlowInEasing)) { -it }
                 } else {
-                    scaleIn(spring(stiffness = Spring.StiffnessLow)) + fadeIn() togetherWith fadeOut()
+                    scaleIn(
+                        animationSpec = spring(stiffness = Spring.StiffnessLow),
+                        initialScale = 0.925f,
+                    ) + slideInHorizontally { it / 2 } togetherWith
+                            slideOutHorizontally { -it / 2 } + fadeOut()
                 }
             },
 
@@ -172,7 +176,7 @@ fun RootNavDisplay(
                             slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
                 } else {
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith
-                            scaleOut(animationSpec = tween(easing = LinearOutSlowInEasing)) + fadeOut()
+                            scaleOut(targetScale = 0.925f) + slideOutHorizontally { it }
                 }
             },
             predictivePopTransitionSpec = {
@@ -182,7 +186,10 @@ fun RootNavDisplay(
                             slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
                 } else {
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith
-                            scaleOut(animationSpec = tween(easing = LinearOutSlowInEasing)) + fadeOut()
+                            scaleOut(
+                                animationSpec = tween(easing = LinearOutSlowInEasing),
+                                targetScale = 0.925f,
+                            ) + slideOutHorizontally(tween(delayMillis = 300)) { it }
                 }
             }
         )
