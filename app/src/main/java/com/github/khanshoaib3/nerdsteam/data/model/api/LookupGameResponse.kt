@@ -15,7 +15,7 @@ data class GameInfoShortResponse(
     val id: String,
     val slug: String,
     val title: String,
-    val type: String,
+    val type: String?,
     val mature: Boolean,
     val assets: GameAssets
 )

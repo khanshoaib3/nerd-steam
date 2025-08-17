@@ -15,7 +15,7 @@ data class GameInfoResponse(
     val tradingCards: Boolean,
     val appid: Int?,
     val tags: List<String>,
-    val releaseDate: String,
+    val releaseDate: String?,
     val developers: List<Company>,
     val publishers: List<Company>,
     val reviews: List<Review>,
