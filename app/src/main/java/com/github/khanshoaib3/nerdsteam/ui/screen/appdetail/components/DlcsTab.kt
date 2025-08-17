@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -112,7 +111,7 @@ private fun DlcRow(
                 model = dlc.imageUrl,
                 contentDescription = dlc.name,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                modifier = Modifier.fillMaxWidth()
             )
             Row(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
