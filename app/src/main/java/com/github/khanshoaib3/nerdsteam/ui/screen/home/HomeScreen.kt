@@ -28,6 +28,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
@@ -186,9 +187,9 @@ fun HomeScreen(
         if (homeViewState.fetchStatus is Progress.FAILED) {
             ErrorColumn(
                 reason = homeViewState.fetchStatus.reason,
-                title = "Unable to fetch data!",
                 titleStyle = MaterialTheme.typography.headlineMediumEmphasized,
                 reasonStyle = MaterialTheme.typography.bodyMedium,
+                iconSize = 40.dp
             )
         } else {
             SteamChartsTable(

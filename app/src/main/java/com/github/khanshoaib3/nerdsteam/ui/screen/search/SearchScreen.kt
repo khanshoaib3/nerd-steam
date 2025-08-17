@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.github.khanshoaib3.nerdsteam.R
+import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.nerdsteam.ui.screen.search.components.SearchResultRow
 import com.github.khanshoaib3.nerdsteam.ui.theme.NerdSteamTheme
@@ -258,7 +259,7 @@ fun SearchScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(searchStatus.reason ?: "Unable to search")
+                        ErrorColumn(reason = searchStatus.reason)
                     }
                 }
 
@@ -286,7 +287,9 @@ fun SearchScreen(
                         )
                     ) {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize().padding(dimensionResource(R.dimen.padding_small)),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(dimensionResource(R.dimen.padding_small)),
                             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
