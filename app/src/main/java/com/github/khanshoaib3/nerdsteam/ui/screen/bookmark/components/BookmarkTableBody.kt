@@ -50,9 +50,9 @@ fun BookmarkTableBody(
                     AsyncImage(
                         model = "https://cdn.cloudflare.steamstatic.com/steam/apps/${bookmark.appId}/library_600x900.jpg",
                         contentDescription = bookmark.name,
-                        placeholder = painterResource(R.drawable.placeholder_image_hero),
-                        error = painterResource(R.drawable.placeholder_image_hero),
-                        fallback = painterResource(R.drawable.placeholder_image_hero),
+                        placeholder = painterResource(R.drawable.placeholder_300x450),
+                        error = painterResource(R.drawable.placeholder_300x450),
+                        fallback = painterResource(R.drawable.placeholder_300x450),
                         modifier = Modifier
                             .size(width = imageWidth, height = imageHeight)
                             .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))

@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -109,6 +110,9 @@ private fun DlcRow(
         Column {
             AsyncImage(
                 model = dlc.imageUrl,
+                placeholder = painterResource(R.drawable.placeholder_1920x1080),
+                error = painterResource(R.drawable.placeholder_1920x1080),
+                fallback = painterResource(R.drawable.placeholder_1920x1080),
                 contentDescription = dlc.name,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxWidth()

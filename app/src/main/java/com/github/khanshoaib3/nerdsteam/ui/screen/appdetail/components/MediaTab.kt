@@ -65,9 +65,9 @@ fun MediaTab(
             ) {
                 AsyncImage(
                     model = commonAppDetails.media?.screenshots?.get(it) ?: "",
-                    placeholder = painterResource(R.drawable.placeholder_screenshot),
-                    error = painterResource(R.drawable.placeholder_screenshot),
-                    fallback = painterResource(R.drawable.placeholder_screenshot),
+                    placeholder = painterResource(R.drawable.placeholder_1920x1080),
+                    error = painterResource(R.drawable.placeholder_1920x1080),
+                    fallback = painterResource(R.drawable.placeholder_1920x1080),
                     contentDescription = "Screenshot $it",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
