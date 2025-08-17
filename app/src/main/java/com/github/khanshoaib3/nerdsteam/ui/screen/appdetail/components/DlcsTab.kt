@@ -23,15 +23,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import coil3.compose.AsyncImage
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Dlc
 import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
+import com.github.khanshoaib3.nerdsteam.ui.components.MonochromeAsyncImage
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppViewState
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.DataType
@@ -108,11 +107,8 @@ private fun DlcRow(
             .fillMaxWidth(0.48f)
     ) {
         Column {
-            AsyncImage(
+            MonochromeAsyncImage(
                 model = dlc.imageUrl,
-                placeholder = painterResource(R.drawable.placeholder_1920x1080),
-                error = painterResource(R.drawable.placeholder_1920x1080),
-                fallback = painterResource(R.drawable.placeholder_1920x1080),
                 contentDescription = dlc.name,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxWidth()

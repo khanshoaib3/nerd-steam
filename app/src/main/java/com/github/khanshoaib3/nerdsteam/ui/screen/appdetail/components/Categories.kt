@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -87,12 +88,13 @@ fun CategoryChip(modifier: Modifier = Modifier, category: Category) {
         AsyncImage(
             model = category.url,
             contentDescription = category.name,
-            placeholder = painterResource(R.drawable.loading),
-            error = painterResource(R.drawable.loading),
-            fallback = painterResource(R.drawable.loading),
             modifier = Modifier
                 .size(28.dp)
                 .padding(start = dimensionResource(R.dimen.padding_very_small)),
+            placeholder = painterResource(R.drawable.loading),
+            error = painterResource(R.drawable.loading),
+            fallback = painterResource(R.drawable.loading),
+            colorFilter = ColorFilter.tint(if(isOpen) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer),
         )
         AnimatedVisibility(isOpen) {
             Text(

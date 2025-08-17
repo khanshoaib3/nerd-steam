@@ -11,13 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.fromHtml
-import coil3.compose.AsyncImage
-import com.github.khanshoaib3.nerdsteam.R
+import com.github.khanshoaib3.nerdsteam.ui.components.MonochromeAsyncImage
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 
 @Composable
@@ -72,11 +70,8 @@ private fun RenderAnnotatedContent(
 
             // Render image
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                AsyncImage(
+                MonochromeAsyncImage(
                     model = url,
-                    placeholder = painterResource(R.drawable.placeholder_1920x1080),
-                    error = painterResource(R.drawable.placeholder_1920x1080),
-                    fallback = painterResource(R.drawable.placeholder_1920x1080),
                     contentDescription = url, // TODO Choose better a11y text
                     contentScale = ContentScale.FillWidth,
                     modifier = Modifier.fillMaxWidth()

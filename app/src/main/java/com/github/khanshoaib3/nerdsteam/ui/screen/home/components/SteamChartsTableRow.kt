@@ -7,33 +7,32 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import coil3.compose.AsyncImage
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.SteamChartsItem
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TrendingGame
 import com.github.khanshoaib3.nerdsteam.ui.components.CenterAlignedSelectableText
+import com.github.khanshoaib3.nerdsteam.ui.components.MonochromeAsyncImage
 import com.github.khanshoaib3.nerdsteam.ui.theme.NerdSteamTheme
 import com.github.khanshoaib3.nerdsteam.ui.theme.steamChartsChangeNegative
 import com.github.khanshoaib3.nerdsteam.ui.theme.steamChartsChangePositive
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T : SteamChartsItem> SteamChartsTableRow(
     modifier: Modifier = Modifier,
@@ -65,15 +64,10 @@ fun <T : SteamChartsItem> SteamChartsTableRow(
             Row(
                 modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically
             ) {
-                AsyncImage(
+                MonochromeAsyncImage(
                     model = "https://cdn.cloudflare.steamstatic.com/steam/apps/${item.appId}/library_600x900.jpg",
-                    contentDescription = item.name,
-                    placeholder = painterResource(R.drawable.placeholder_300x450),
-                    error = painterResource(R.drawable.placeholder_300x450),
-                    fallback = painterResource(R.drawable.placeholder_300x450),
-                    modifier = Modifier
-                        .size(width = imageWidth, height = imageHeight)
-                        .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+                    contentDescription = "Hero icon for ${item.name}",
+                    modifier = Modifier.size(width = imageWidth, height = imageHeight)
                 )
                 Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
                 CenterAlignedSelectableText(

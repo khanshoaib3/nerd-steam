@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -27,9 +26,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.CommonAppDetails
+import com.github.khanshoaib3.nerdsteam.ui.components.MonochromeAsyncImage
 
 private const val ITEM_NAME_WEIGHT = 0.35f
 private const val ITEM_VALUE_WEIGHT = 0.65f
@@ -49,13 +48,10 @@ fun OverviewTable(
             modifier = Modifier.weight(0.25f),
             verticalArrangement = Arrangement.Center,
         ) {
-            AsyncImage(
+            MonochromeAsyncImage(
                 model = commonAppDetails.imageUrl,
-                contentDescription = "Hero capsule for ${commonAppDetails.name}",
-                placeholder = painterResource(R.drawable.placeholder_300x450),
-                error = painterResource(R.drawable.placeholder_300x450),
-                fallback = painterResource(R.drawable.placeholder_300x450),
-                modifier = Modifier.clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+                contentDescription = "Hero icon for ${commonAppDetails.name}",
+                modifier = Modifier.aspectRatio(2f / 3f) // 300 x 450
             )
         }
         Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
