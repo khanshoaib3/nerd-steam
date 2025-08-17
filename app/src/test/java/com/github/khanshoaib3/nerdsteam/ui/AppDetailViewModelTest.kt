@@ -7,7 +7,7 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.CommonAppDetails
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Media
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.Requirement
 import com.github.khanshoaib3.nerdsteam.data.repository.LocalBookmarkRepository
-import com.github.khanshoaib3.nerdsteam.data.repository.LocalCacheRepository
+import com.github.khanshoaib3.nerdsteam.data.local.LocalCacheRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.LocalPriceAlertRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.OnlineIsThereAnyDealRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.OnlineSteamRepository

@@ -1,4 +1,4 @@
-package com.github.khanshoaib3.nerdsteam.data.repository
+package com.github.khanshoaib3.nerdsteam.data.local
 
 import android.content.Context
 import android.util.Log
@@ -19,7 +19,7 @@ private const val TAG = "CacheRepository"
 interface CacheRepository {
     suspend fun getCachedData(appId: Int): Result<SerializableAppData>
 
-    suspend fun storeCachedData(serializableAppData: SerializableAppData): Result<Unit>
+    suspend fun storeCachedData(appId: Int, serializableAppData: SerializableAppData): Result<Unit>
 }
 
 class LocalCacheRepository @Inject constructor(
@@ -36,9 +36,9 @@ class LocalCacheRepository @Inject constructor(
         }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun storeCachedData(serializableAppData: SerializableAppData): Result<Unit> =
+    override suspend fun storeCachedData(appId: Int, serializableAppData: SerializableAppData): Result<Unit> =
         runSafeSuspendCatching {
-            val file = getFile(serializableAppData.steamAppId)
+            val file = getFile(appId)
             Log.d(TAG, "Caching data (${file.name})...")
             Json.encodeToStream(
                 serializer = SerializableAppData.serializer(),

@@ -146,8 +146,8 @@ fun RootNavDisplay(
                             isShowingNavRail = showNavRail,
                             onMenuButtonClick = {
                                 scope.launch {
-                                    railState.expand()
                                     view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                                    railState.expand()
                                 }
                             },
                             modifier = modifier

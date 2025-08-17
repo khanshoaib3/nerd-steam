@@ -16,8 +16,8 @@ import com.github.khanshoaib3.nerdsteam.data.local.steamcharts.TrendingGameDao
 import com.github.khanshoaib3.nerdsteam.data.remote.IsThereAnyDealApiService
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamCommunityApiService
 import com.github.khanshoaib3.nerdsteam.data.remote.SteamInternalWebApiService
-import com.github.khanshoaib3.nerdsteam.data.repository.CacheRepository
-import com.github.khanshoaib3.nerdsteam.data.repository.LocalCacheRepository
+import com.github.khanshoaib3.nerdsteam.data.local.CacheRepository
+import com.github.khanshoaib3.nerdsteam.data.local.LocalCacheRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides

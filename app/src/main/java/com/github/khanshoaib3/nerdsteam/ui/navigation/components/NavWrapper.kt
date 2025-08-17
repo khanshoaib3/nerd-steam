@@ -98,10 +98,8 @@ fun NavWrapper(
         },
         onRailButtonClicked = {
             coroutineScope.launch {
+                view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                 railState.toggle()
-                if (railState.targetValue == Expanded) {
-                    view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                }
             }
         },
         showNavRail = showNavRail,

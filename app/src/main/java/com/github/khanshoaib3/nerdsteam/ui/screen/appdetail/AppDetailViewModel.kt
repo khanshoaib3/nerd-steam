@@ -13,7 +13,7 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toITADPriceInfo
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.toPlayerStatistics
 import com.github.khanshoaib3.nerdsteam.data.model.bookmark.Bookmark
 import com.github.khanshoaib3.nerdsteam.data.repository.BookmarkRepository
-import com.github.khanshoaib3.nerdsteam.data.repository.CacheRepository
+import com.github.khanshoaib3.nerdsteam.data.local.CacheRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.IsThereAnyDealRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.PriceAlertRepository
 import com.github.khanshoaib3.nerdsteam.data.repository.SteamChartsRepository
@@ -114,12 +114,12 @@ class AppDetailViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val cacheResponse = cacheRepository.getCachedData(key.appId)
+            val cacheResponse = cacheRepository.getCachedData(appData.value.steamAppId)
             cacheResponse.onSuccess { data ->
-                Log.d(TAG, "[${key.appId}] Loading data from cache...")
+                Log.d(TAG, "[${appData.value.steamAppId}] Loading data from cache...")
                 _appData.update {
                     data.toAppData().copy(
-                        isBookmarked = bookmarkRepository.isBookmarked(key.appId),
+                        isBookmarked = bookmarkRepository.isBookmarked(appData.value.steamAppId),
                         priceAlertInfo = getPriceAlertInfo(),
                     )
                 }
@@ -133,11 +133,11 @@ class AppDetailViewModel @AssistedInject constructor(
                     )
                 }
             }.onFailure {
-                Log.d(TAG, "[${key.appId}] Loading data from internet...")
+                Log.d(TAG, "[${appData.value.steamAppId}] Loading data from internet...")
                 fetchDataFromSource(DataType.COMMON_APP_DETAILS)
                 _appData.update {
                     it.copy(
-                        isBookmarked = bookmarkRepository.isBookmarked(key.appId),
+                        isBookmarked = bookmarkRepository.isBookmarked(appData.value.steamAppId),
                         priceAlertInfo = getPriceAlertInfo(),
                     )
                 }
@@ -148,7 +148,17 @@ class AppDetailViewModel @AssistedInject constructor(
                 .distinctUntilChanged()
                 .distinctUntilChangedBy { it.commonDetails to it.isThereAnyDealId to it.isThereAnyDealSlug to it.isThereAnyDealPriceInfo to it.dlcs }
                 .collect { data ->
-                    cacheRepository.storeCachedData(data.toSerializableAppData())
+                    cacheRepository.storeCachedData(
+                        appId = data.steamAppId,
+                        data.toSerializableAppData()
+                    )
+                    if (data.steamAppId != key.appId) {
+                        // We got redirected to a new appId upon fetching data
+                        cacheRepository.storeCachedData(
+                            appId = key.appId,
+                            data.toSerializableAppData()
+                        )
+                    }
                 }
         }
     }
@@ -193,15 +203,15 @@ class AppDetailViewModel @AssistedInject constructor(
             && appViewState.value.isThereAnyDealGameInfoStatus != NOT_QUEUED
         ) return
 
-        Log.d(TAG, "[${key.appId}] Fetching common info from steam and ISTAD...")
+        Log.d(TAG, "[${appData.value.steamAppId}] Fetching common info from steam and ISTAD...")
         _appViewState.update {
             it.copy(steamStatus = LOADING, isThereAnyDealGameInfoStatus = LOADING)
         }
         fetchDataFromSource(DataType.COMMON_APP_DETAILS)
 
-        val steamResponse = steamRepository.fetchDataForAppId(key.appId)
+        val steamResponse = steamRepository.fetchDataForAppId(appData.value.steamAppId)
         val isThereAnyDealResponse =
-            isThereAnyDealRepository.getGameInfoFromAppId(key.appId)
+            isThereAnyDealRepository.getGameInfoFromAppId(appData.value.steamAppId)
 
         if (steamResponse.isFailure && isThereAnyDealResponse.isFailure) {
             _appViewState.update {
@@ -231,6 +241,7 @@ class AppDetailViewModel @AssistedInject constructor(
                 ),
                 isThereAnyDealId = isThereAnyDealResponse.getOrNull()?.id,
                 isThereAnyDealSlug = isThereAnyDealResponse.getOrNull()?.slug,
+                steamAppId = steamResponse.getOrNull()?.steamAppId ?: key.appId,
             )
         }
 
@@ -246,23 +257,35 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchSteamChartsPlayerStats() {
         if (appViewState.value.steamChartsStatus != NOT_QUEUED) return
 
-        Log.d(TAG, "[${key.appId}] Fetching steam charts per app info...")
+        Log.d(TAG, "[${appData.value.steamAppId}] Fetching steam charts per app info...")
         _appViewState.update { it.copy(steamChartsStatus = LOADING) }
 
-        steamChartsRepository.fetchDataForApp(key.appId)
+        steamChartsRepository.fetchDataForApp(appData.value.steamAppId)
             .onSuccess { result ->
                 _appData.update { it.copy(playerStatistics = result.toPlayerStatistics()) }
                 _appViewState.update { it.copy(steamChartsStatus = LOADED) }
             }
             .onFailure { throwable ->
-                _appViewState.update { it.copy(steamChartsStatus = FAILED(throwable.message)) }
+                if (key.appId != appData.value.steamAppId) {
+                    // Retry with the old app, if it was redirected to new one.
+                    steamChartsRepository.fetchDataForApp(key.appId)
+                        .onSuccess { result ->
+                            _appData.update { it.copy(playerStatistics = result.toPlayerStatistics()) }
+                            _appViewState.update { it.copy(steamChartsStatus = LOADED) }
+                        }
+                        .onFailure { throwable ->
+                            _appViewState.update { it.copy(steamChartsStatus = FAILED(throwable.message)) }
+                        }
+                } else {
+                    _appViewState.update { it.copy(steamChartsStatus = FAILED(throwable.message)) }
+                }
             }
     }
 
     suspend fun fetchISTDPriceInfo() {
         if (appViewState.value.isThereAnyDealPriceInfoStatus != NOT_QUEUED) return
 
-        Log.d(TAG, "[${key.appId}] Fetching ISTAD Price info...")
+        Log.d(TAG, "[${appData.value.steamAppId}] Fetching ISTAD Price info...")
         _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = LOADING) }
 
         if (appData.value.isThereAnyDealId == null) {
@@ -296,7 +319,7 @@ class AppDetailViewModel @AssistedInject constructor(
 
         Log.d(
             TAG,
-            "[${key.appId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})..."
+            "[${appData.value.steamAppId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})..."
         )
         _appViewState.update { it.copy(dlcsStatus = LOADING) }
         steamRepository.fetchDataForDlcs(appData.value.commonDetails!!.dlcIds!!)
@@ -313,32 +336,32 @@ class AppDetailViewModel @AssistedInject constructor(
         if (appData.value.commonDetails == null) return@apply
 
         if (!isBookmarked) {
-            Log.d(TAG, "[${key.appId}] Removing bookmark...")
+            Log.d(TAG, "[${appData.value.steamAppId}] Removing bookmark...")
             bookmarkRepository.addBookmark(
                 Bookmark(
-                    appId = key.appId,
+                    appId = appData.value.steamAppId,
                     name = appData.value.commonDetails!!.name,
                 )
             )
             _appData.update { it.copy(isBookmarked = true) }
         } else {
-            Log.d(TAG, "[${key.appId}] Adding bookmark...")
-            bookmarkRepository.removeBookmark(key.appId)
+            Log.d(TAG, "[${appData.value.steamAppId}] Adding bookmark...")
+            bookmarkRepository.removeBookmark(appData.value.steamAppId)
             _appData.update { it.copy(isBookmarked = false) }
         }
     }
 
     suspend fun getPriceAlertInfo(): PriceAlert? {
-        return priceAlertRepository.getPriceAlert(appId = key.appId)
+        return priceAlertRepository.getPriceAlert(appId = appData.value.steamAppId)
     }
 
     @OptIn(ExperimentalTime::class)
     suspend fun updatePriceAlert(targetPrice: Float, notifyEveryDay: Boolean) =
         appData.value.commonDetails?.let { commonAppDetails ->
-            Log.d(TAG, "[${key.appId}] Adding price alert...")
+            Log.d(TAG, "[${appData.value.steamAppId}] Adding price alert...")
             priceAlertRepository.addPriceAlert(
                 PriceAlert(
-                    appId = key.appId,
+                    appId = appData.value.steamAppId,
                     name = commonAppDetails.name,
                     targetPrice = targetPrice,
                     notifyEveryDay = notifyEveryDay,
@@ -352,8 +375,8 @@ class AppDetailViewModel @AssistedInject constructor(
         }
 
     suspend fun removePriceAlert() {
-        Log.d(TAG, "[${key.appId}] Removing price alert...")
-        priceAlertRepository.removePriceAlert(appId = key.appId)
+        Log.d(TAG, "[${appData.value.steamAppId}] Removing price alert...")
+        priceAlertRepository.removePriceAlert(appId = appData.value.steamAppId)
         _appData.update { it.copy(priceAlertInfo = getPriceAlertInfo()) }
     }
 
