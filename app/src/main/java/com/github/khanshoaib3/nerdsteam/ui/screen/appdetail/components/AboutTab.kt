@@ -3,6 +3,7 @@ package com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,10 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.fromHtml
+import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.ui.components.MonochromeAsyncImage
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 
@@ -37,7 +40,7 @@ fun AboutTab(
 
     SelectionContainer {
         RenderAnnotatedContent(
-            modifier = modifier,
+            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
             annotatedString = annotatedString,
             imageTags = imageTags
         )

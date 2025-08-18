@@ -29,7 +29,7 @@ fun SystemRequirementsTab(
 ) = appData.commonDetails?.let{ commonAppDetails ->
     SelectionContainer {
         Column(
-            modifier = modifier,
+            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
             commonAppDetails.requirements.forEach {

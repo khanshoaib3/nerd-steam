@@ -140,9 +140,15 @@ private fun OverviewItem(
     name: String,
     value: @Composable OverviewItemScope.() -> Unit,
 ) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_very_small)),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         SelectionContainer(
-            modifier = Modifier.weight(ITEM_NAME_WEIGHT),
+            modifier = Modifier
+                .weight(ITEM_NAME_WEIGHT)
+                .horizontalScroll(rememberScrollState()),
         ) {
             Text(
                 text = name,
@@ -158,9 +164,15 @@ private fun OverviewItem(
     name: String,
     value: String,
 ) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         SelectionContainer(
-            modifier = Modifier.weight(ITEM_NAME_WEIGHT),
+            modifier = Modifier
+                .weight(ITEM_NAME_WEIGHT)
+                .horizontalScroll(rememberScrollState()),
         ) {
             Text(
                 text = name,
