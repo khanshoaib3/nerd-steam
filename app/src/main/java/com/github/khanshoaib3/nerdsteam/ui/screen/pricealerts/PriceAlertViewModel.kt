@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 enum class PriceAlertTableSortOrder {
-    Default, NameAsc, NameDesc, PriceAsc, PriceDesc
+    Default, NameAsc, NameDesc, CurrentPriceAsc, CurrentPriceDesc, TargetPriceAsc, TargetPriceDesc
 }
 
 data class PriceAlertDisplay(
@@ -23,6 +23,7 @@ data class PriceAlertDisplay(
     val appId: Int,
     val imageUrl: String,
     val currentPrice: Float,
+    val targetPrice: Float,
     val currency: String,
 )
 
@@ -31,6 +32,7 @@ fun PriceAlert.toDisplayModel() = PriceAlertDisplay(
     appId = this.appId,
     imageUrl = "https://cdn.cloudflare.steamstatic.com/steam/apps/${this.appId}/library_600x900.jpg",
     currentPrice = this.lastFetchedPrice,
+    targetPrice = this.targetPrice,
     currency = this.currency,
 )
 
@@ -64,12 +66,20 @@ class PriceAlertViewModel @Inject constructor(
         priceAlertViewState
     ) { dataState, viewState ->
         when (viewState.tableSortOrder) {
-            PriceAlertTableSortOrder.PriceAsc -> dataState.alerts
+            PriceAlertTableSortOrder.CurrentPriceAsc -> dataState.alerts
                 .sortedBy { it.lastFetchedPrice }
                 .map { it.toDisplayModel() }
 
-            PriceAlertTableSortOrder.PriceDesc -> dataState.alerts
+            PriceAlertTableSortOrder.CurrentPriceDesc -> dataState.alerts
                 .sortedByDescending { it.lastFetchedPrice }
+                .map { it.toDisplayModel() }
+
+            PriceAlertTableSortOrder.TargetPriceAsc -> dataState.alerts
+                .sortedBy { it.targetPrice }
+                .map { it.toDisplayModel() }
+
+            PriceAlertTableSortOrder.TargetPriceDesc -> dataState.alerts
+                .sortedByDescending { it.targetPrice }
                 .map { it.toDisplayModel() }
 
             PriceAlertTableSortOrder.NameAsc -> dataState.alerts
@@ -93,10 +103,17 @@ class PriceAlertViewModel @Inject constructor(
         _priceAlertViewState.update { it.copy(tableSortOrder = newSortOrder) }
     }
 
-    fun toggleSortOrderOfTypePrice() = updateSortOrder(
+    fun toggleSortOrderOfTypeCurrentPrice() = updateSortOrder(
         newSortOrder = when (priceAlertViewState.value.tableSortOrder) {
-            PriceAlertTableSortOrder.PriceAsc -> PriceAlertTableSortOrder.PriceDesc
-            else -> PriceAlertTableSortOrder.PriceAsc
+            PriceAlertTableSortOrder.CurrentPriceAsc -> PriceAlertTableSortOrder.CurrentPriceDesc
+            else -> PriceAlertTableSortOrder.CurrentPriceAsc
+        }
+    )
+
+    fun toggleSortOrderOfTypeTargetPrice() = updateSortOrder(
+        newSortOrder = when (priceAlertViewState.value.tableSortOrder) {
+            PriceAlertTableSortOrder.TargetPriceAsc -> PriceAlertTableSortOrder.TargetPriceDesc
+            else -> PriceAlertTableSortOrder.TargetPriceAsc
         }
     )
 

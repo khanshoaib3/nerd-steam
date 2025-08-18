@@ -38,10 +38,7 @@ import com.github.khanshoaib3.nerdsteam.ui.navigation.components.CommonTopAppBar
 import com.github.khanshoaib3.nerdsteam.ui.screen.home.components.SteamChartsTable
 import com.github.khanshoaib3.nerdsteam.ui.screen.home.components.SteamChartsTableType
 import com.github.khanshoaib3.nerdsteam.ui.utils.Route
-import com.github.khanshoaib3.nerdsteam.ui.utils.Side
 import com.github.khanshoaib3.nerdsteam.ui.utils.TopLevelRoute
-import com.github.khanshoaib3.nerdsteam.ui.utils.plus
-import com.github.khanshoaib3.nerdsteam.ui.utils.removePaddings
 import com.github.khanshoaib3.nerdsteam.utils.Progress
 import com.github.khanshoaib3.nerdsteam.utils.TopLevelBackStack
 
@@ -118,7 +115,6 @@ fun HomeScreenRoot(
                 homeViewState = homeViewState,
                 topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
                 navigateBackCallback = { topLevelBackStack.removeLast() },
-                modifier = modifier
             )
         }
     }
@@ -148,7 +144,7 @@ fun HomeScreenWithScaffold(
                 onMenuButtonClick = onMenuButtonClick,
                 navigateBackCallback = navigateBackCallback,
                 forRoute = TopLevelRoute.Home,
-                windowInsets = WindowInsets()
+                windowInsets = WindowInsets(),
             )
         },
         modifier = modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -160,7 +156,7 @@ fun HomeScreenWithScaffold(
             onTopRecordsCollapseButtonClick = onTopRecordsCollapseButtonClick,
             homeDataState = homeDataState,
             homeViewState = homeViewState,
-            modifier = Modifier.padding(it.removePaddings(Side.End + Side.Start + Side.Bottom))
+            modifier = Modifier.padding(top = it.calculateTopPadding()),
         )
     }
 }
@@ -179,8 +175,9 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .padding(horizontal = dimensionResource(R.dimen.padding_small))
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = if (homeViewState.fetchStatus is Progress.FAILED) Arrangement.Center
+        verticalArrangement = if (homeViewState.fetchStatus is Progress.FAILED) Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         else Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -200,7 +197,6 @@ fun HomeScreen(
                 onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
                 onGameRowClick = onGameClick,
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
                     .animateContentSize()
             )
             SteamChartsTable(
@@ -211,7 +207,6 @@ fun HomeScreen(
                 onCollapseButtonClick = onTopGamesCollapseButtonClick,
                 onGameRowClick = onGameClick,
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
                     .animateContentSize()
             )
             SteamChartsTable(
@@ -222,7 +217,6 @@ fun HomeScreen(
                 onCollapseButtonClick = onTopRecordsCollapseButtonClick,
                 onGameRowClick = onGameClick,
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
                     .animateContentSize()
             )
         }

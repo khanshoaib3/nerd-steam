@@ -19,7 +19,10 @@ fun BookmarkTableHeader(
     modifier: Modifier = Modifier
 ) {
     // TODO Add a11y indication of sorting order
-    Row(modifier) {
+    Row(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Row(
             Modifier
                 .weight(0.6f)

@@ -19,7 +19,8 @@ fun PriceAlertTable(
     alerts: List<PriceAlertDisplay>,
     onGameClick: (Int) -> Unit,
     onNameHeaderClick: () -> Unit,
-    onPriceHeaderClick: () -> Unit,
+    onCurrentPriceHeaderClick: () -> Unit,
+    onTargetPriceHeaderClick: () -> Unit,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier,
@@ -42,7 +43,8 @@ fun PriceAlertTable(
         } else {
             PriceAlertTableHeader(
                 onNameHeaderClick = onNameHeaderClick,
-                onPriceHeaderClick = onPriceHeaderClick
+                onCurrentPriceHeaderClick = onCurrentPriceHeaderClick,
+                onTargetPriceHeaderClick = onTargetPriceHeaderClick,
             )
             HorizontalDivider(
                 Modifier.padding(

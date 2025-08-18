@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,9 +42,6 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.components.TwoPaneScene
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components.AppDetailsCard
-import com.github.khanshoaib3.nerdsteam.ui.utils.Side
-import com.github.khanshoaib3.nerdsteam.ui.utils.plus
-import com.github.khanshoaib3.nerdsteam.ui.utils.removePaddings
 import com.github.khanshoaib3.nerdsteam.utils.Progress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -164,11 +162,11 @@ fun AppDetailsScreen(
                 isRefreshing = appViewState.refreshStatus == Progress.LOADING,
                 state = refreshState,
             )
-        }
+        },
+        modifier = modifier.fillMaxWidth(),
     ) {
         if (isInTwoPaneScene && TwoPaneScene.IsActive) {
             AppDetailsCard(
-                modifier = modifier,
                 appData = appData,
                 appViewState = appViewState,
                 fetchDataFromSourceCallback = fetchDataFromSourceCallback,
@@ -184,7 +182,7 @@ fun AppDetailsScreen(
         }
 
         Scaffold(
-            modifier = modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+            modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
                     title = { Text(appData.commonDetails?.name ?: "No Name") },
@@ -219,7 +217,7 @@ fun AppDetailsScreen(
                 updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding.removePaddings(Side.End + Side.Start + Side.Bottom)),
+                    .padding(top = innerPadding.calculateTopPadding()),
                 showHeader = false,
                 isWideScreen = isWideScreen,
             )

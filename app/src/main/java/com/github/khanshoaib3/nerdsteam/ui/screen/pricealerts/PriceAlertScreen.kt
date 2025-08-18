@@ -46,8 +46,12 @@ fun PriceAlertScreenRoot(
         priceAlertViewModel.toggleSortOrderOfTypeName()
         localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
     }
-    val onPriceHeaderClick: () -> Unit = {
-        priceAlertViewModel.toggleSortOrderOfTypePrice()
+    val onCurrentPriceHeaderClick: () -> Unit = {
+        priceAlertViewModel.toggleSortOrderOfTypeCurrentPrice()
+        localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+    }
+    val onTargetPriceHeaderClick: () -> Unit = {
+        priceAlertViewModel.toggleSortOrderOfTypeTargetPrice()
         localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
     }
 
@@ -74,7 +78,8 @@ fun PriceAlertScreenRoot(
             alerts = sortedAlerts,
             onGameClick = addAppDetailPane,
             onNameHeaderClick = onGameHeaderClick,
-            onPriceHeaderClick = onPriceHeaderClick,
+            onCurrentPriceHeaderClick = onCurrentPriceHeaderClick,
+            onTargetPriceHeaderClick = onTargetPriceHeaderClick,
             imageWidth = imageWidth,
             imageHeight = imageHeight,
             modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
@@ -87,18 +92,20 @@ fun PriceAlertScreen(
     alerts: List<PriceAlertDisplay>,
     onGameClick: (Int) -> Unit,
     onNameHeaderClick: () -> Unit,
-    onPriceHeaderClick: () -> Unit,
+    onCurrentPriceHeaderClick: () -> Unit,
+    onTargetPriceHeaderClick: () -> Unit,
     imageWidth: Dp,
     imageHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
     PriceAlertTable(
-        alerts,
-        onGameClick,
-        onNameHeaderClick,
-        onPriceHeaderClick,
-        imageWidth,
-        imageHeight,
-        modifier
+        alerts = alerts,
+        onGameClick = onGameClick,
+        onNameHeaderClick = onNameHeaderClick,
+        onCurrentPriceHeaderClick = onCurrentPriceHeaderClick,
+        onTargetPriceHeaderClick = onTargetPriceHeaderClick,
+        imageWidth = imageWidth,
+        imageHeight = imageHeight,
+        modifier = modifier
     )
 }

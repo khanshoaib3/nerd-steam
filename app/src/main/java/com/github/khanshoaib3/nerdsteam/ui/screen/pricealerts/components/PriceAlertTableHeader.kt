@@ -15,11 +15,15 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun PriceAlertTableHeader(
     onNameHeaderClick: () -> Unit,
-    onPriceHeaderClick: () -> Unit,
+    onCurrentPriceHeaderClick: () -> Unit,
+    onTargetPriceHeaderClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // TODO Add a11y indication of sorting order
-    Row(modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Row(
             Modifier
                 .weight(0.6f)
@@ -28,16 +32,16 @@ fun PriceAlertTableHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Game",
+                text = "Game",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Light,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
         Row(
             modifier = Modifier
-                .weight(0.3f)
-                .clickable(true, onClick = onPriceHeaderClick, role = Role.Button),
+                .weight(0.25f)
+                .clickable(true, onClick = onCurrentPriceHeaderClick, role = Role.Button),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -49,12 +53,14 @@ fun PriceAlertTableHeader(
             )
         }
         Row(
-            modifier = Modifier.weight(0.15f),
+            modifier = Modifier
+                .weight(0.25f)
+                .clickable(true, onClick = onTargetPriceHeaderClick, role = Role.Button),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "AppId",
+                "Target Price",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.Center

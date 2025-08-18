@@ -31,10 +31,12 @@ fun MediaTab(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(
-            vertical = dimensionResource(R.dimen.padding_small),
-            horizontal = dimensionResource(R.dimen.padding_medium)
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                vertical = dimensionResource(R.dimen.padding_small),
+                horizontal = dimensionResource(R.dimen.padding_medium)
+            ),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

@@ -59,14 +59,14 @@ fun PriceAlertTableBody(
                     )
                 }
                 CenterAlignedSelectableText(
-                    modifier = Modifier.weight(0.3f),
+                    modifier = Modifier.weight(0.25f),
                     text = currencyFormatter.format(alert.currentPrice),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
                 CenterAlignedSelectableText(
-                    modifier = Modifier.weight(0.15f),
-                    text = alert.appId.toString(),
+                    modifier = Modifier.weight(0.25f),
+                    text = currencyFormatter.format(alert.targetPrice),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
