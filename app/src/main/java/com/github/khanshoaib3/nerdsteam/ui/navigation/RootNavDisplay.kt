@@ -14,8 +14,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -73,7 +75,10 @@ fun RootNavDisplay(
         else -> false
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        containerColor = if (rootBackStack.lastOrNull() !is TopLevelRoute) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.background,
+        contentColor = contentColorFor(if (rootBackStack.lastOrNull() !is TopLevelRoute) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.background),
+    ) { innerPadding ->
         NavDisplay(
             backStack = rootBackStack,
             onBack = { rootBackStack.removeLastOrNull() },
@@ -176,7 +181,10 @@ fun RootNavDisplay(
                             slideOutHorizontally(animationSpec = tween(easing = LinearOutSlowInEasing)) { it }
                 } else {
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith
-                            scaleOut(targetScale = 0.925f) + slideOutHorizontally { it }
+                            scaleOut(
+                                animationSpec = tween(easing = LinearOutSlowInEasing),
+                                targetScale = 0.925f,
+                            ) + slideOutHorizontally(tween(easing = LinearOutSlowInEasing)) { it }
                 }
             },
             predictivePopTransitionSpec = {
@@ -189,7 +197,7 @@ fun RootNavDisplay(
                             scaleOut(
                                 animationSpec = tween(easing = LinearOutSlowInEasing),
                                 targetScale = 0.925f,
-                            ) + slideOutHorizontally(tween(delayMillis = 300)) { it }
+                            ) + slideOutHorizontally(tween(easing = LinearOutSlowInEasing)) { it }
                 }
             }
         )
