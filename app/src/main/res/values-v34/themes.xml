@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    // Ref: https://developer.android.com/develop/ui/views/launch/splash-screen
+    // Ref:
+    https://medium.com/@paritasampa95/implementing-splashscreen-using-splashscreen-api-in-android-jetpack-compose-2397fc5ed2cb
+
+    <style name="Theme.NerdSteam.Splash" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenBackground">
+            @android:color/system_surface_container_highest_dark
+        </item>
+        <item name="postSplashScreenTheme">@style/Theme.NerdSteam</item>
+    </style>
+</resources>

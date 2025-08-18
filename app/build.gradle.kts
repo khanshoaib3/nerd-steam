@@ -32,7 +32,7 @@ android {
         minSdk = 30
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0-beta.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
@@ -44,7 +44,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+//            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -87,6 +87,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     // Skrape-it
+    implementation(libs.skrapeit.browser.fetcher)
     implementation(libs.skrapeit.html.parser)
     implementation(libs.skrapeit.http.fetcher)
 
@@ -127,6 +128,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.core.splashscreen)
 
     // Navigation 3
     implementation(libs.androidx.navigation3.runtime)

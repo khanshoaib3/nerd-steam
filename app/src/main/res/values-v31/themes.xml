@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.NerdSteam" parent="android:Theme.Material.Light.NoActionBar" />
-
     <style name="Theme.NerdSteamSplash" parent="Theme.SplashScreen">
+        // Surface Container Highest Dark
+        <item name="android:windowSplashScreenBackground">#33353A</item>
+        // Primary Container Dark
         <item name="postSplashScreenTheme">@style/Theme.NerdSteam</item>
     </style>
 </resources>
