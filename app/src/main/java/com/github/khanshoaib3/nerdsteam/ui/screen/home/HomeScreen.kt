@@ -177,7 +177,9 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(horizontal = dimensionResource(R.dimen.padding_small))
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = if (homeViewState.fetchStatus is Progress.FAILED) Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        verticalArrangement = if (homeViewState.fetchStatus is Progress.FAILED) Arrangement.spacedBy(
+            dimensionResource(R.dimen.padding_small)
+        )
         else Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -186,7 +188,8 @@ fun HomeScreen(
                 reason = homeViewState.fetchStatus.reason,
                 titleStyle = MaterialTheme.typography.headlineMediumEmphasized,
                 reasonStyle = MaterialTheme.typography.bodyMedium,
-                iconSize = 40.dp
+                iconSize = 40.dp,
+                modifier = modifier.fillMaxSize(),
             )
         } else {
             SteamChartsTable(
@@ -196,8 +199,7 @@ fun HomeScreen(
                 isLoading = homeViewState.fetchStatus is Progress.LOADING,
                 onCollapseButtonClick = onTrendingGamesCollapseButtonClick,
                 onGameRowClick = onGameClick,
-                modifier = Modifier
-                    .animateContentSize()
+                modifier = Modifier.animateContentSize()
             )
             SteamChartsTable(
                 gamesList = homeDataState.topGames,
@@ -206,8 +208,7 @@ fun HomeScreen(
                 isLoading = homeViewState.fetchStatus is Progress.LOADING,
                 onCollapseButtonClick = onTopGamesCollapseButtonClick,
                 onGameRowClick = onGameClick,
-                modifier = Modifier
-                    .animateContentSize()
+                modifier = Modifier.animateContentSize()
             )
             SteamChartsTable(
                 gamesList = homeDataState.topRecords,
@@ -216,8 +217,7 @@ fun HomeScreen(
                 isLoading = homeViewState.fetchStatus is Progress.LOADING,
                 onCollapseButtonClick = onTopRecordsCollapseButtonClick,
                 onGameRowClick = onGameClick,
-                modifier = Modifier
-                    .animateContentSize()
+                modifier = Modifier.animateContentSize()
             )
         }
     }

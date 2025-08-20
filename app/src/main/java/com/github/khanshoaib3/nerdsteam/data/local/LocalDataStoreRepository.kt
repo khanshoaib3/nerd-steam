@@ -1,6 +1,5 @@
 package com.github.khanshoaib3.nerdsteam.data.local
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.Preferences
@@ -11,8 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-
-private const val TAG = "LocalDataStore"
+import timber.log.Timber
 
 class LocalDataStoreRepository(private val dataStore: DataStore<Preferences>) {
     private companion object {
@@ -22,7 +20,8 @@ class LocalDataStoreRepository(private val dataStore: DataStore<Preferences>) {
     val steamChartsFetchTime: Flow<String> = dataStore.data
         .catch {
             if (it is IOException) {
-                Log.e(TAG, "Error reading STEAM_CHARTS_FETCH_TIME.", it)
+                Timber.e("Error reading STEAM_CHARTS_FETCH_TIME.")
+                Timber.e(it)
                 emit(emptyPreferences())
             } else {
                 throw it

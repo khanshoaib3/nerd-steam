@@ -33,7 +33,9 @@ android {
         targetSdk = 36
         // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
         versionCode = 1000000
-        versionName = "1.0.0-beta.1"
+        versionName = "1.0.0-alpha.10"
+        // Ref: https://stackoverflow.com/a/44969974/12026423
+        setProperty("archivesBaseName", "nerd-steam-v$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
@@ -52,9 +54,11 @@ android {
             )
             isShrinkResources = true
             isDebuggable = false
+            versionNameSuffix = "-release"
         }
         debug {
             isDebuggable = true
+            versionNameSuffix = "-debug"
         }
     }
     compileOptions {
@@ -93,7 +97,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     // Skrape-it
-    implementation(libs.skrapeit.browser.fetcher)
     implementation(libs.skrapeit.html.parser)
     implementation(libs.skrapeit.http.fetcher)
 
@@ -152,6 +155,9 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
+
+    // Logging
+    implementation(libs.timber)
 
     // Debug-only tools
     debugImplementation(libs.androidx.ui.tooling)

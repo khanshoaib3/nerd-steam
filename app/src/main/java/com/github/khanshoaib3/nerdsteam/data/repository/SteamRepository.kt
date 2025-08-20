@@ -1,6 +1,5 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
-import android.util.Log
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailDataResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppSearchResponse
@@ -14,13 +13,13 @@ import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import timber.log.Timber
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 import javax.inject.Inject
 
-private const val TAG = "SteamRepository"
 private val json = Json { ignoreUnknownKeys = true }
 
 interface SteamRepository {
@@ -37,7 +36,7 @@ class OnlineSteamRepository @Inject constructor(
 ) : SteamRepository {
     override suspend fun runSearchQuery(query: String): Result<List<AppSearchResponse>> =
         runSafeSuspendCatching {
-            Log.d(TAG, "Fetching search results with query: $query...")
+            Timber.d("Fetching search results with query: $query...")
             val result = steamCommunityApiService.searchApp(query)
             if (result.isEmpty()) throw Exception("Nothing found for the query")
             result
@@ -58,7 +57,7 @@ class OnlineSteamRepository @Inject constructor(
             var result: JsonObject
             lateinit var appDetail: AppDetailsResponse
             var missingField = false
-            Log.d(TAG, "Fetching data from steam for $appId")
+            Timber.d("Fetching data from steam for $appId")
 
             result = if (isRetryAttempt) steamInternalWebApiService.getAppDetails(appId, "us")
             else steamInternalWebApiService.getAppDetails(appId)
@@ -71,16 +70,16 @@ class OnlineSteamRepository @Inject constructor(
             }
 
             if (!missingField && appDetail.success && appDetail.data != null) {
-                Log.d(TAG, "Data fetched: ${appDetail.data.name}")
+                Timber.d("Data fetched: ${appDetail.data.name}")
                 return@runSafeSuspendCatching appDetail.data
             }
 
-            Log.d(TAG, "Unable to serialize data for $appId because of missing fields.")
-            Log.d(TAG, "Attempting to fetch updated App ID from redirect url...")
+            Timber.d("Unable to serialize data for $appId because of missing fields.")
+            Timber.d("Attempting to fetch updated App ID from redirect url...")
 
             val newAppId = getUpdatedAppIdFromRedirectUrl(appId)
             if (newAppId == null) throw Exception("Unable to fetch data for appid: $appId")
-            Log.d(TAG, "New app id: $newAppId")
+            Timber.d("New app id: $newAppId")
 
             result = if (isRetryAttempt) steamInternalWebApiService.getAppDetails(newAppId, "us")
             else steamInternalWebApiService.getAppDetails(newAppId)
@@ -98,8 +97,8 @@ class OnlineSteamRepository @Inject constructor(
                 }
 
                 if (missingField || !appDetail.success || appDetail.data == null) {
-                    Log.d(TAG, "Unable to serialize data with new appid $newAppId.")
-                    Log.d(TAG, "Retrying with us country code...")
+                    Timber.d("Unable to serialize data with new appid $newAppId.")
+                    Timber.d("Retrying with us country code...")
                     return fetchDataForAppId(appId = appId, isRetryAttempt = true)
                 }
             }
@@ -107,7 +106,7 @@ class OnlineSteamRepository @Inject constructor(
                 throw Exception("Unable to fetch data for appid: $appId")
             }
 
-            Log.d(TAG, "Data fetched: ${appDetail.data.name}")
+            Timber.d("Data fetched: ${appDetail.data.name}")
             appDetail.data
         }
 
@@ -117,7 +116,7 @@ class OnlineSteamRepository @Inject constructor(
                 dlcs.forEach { appId ->
                     fetchDataForAppId(appId)
                         .onSuccess { add(it.toDlc()) }
-                        .onFailure { Log.e(TAG, "Unable to fetch dlc info with id: $appId") }
+                        .onFailure { Timber.e("Unable to fetch dlc info with id: $appId") }
                 }
             }
         }
@@ -139,24 +138,24 @@ class OnlineSteamRepository @Inject constructor(
         try {
             urlTmp = URL(url)
         } catch (e: MalformedURLException) {
-            Log.e(TAG, "MalformedURLException occurred when accessing url: $url")
-            Log.e(TAG, "${e.localizedMessage}")
+            Timber.e("MalformedURLException occurred when accessing url: $url")
+            Timber.e(e)
             return null
         }
 
         try {
             connection = urlTmp.openConnection() as HttpURLConnection
         } catch (e: IOException) {
-            Log.e(TAG, "IOException occurred when accessing url: $url")
-            Log.e(TAG, "${e.localizedMessage}")
+            Timber.e("IOException occurred when accessing url: $url")
+            Timber.e(e)
             return null
         }
 
         try {
             connection.getResponseCode()
         } catch (e: IOException) {
-            Log.e(TAG, "IOException occurred when accessing url: $url")
-            Log.e(TAG, "${e.localizedMessage}")
+            Timber.e("IOException occurred when accessing url: $url")
+            Timber.e(e)
             return null
         }
 

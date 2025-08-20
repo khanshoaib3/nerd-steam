@@ -1,12 +1,10 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
-import android.util.Log
 import com.github.khanshoaib3.nerdsteam.data.local.detail.PriceAlertDao
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
 import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 import javax.inject.Inject
-
-private const val TAG = "PriceAlertRepository"
 
 interface PriceAlertRepository {
 
@@ -26,12 +24,12 @@ class LocalPriceAlertRepository @Inject constructor(
 ) : PriceAlertRepository {
 
     override suspend fun addPriceAlert(priceAlert: PriceAlert) {
-        Log.d(TAG, "Adding to price alert table: $priceAlert")
+        Timber.d("Adding to price alert table: $priceAlert")
         priceAlertDao.insert(priceAlert)
     }
 
     override suspend fun updatePriceAlert(priceAlert: PriceAlert) {
-        Log.d(TAG, "Updating tuple in price alert table: $priceAlert")
+        Timber.d("Updating tuple in price alert table: $priceAlert")
         priceAlertDao.update(priceAlert)
     }
 
@@ -43,7 +41,7 @@ class LocalPriceAlertRepository @Inject constructor(
     }
 
     override suspend fun removePriceAlert(appId: Int) {
-        Log.d(TAG, "Removing tuple from price alert table with appId:$appId")
+        Timber.d("Removing tuple from price alert table with appId:$appId")
         priceAlertDao.deleteWithId(appId)
     }
 

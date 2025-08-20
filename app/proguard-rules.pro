@@ -50,3 +50,4 @@
 -dontwarn androidx.concurrent.futures.SuspendToFutureAdapter
 -dontwarn com.google.errorprone.annotations.CanIgnoreReturnValue
 -dontwarn com.google.errorprone.annotations.MustBeClosed
+-dontwarn it.skrape.fetcher.BrowserFetcher

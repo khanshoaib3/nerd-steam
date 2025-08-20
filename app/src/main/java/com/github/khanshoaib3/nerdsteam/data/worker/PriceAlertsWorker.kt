@@ -2,7 +2,6 @@ package com.github.khanshoaib3.nerdsteam.data.worker
 
 import android.Manifest
 import android.content.Context
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -18,6 +17,7 @@ import com.github.khanshoaib3.nerdsteam.data.repository.OnlineSteamRepository
 import com.github.khanshoaib3.nerdsteam.di.AppModule
 import com.github.khanshoaib3.nerdsteam.utils.getNumberFormatFromCurrencyCode
 import kotlinx.coroutines.flow.firstOrNull
+import timber.log.Timber
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -87,7 +87,8 @@ class PriceAlertsWorker(
 
             notificationManager.notify(entry.appId, notification)
         } catch (e: Exception) {
-            Log.e("PriceAlertWorker", "Failed to show notification", e)
+            Timber.e("Failed to show notification")
+            Timber.e(e)
         }
     }
 }

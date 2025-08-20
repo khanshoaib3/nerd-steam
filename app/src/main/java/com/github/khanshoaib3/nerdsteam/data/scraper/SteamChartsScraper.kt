@@ -1,6 +1,5 @@
 package com.github.khanshoaib3.nerdsteam.data.scraper
 
-import android.util.Log
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TopGame
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TopRecord
 import com.github.khanshoaib3.nerdsteam.data.model.steamcharts.TrendingGame
@@ -16,8 +15,7 @@ import it.skrape.selects.html5.td
 import it.skrape.selects.html5.tr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-private const val TAG = "SteamChartsScraper"
+import timber.log.Timber
 
 data class SteamChartsScrapedData(
     var httpStatusCode: Int = 0,
@@ -145,7 +143,7 @@ class SteamChartsScraper(private val _url: String = "https://steamcharts.com/") 
             }
         }
 
-        Log.d(TAG, "Data found!")
+        Timber.d("Data found!")
         return@withContext extracted
     }
 }

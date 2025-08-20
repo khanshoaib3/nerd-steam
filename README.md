@@ -1,6 +1,10 @@
 # NerdSteam
 
-A modern Android application built with Kotlin and Jetpack Compose that provides comprehensive Steam gaming insights, price tracking, and game statistics. This project demonstrates clean architecture principles, efficient data caching, and cutting-edge Android development practices.
+**NerdSteam** is a hobby project of mine where people can view trending and top games of [Steam](https://store.steampowered.com/),
+compare prices from other platforms, see historic prices, player statistics, etc.
+The app is built using Kotlin + Jetpack Compose following MVVM architecture with a clean and responsive UI.
+
+## Media
 
 ## Features
 
@@ -40,11 +44,25 @@ A modern Android application built with Kotlin and Jetpack Compose that provides
 
 ## Architecture Implementation
 
-### Caching System
+### Intelligent Caching System
 - **Hourly Cache**: SteamCharts data cached per hour for optimal freshness
 - **Daily Cache**: Game details cached for 24 hours to reduce API calls
 - **Room Database**: Efficient local storage with automatic cache invalidation
 
+### Data Flow
+```
+Steam API ──────► Retrofit ──────► Repository
+                                       │
+IsThereAnyDeal ──► Retrofit ───────────┤
+                                       │
+SteamCharts ─────► Scrape-it ──────────┤
+                                       ▼
+                                  Room Cache
+                                       │
+                                       ▼
+                                   UI Layer
+                               (Jetpack Compose)
+```
 
 ### Performance Optimizations
 - **Smart Caching**: Reduces redundant network requests while maintaining data freshness
@@ -61,11 +79,18 @@ This project demonstrates:
 - **Performance Engineering**: Optimized network usage and local storage strategies
 
 
-
 ## Project Setup
 
 Add your IsThereAnyDeal API key to `secret.properties`:
 ```
 IS_THERE_ANY_DEAL_API_KEY="<your_api_key_here>"
+```
+
+## Credits & Resources
+
+- **[SteamCharts](https://steamcharts.com/)** - for player statistics.
+- **[IsThereAnyDeal](https://isthereanydeal.com/)** - for price deals and historical statistics.
+- 
+
 ```
 

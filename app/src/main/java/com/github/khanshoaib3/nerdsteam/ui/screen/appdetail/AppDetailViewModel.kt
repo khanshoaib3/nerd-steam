@@ -1,7 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.ui.screen.appdetail
 // Ref(assisted inject): https://medium.com/@cgaisl/how-to-pass-arguments-to-a-hiltviewmodel-from-compose-97c74a75f772
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.CommonAppDetails
@@ -37,10 +36,9 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import timber.log.Timber
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-
-private const val TAG = "AppDetailViewModel"
 
 enum class DataType {
     COMMON_APP_DETAILS, IS_THERE_ANY_DEAL_PRICE_INFO, STEAM_CHARTS_PLAYER_STATS, DLCS
@@ -116,7 +114,7 @@ class AppDetailViewModel @AssistedInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val cacheResponse = cacheRepository.getCachedData(appData.value.steamAppId)
             cacheResponse.onSuccess { data ->
-                Log.d(TAG, "[${appData.value.steamAppId}] Loading data from cache...")
+                Timber.d("[${appData.value.steamAppId}] Loading data from cache...")
                 _appData.update {
                     data.toAppData().copy(
                         isBookmarked = bookmarkRepository.isBookmarked(appData.value.steamAppId),
@@ -133,7 +131,7 @@ class AppDetailViewModel @AssistedInject constructor(
                     )
                 }
             }.onFailure {
-                Log.d(TAG, "[${appData.value.steamAppId}] Loading data from internet...")
+                Timber.d("[${appData.value.steamAppId}] Loading data from internet...")
                 fetchDataFromSource(DataType.COMMON_APP_DETAILS)
                 _appData.update {
                     it.copy(
@@ -203,7 +201,7 @@ class AppDetailViewModel @AssistedInject constructor(
             && appViewState.value.isThereAnyDealGameInfoStatus != NOT_QUEUED
         ) return
 
-        Log.d(TAG, "[${appData.value.steamAppId}] Fetching common info from steam and ISTAD...")
+        Timber.d("[${appData.value.steamAppId}] Fetching common info from steam and ISTAD...")
         _appViewState.update {
             it.copy(steamStatus = LOADING, isThereAnyDealGameInfoStatus = LOADING)
         }
@@ -257,7 +255,7 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchSteamChartsPlayerStats() {
         if (appViewState.value.steamChartsStatus != NOT_QUEUED) return
 
-        Log.d(TAG, "[${appData.value.steamAppId}] Fetching steam charts per app info...")
+        Timber.d("[${appData.value.steamAppId}] Fetching steam charts per app info...")
         _appViewState.update { it.copy(steamChartsStatus = LOADING) }
 
         steamChartsRepository.fetchDataForApp(appData.value.steamAppId)
@@ -285,7 +283,7 @@ class AppDetailViewModel @AssistedInject constructor(
     suspend fun fetchISTDPriceInfo() {
         if (appViewState.value.isThereAnyDealPriceInfoStatus != NOT_QUEUED) return
 
-        Log.d(TAG, "[${appData.value.steamAppId}] Fetching ISTAD Price info...")
+        Timber.d("[${appData.value.steamAppId}] Fetching ISTAD Price info...")
         _appViewState.update { it.copy(isThereAnyDealPriceInfoStatus = LOADING) }
 
         if (appData.value.isThereAnyDealId == null) {
@@ -317,10 +315,7 @@ class AppDetailViewModel @AssistedInject constructor(
             return
         }
 
-        Log.d(
-            TAG,
-            "[${appData.value.steamAppId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})..."
-        )
+        Timber.d("[${appData.value.steamAppId}] Fetching DLCs info (count: ${appData.value.commonDetails?.dlcIds?.size})...")
         _appViewState.update { it.copy(dlcsStatus = LOADING) }
         steamRepository.fetchDataForDlcs(appData.value.commonDetails!!.dlcIds!!)
             .onSuccess { result ->
@@ -336,7 +331,7 @@ class AppDetailViewModel @AssistedInject constructor(
         if (appData.value.commonDetails == null) return@apply
 
         if (!isBookmarked) {
-            Log.d(TAG, "[${appData.value.steamAppId}] Removing bookmark...")
+            Timber.d("[${appData.value.steamAppId}] Removing bookmark...")
             bookmarkRepository.addBookmark(
                 Bookmark(
                     appId = appData.value.steamAppId,
@@ -345,7 +340,7 @@ class AppDetailViewModel @AssistedInject constructor(
             )
             _appData.update { it.copy(isBookmarked = true) }
         } else {
-            Log.d(TAG, "[${appData.value.steamAppId}] Adding bookmark...")
+            Timber.d("[${appData.value.steamAppId}] Adding bookmark...")
             bookmarkRepository.removeBookmark(appData.value.steamAppId)
             _appData.update { it.copy(isBookmarked = false) }
         }
@@ -358,7 +353,7 @@ class AppDetailViewModel @AssistedInject constructor(
     @OptIn(ExperimentalTime::class)
     suspend fun updatePriceAlert(targetPrice: Float, notifyEveryDay: Boolean) =
         appData.value.commonDetails?.let { commonAppDetails ->
-            Log.d(TAG, "[${appData.value.steamAppId}] Adding price alert...")
+            Timber.d("[${appData.value.steamAppId}] Adding price alert...")
             priceAlertRepository.addPriceAlert(
                 PriceAlert(
                     appId = appData.value.steamAppId,
@@ -375,7 +370,7 @@ class AppDetailViewModel @AssistedInject constructor(
         }
 
     suspend fun removePriceAlert() {
-        Log.d(TAG, "[${appData.value.steamAppId}] Removing price alert...")
+        Timber.d("[${appData.value.steamAppId}] Removing price alert...")
         priceAlertRepository.removePriceAlert(appId = appData.value.steamAppId)
         _appData.update { it.copy(priceAlertInfo = getPriceAlertInfo()) }
     }

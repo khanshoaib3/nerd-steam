@@ -1,6 +1,5 @@
 package com.github.khanshoaib3.nerdsteam.data.scraper
 
-import android.util.Log
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.extractIt
@@ -14,6 +13,7 @@ import it.skrape.selects.html5.td
 import it.skrape.selects.html5.tr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 private const val TAG = "SteamChartsPerAppScraper"
 
@@ -37,7 +37,7 @@ data class SteamChartsPerAppScrapedData(
 
 class SteamChartsPerAppScraper(private val appId: Int) {
     suspend fun scrape(): SteamChartsPerAppScrapedData = withContext(Dispatchers.IO) {
-        Log.d(TAG, "Started scraping...")
+        Timber.d("Started scraping...")
         val extracted = skrape(HttpFetcher) {
             request {
                 url = "https://steamcharts.com/app/$appId"
@@ -90,7 +90,7 @@ class SteamChartsPerAppScraper(private val appId: Int) {
             }
         }
 
-        Log.d(TAG, "Data fetched successfully!")
+        Timber.d("Data fetched successfully!")
         return@withContext extracted
     }
 }

@@ -1,6 +1,5 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
-import android.util.Log
 import com.github.khanshoaib3.nerdsteam.data.local.LocalDataStoreRepository
 import com.github.khanshoaib3.nerdsteam.data.local.steamcharts.TopGameDao
 import com.github.khanshoaib3.nerdsteam.data.local.steamcharts.TopRecordDao
@@ -16,11 +15,10 @@ import com.github.khanshoaib3.nerdsteam.data.scraper.parseAndGetTopRecordsList
 import com.github.khanshoaib3.nerdsteam.data.scraper.parseAndGetTrendingGamesList
 import com.github.khanshoaib3.nerdsteam.utils.runSafeSuspendCatching
 import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-
-private const val TAG = "SteamChartsRepository"
 
 interface SteamChartsRepository {
     suspend fun fetchAndStoreData(forceFetch: Boolean = false): Result<Unit>
@@ -51,7 +49,7 @@ class ScraperSteamChartsRepository @Inject constructor(
                 val currentDateTime = LocalDateTime.now()
 
                 if (oldDateTime.plusHours(1).isAfter(currentDateTime)) {
-                    Log.d(TAG, "Records already present, with timestamp $steamChartsFetchTime")
+                    Timber.d("Records already present, with timestamp $steamChartsFetchTime")
                     return@runSafeSuspendCatching
                 }
             }
@@ -66,7 +64,7 @@ class ScraperSteamChartsRepository @Inject constructor(
                 topGameDao.deletePrimaryKeyIndex()
                 topRecordDao.deleteAll()
                 topRecordDao.deletePrimaryKeyIndex()
-                Log.d(TAG, "Deleted old records, adding new ones...")
+                Timber.d("Deleted old records, adding new ones...")
             }
 
             val rawData = SteamChartsScraper().scrape()
@@ -76,7 +74,7 @@ class ScraperSteamChartsRepository @Inject constructor(
 
             val timeStamp = LocalDateTime.now().format(formatter)
             localDataStoreRepository.saveData(timeStamp)
-            Log.d(TAG, "Added records to the tables. with timestamp $timeStamp")
+            Timber.d("Added records to the tables. with timestamp $timeStamp")
         }
 
     override fun getAllTrendingGames(): Flow<List<TrendingGame>> {

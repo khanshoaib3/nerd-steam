@@ -1,14 +1,12 @@
 package com.github.khanshoaib3.nerdsteam.data.repository
 
-import android.util.Log
 import com.github.khanshoaib3.nerdsteam.data.model.api.GameInfoResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.GameInfoShortResponse
 import com.github.khanshoaib3.nerdsteam.data.model.api.PriceInfoResponse
 import com.github.khanshoaib3.nerdsteam.data.remote.IsThereAnyDealApiService
 import com.github.khanshoaib3.nerdsteam.utils.runSafeSuspendCatching
+import timber.log.Timber
 import javax.inject.Inject
-
-private const val TAG = "IsThereAnyDealRepository"
 
 interface IsThereAnyDealRepository {
     suspend fun lookupGame(appId: Int): Result<GameInfoShortResponse>
@@ -27,26 +25,25 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
 ) : IsThereAnyDealRepository {
     override suspend fun lookupGame(appId: Int): Result<GameInfoShortResponse> =
         runSafeSuspendCatching {
-            Log.d(TAG, "Looking for game with appId $appId...")
+            Timber.d("Looking for game with appId $appId...")
             val response = isThereAnyDealApiService.lookupGame(appId)
-            Log.d(
-                TAG,
-                "Game lookup response: id=${response.gameInfoShortResponse?.id} title=${response.gameInfoShortResponse?.title}"
-            )
+            Timber.d("Game lookup response: id=${response.gameInfoShortResponse?.id} title=${response.gameInfoShortResponse?.title}")
             if (!response.found || response.gameInfoShortResponse == null) throw Exception("Game with appId $appId not found in IsThereAnyDeal.com")
             response.gameInfoShortResponse
         }.onFailure {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::lookupGame", it)
+            Timber.e("Error occurred in OnlineIsThereAnyDealRepository::lookupGame")
+            Timber.e(it)
         }
 
     override suspend fun getGameInfo(uid: String): Result<GameInfoResponse> =
         runSafeSuspendCatching {
-            Log.d(TAG, "Looking for game with id $uid")
+            Timber.d("Looking for game with id $uid")
             val response = isThereAnyDealApiService.gameInfo(uid)
-            Log.d(TAG, "Game Info response: id=${response.id}, title=${response.title}")
+            Timber.d("Game Info response: id=${response.id}, title=${response.title}")
             response
         }.onFailure {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getGameInfo", it)
+            Timber.e("Error occurred in OnlineIsThereAnyDealRepository::getGameInfo")
+            Timber.e(it)
         }
 
     override suspend fun getGameInfoFromAppId(appId: Int): Result<GameInfoResponse> {
@@ -68,7 +65,8 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
             val response = isThereAnyDealApiService.prices(gameIds = uids, allowVouchers = true)
             response
         }.onFailure {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)
+            Timber.e("Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo")
+            Timber.e(it)
         }
 
     override suspend fun getPriceInfo(uid: String): Result<PriceInfoResponse> =
@@ -77,6 +75,7 @@ class OnlineIsThereAnyDealRepository @Inject constructor(
                 isThereAnyDealApiService.prices(gameIds = listOf(uid), allowVouchers = true)
             response.firstOrNull() ?: throw Exception("Price info for game with uid $uid not found")
         }.onFailure {
-            Log.e(TAG, "Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo", it)
+            Timber.e("Error occurred in OnlineIsThereAnyDealRepository::getPriceInfo")
+            Timber.e(it)
         }
 }

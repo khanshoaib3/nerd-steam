@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import com.github.khanshoaib3.nerdsteam.ui.NerdSteamApp
 import com.github.khanshoaib3.nerdsteam.ui.theme.NerdSteamTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,10 +27,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-
+                != PackageManager.PERMISSION_GRANTED
+            ) {
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
@@ -37,6 +42,5 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-
     }
 }
