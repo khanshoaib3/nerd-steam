@@ -16,9 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.components.MonochromeAsyncImage
@@ -54,20 +56,28 @@ fun MediaTab(
             )
 
             HorizontalDivider()
+            val view = LocalView.current
+            val preferredWidth: Dp
+            val density = LocalDensity.current
+            with(density) {
+                preferredWidth = (view.width / 0.85).toInt().toDp()
+            }
+
 
             HorizontalMultiBrowseCarousel(
                 state = rememberCarouselState {
                     commonAppDetails.media?.screenshots?.size ?: 0
                 },
+                preferredItemWidth = preferredWidth,
                 modifier = Modifier.fillMaxWidth(),
-                preferredItemWidth = 421.dp,
                 itemSpacing = dimensionResource(R.dimen.padding_medium),
             ) {
                 MonochromeAsyncImage(
                     model = commonAppDetails.media?.screenshots?.get(it) ?: "",
                     contentDescription = "Screenshot $it",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
+                    modifier = Modifier.fillMaxSize(),
+                    alternateImageModifier = Modifier
                         .fillMaxSize()
                         .aspectRatio(16f / 9f) // 1920 x 1080
                 )

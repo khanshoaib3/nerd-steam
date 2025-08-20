@@ -30,6 +30,7 @@ fun MonochromeAsyncImage(
     model: Any?,
     contentDescription: String?,
     modifier: Modifier = Modifier,
+    alternateImageModifier: Modifier = Modifier,
     transform: (State) -> State = DefaultTransform,
     loading: @Composable (SubcomposeAsyncImageScope.(State.Loading) -> Unit)? = null,
     success: @Composable (SubcomposeAsyncImageScope.(State.Success) -> Unit)? = null,
@@ -50,7 +51,7 @@ fun MonochromeAsyncImage(
     loading = loading ?: {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            modifier = alternateImageModifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
         ) {
             LoadingIndicator()
         }
@@ -59,7 +60,7 @@ fun MonochromeAsyncImage(
     error = error ?: {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            modifier = alternateImageModifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
         ) {
             Image(
                 painter = painterResource(R.mipmap.ic_launcher_monochrome),

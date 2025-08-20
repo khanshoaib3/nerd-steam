@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.ui.navigation
 
+import android.content.res.Configuration
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -21,6 +22,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -54,6 +56,7 @@ fun RootNavDisplay(
     val view = LocalView.current
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val windowSizeClass = adaptiveInfo.windowSizeClass
+    val configuration = LocalConfiguration.current
 
     val showNavRail = when {
         adaptiveInfo.windowPosture.isTabletop -> false
@@ -71,6 +74,8 @@ fun RootNavDisplay(
         windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
                 && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
             -> true
+
+        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE -> true
 
         else -> false
     }
