@@ -26,7 +26,7 @@ fun AboutTab(
     appData: AppData,
     modifier: Modifier = Modifier,
 ) = appData.commonDetails?.let {
-    val html = it.about ?: "<b>Empty</b>"
+    val html = it.about ?: "<b>Unable to fetch data, reload!!</b>"
     // Memoize expensive parsing logic (to not recalculate on recomposition)
     val (annotatedString, imageTags) = remember(html) {
         val processedHtml = prepareHtml(html)

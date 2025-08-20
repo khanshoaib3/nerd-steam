@@ -1,6 +1,7 @@
 [versions]
 agp = "8.12.1"
 coreSplashscreen = "1.0.1"
+jsoup = "1.21.1"
 kotlin = "2.2.10"
 composeBom = "2025.08.00"
 
@@ -41,9 +42,6 @@ retrofit = "3.0.0"
 retrofitKotlinxConverter = "1.0.0"
 okhttp = "5.1.0"
 
-# Skrape-it
-skrape = "1.3.0-alpha.2"
-
 # Coil
 coil = "3.2.0"
 
@@ -68,6 +66,7 @@ androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 
@@ -109,12 +108,6 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
-# Skrape-it
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
-mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
-skrapeit-html-parser = { module = "it.skrape:skrapeit-html-parser", version.ref = "skrape" }
-skrapeit-http-fetcher = { module = "it.skrape:skrapeit-http-fetcher", version.ref = "skrape" }
-
 # Networking
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxConverter" }
@@ -127,6 +120,9 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # Testing
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 timeago = { module = "com.github.marlonlom:timeago", version.ref = "timeago" }
 

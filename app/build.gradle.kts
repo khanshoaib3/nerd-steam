@@ -33,7 +33,7 @@ android {
         targetSdk = 36
         // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
         versionCode = 1000000
-        versionName = "1.0.0-alpha.10"
+        versionName = "1.0.0-alpha.12"
         // Ref: https://stackoverflow.com/a/44969974/12026423
         setProperty("archivesBaseName", "nerd-steam-v$versionName")
 
@@ -96,9 +96,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
 
-    // Skrape-it
-    implementation(libs.skrapeit.html.parser)
-    implementation(libs.skrapeit.http.fetcher)
+    // Jsoup
+    implementation(libs.jsoup)
 
     // Datetime
     implementation(libs.kotlinx.datetime)

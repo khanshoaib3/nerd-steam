@@ -1,21 +1,10 @@
 package com.github.khanshoaib3.nerdsteam.data.scraper
 
-import it.skrape.core.htmlDocument
-import it.skrape.fetcher.HttpFetcher
-import it.skrape.fetcher.extractIt
-import it.skrape.fetcher.skrape
-import it.skrape.selects.html5.abbr
-import it.skrape.selects.html5.div
-import it.skrape.selects.html5.span
-import it.skrape.selects.html5.table
-import it.skrape.selects.html5.tbody
-import it.skrape.selects.html5.td
-import it.skrape.selects.html5.tr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import timber.log.Timber
-
-private const val TAG = "SteamChartsPerAppScraper"
+import kotlin.collections.listOf
 
 data class MonthlyPlayerStatistic(
     val month: String,
@@ -26,8 +15,6 @@ data class MonthlyPlayerStatistic(
 )
 
 data class SteamChartsPerAppScrapedData(
-    var httpStatusCode: Int = 0,
-    var httpStatusMessage: String = "",
     var monthlyPlayerStats: List<MonthlyPlayerStatistic> = listOf(),
     var lastHourCount: String = "",
     var lastHourTime: String = "",
@@ -37,60 +24,42 @@ data class SteamChartsPerAppScrapedData(
 
 class SteamChartsPerAppScraper(private val appId: Int) {
     suspend fun scrape(): SteamChartsPerAppScrapedData = withContext(Dispatchers.IO) {
-        Timber.d("Started scraping...")
-        val extracted = skrape(HttpFetcher) {
-            request {
-                url = "https://steamcharts.com/app/$appId"
-            }
-            extractIt<SteamChartsPerAppScrapedData> {
-                it.httpStatusCode = status { code }
-                it.httpStatusMessage = status { message }
-                htmlDocument {
-                    val rows = mutableListOf<MonthlyPlayerStatistic>()
-                    table {
-                        withClass = "common-table"
-                        findFirst {
-                            tbody {
-                                tr {
-                                    findAll {
-                                        forEach { row ->
-                                            rows.add(
-                                                MonthlyPlayerStatistic(
-                                                    month = row.td { findByIndex(0) { text } },
-                                                    avgPlayers = row.td { findByIndex(1) { text } },
-                                                    gain = row.td { findByIndex(2) { text } },
-                                                    percGain = row.td { findByIndex(3) { text } },
-                                                    peakPlayers = row.td { findByIndex(4) { text } }
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    it.monthlyPlayerStats = rows
-
-                    div {
-                        withId = "app-heading"
-                        div {
-                            withClass = "app-stat"
-                            findAll {
-                                it.lastHourCount = get(0).span { findFirst { text } }
-                                it.lastHourTime = get(0).abbr {
-                                    findFirst { attribute("title") }
-                                }
-                                it.twentyFourHourPeak = get(1).span { findFirst { text } }
-                                it.allTimePeak = get(2).span { findFirst { text } }
-                            }
-                        }
-                    }
+        Timber.d("Started scraping (https://steamcharts.com/app/$appId)...")
+        val document = Jsoup.connect("https://steamcharts.com/app/$appId").get()
+        val monthlyPlayerStats = buildList {
+            document.select(".common-table tbody tr").forEach { tr ->
+                tr.select("td").let { tds ->
+                    add(
+                        MonthlyPlayerStatistic(
+                            month = tds[0].text(),
+                            avgPlayers = tds[1].text(),
+                            gain = tds[2].text(),
+                            percGain = tds[3].text(),
+                            peakPlayers = tds[4].text(),
+                        )
+                    )
                 }
             }
         }
 
+        val lastHourCount: String
+        val lastHourTime: String
+        val twentyFourHourPeak: String
+        val allTimePeak: String
+        document.select("#app-heading .app-stat").let { classes ->
+            lastHourCount = classes[0].select("span").text()
+            lastHourTime = classes[0].select("abbr").attr("title")
+            twentyFourHourPeak = classes[1].select("span").text()
+            allTimePeak = classes[2].select("span").text()
+        }
+
         Timber.d("Data fetched successfully!")
-        return@withContext extracted
+        return@withContext SteamChartsPerAppScrapedData(
+            monthlyPlayerStats = monthlyPlayerStats,
+            lastHourCount = lastHourCount,
+            lastHourTime = lastHourTime,
+            twentyFourHourPeak = twentyFourHourPeak,
+            allTimePeak = allTimePeak,
+        )
     }
 }
