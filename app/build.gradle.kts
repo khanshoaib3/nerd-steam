@@ -31,7 +31,8 @@ android {
         applicationId = "com.github.khanshoaib3.nerdsteam"
         minSdk = 30
         targetSdk = 36
-        versionCode = 1
+        // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
+        versionCode = 1000000
         versionName = "1.0.0-beta.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -44,11 +45,16 @@ android {
 
     buildTypes {
         release {
-//            isMinifyEnabled = true
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            isShrinkResources = true
+            isDebuggable = false
+        }
+        debug {
+            isDebuggable = true
         }
     }
     compileOptions {
