@@ -63,7 +63,6 @@ fun MediaTab(
                 preferredWidth = (view.width / 0.85).toInt().toDp()
             }
 
-
             HorizontalMultiBrowseCarousel(
                 state = rememberCarouselState {
                     commonAppDetails.media?.screenshots?.size ?: 0

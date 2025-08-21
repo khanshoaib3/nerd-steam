@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.NerdSteam" parent="android:Theme.Material.Light.NoActionBar" />
-
-    <style name="Theme.NerdSteamSplash" parent="Theme.SplashScreen">
-        <item name="postSplashScreenTheme">@style/Theme.NerdSteam</item>
-    </style>
+    <style name="Theme.NerdSteam" parent="android:Theme.DeviceDefault.NoActionBar" />
 </resources>

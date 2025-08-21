@@ -17,13 +17,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NerdSteam"
         tools:targetApi="31">
-        <uses-library
-            android:name="org.apache.http.legacy"
-            android:required="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.NerdSteam.Splash">
+            android:theme="@style/Theme.NerdSteam">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

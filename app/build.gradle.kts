@@ -33,7 +33,7 @@ android {
         targetSdk = 36
         // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
         versionCode = 1000000
-        versionName = "1.0.0-alpha.14"
+        versionName = "1.0.0-alpha.15"
         // Ref: https://stackoverflow.com/a/44969974/12026423
         setProperty("archivesBaseName", "nerd-steam-v$versionName")
 
