@@ -1,5 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.ui.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.SceneStrategy
@@ -70,14 +72,35 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
         onBack: (Int) -> Unit
     ): Scene<T>? {
 
-        val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+        val adaptiveInfo = currentWindowAdaptiveInfo()
+        val windowSizeClass = adaptiveInfo.windowSizeClass
+        val configuration = LocalConfiguration.current
+
+        val showNavRail = when {
+            adaptiveInfo.windowPosture.isTabletop -> false
+            windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+                -> true
+
+            else -> false
+        }
+        val isWideScreen = when {
+            !showNavRail -> false
+            windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
+                    && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
+                -> true
+
+            windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+                    && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
+                -> true
+
+            configuration.orientation == Configuration.ORIENTATION_LANDSCAPE -> true
+
+            else -> false
+        }
 
         // Condition 1: Only return the Scene if the window is sufficiently wide
         // (and not in portrait) to render two panes.
-        if (!((windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
-            && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND))
-            || (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
-                    && !windowSizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)))) {
+        if (!isWideScreen) {
             TwoPaneScene.IsActive = false
             return null
         }
