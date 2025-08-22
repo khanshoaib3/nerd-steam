@@ -25,15 +25,25 @@ android {
         secretPropertiesFile.inputStream().let {
             secretProperties.load(it)
         }
+    } else {
+        throw IllegalStateException(
+            "Missing configuration file: 'secret.properties'.\n"
+                    + "Please create this file in the project root and define required keys.n"
+        )
     }
+
+    if (!secretProperties.containsKey("IS_THERE_ANY_DEAL_API_KEY")) {
+        throw IllegalStateException("Missing API key: Please add IS_THERE_ANY_DEAL_API_KEY to secret.properties")
+    }
+
 
     defaultConfig {
         applicationId = "com.github.khanshoaib3.nerdsteam"
         minSdk = 30
         targetSdk = 36
         // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
-        versionCode = 1000000
-        versionName = "1.0.0"
+        versionCode = 1000001
+        versionName = "1.0.1"
         // Ref: https://stackoverflow.com/a/44969974/12026423
         setProperty("archivesBaseName", "nerd-steam-v$versionName")
 

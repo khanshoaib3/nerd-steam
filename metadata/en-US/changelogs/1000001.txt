@@ -1,0 +1,2 @@
+- Downgrade agp 8.12.1 > 8.11.1
+- Throw exception while building if secret.properties is not found containing the api key
