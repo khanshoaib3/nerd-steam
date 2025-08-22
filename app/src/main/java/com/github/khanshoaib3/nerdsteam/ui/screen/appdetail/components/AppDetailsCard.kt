@@ -33,8 +33,8 @@ fun AppDetailsCard(
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceAlertInfo: PriceAlert?,
-    startPriceTracking: (Float, Boolean) -> Unit,
-    stopPriceTracking: () -> Unit,
+    setPriceAlert: (Float, Boolean) -> Unit,
+    removePriceAlert: () -> Unit,
     modifier: Modifier = Modifier,
     showHeader: Boolean = true,
     isWideScreen: Boolean = false,
@@ -55,8 +55,8 @@ fun AppDetailsCard(
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive,
                     storedPriceAlertInfo = storedPriceAlertInfo,
-                    startPriceTracking = startPriceTracking,
-                    stopPriceTracking = stopPriceTracking,
+                    setPriceAlert = setPriceAlert,
+                    removePriceAlert = removePriceAlert,
                     showHeader = showHeader
                 )
             }
@@ -88,8 +88,8 @@ fun AppDetailsCard(
                     onBookmarkClick = onBookmarkClick,
                     isBookmarkActive = isBookmarkActive,
                     storedPriceAlertInfo = storedPriceAlertInfo,
-                    startPriceTracking = startPriceTracking,
-                    stopPriceTracking = stopPriceTracking,
+                    setPriceAlert = setPriceAlert,
+                    removePriceAlert = removePriceAlert,
                     showHeader = showHeader
                 )
                 CardLower(
@@ -119,8 +119,8 @@ private fun GameDetailScreenPreview() {
             fetchDataFromSourceCallback = {},
             onBookmarkClick = {},
             storedPriceAlertInfo = null,
-            startPriceTracking = { _, _ -> },
-            stopPriceTracking = {},
+            setPriceAlert = { _, _ -> },
+            removePriceAlert = {},
             isBookmarkActive = true,
             updateSelectedTabIndexCallback = {},
         )

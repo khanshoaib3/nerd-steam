@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.khanshoaib3.nerdsteam.R
@@ -58,8 +59,7 @@ fun PriceAlertRow(
                     style = MaterialTheme.typography.bodyLargeEmphasized
                 )
             }
-        }
-        else {
+        } else {
             FilledIconButton(
                 onClick = onClick,
                 modifier = Modifier.fillMaxWidth(0.8f)
@@ -94,7 +94,7 @@ fun PriceAlertSheet(
         onDismissRequest = onCancel,
         sheetState = sheetState,
     ) {
-        PriceTrackingSheetContent(
+        PriceAlertSheetContent(
             targetPrice = targetPrice,
             maxPrice = maxPrice,
             onPriceChange = onPriceChange,
@@ -111,7 +111,7 @@ fun PriceAlertSheet(
 }
 
 @Composable
-fun PriceTrackingSheetContent(
+fun PriceAlertSheetContent(
     targetPrice: Float,
     maxPrice: Float,
     onPriceChange: (Float) -> Unit,
@@ -204,7 +204,10 @@ fun PriceTrackingSheetContent(
                     .weight(1f)
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
-                Text("Cancel")
+                Text(
+                    "Cancel",
+                    textAlign = TextAlign.Center,
+                )
             }
             Button(
                 onClick = onConfirm,
@@ -212,7 +215,10 @@ fun PriceTrackingSheetContent(
                     .weight(1f)
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
-                Text(if (alertAlreadySet) "Update" else "Start Tracking")
+                Text(
+                    if (alertAlreadySet) "Update" else "Set Alert",
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }
@@ -222,8 +228,8 @@ fun PriceTrackingSheetContent(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PriceTrackingSheetPreview() {
-    PriceTrackingSheetContent(
+fun PriceAlertSheetPreview() {
+    PriceAlertSheetContent(
         targetPrice = 45.0f,
         maxPrice = 199.99f,
         onPriceChange = {},
@@ -232,7 +238,7 @@ fun PriceTrackingSheetPreview() {
         onSelectedNotificationOptionIndexChange = {},
         onCancel = {},
         onConfirm = {},
-        alertAlreadySet = true,
+        alertAlreadySet = false,
         onStop = {}
     )
 }

@@ -50,8 +50,8 @@ fun CardUpper(
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceAlertInfo: PriceAlert?,
-    startPriceTracking: (Float, Boolean) -> Unit,
-    stopPriceTracking: () -> Unit,
+    setPriceAlert: (Float, Boolean) -> Unit,
+    removePriceAlert: () -> Unit,
     showHeader: Boolean = true,
 ) = appData.commonDetails?.let { commonAppDetails ->
     val sheetState = rememberModalBottomSheetState()
@@ -134,13 +134,13 @@ fun CardUpper(
                 onSelectedNotificationOptionIndexChange = { selectedNotificationOptionIndex = it },
                 onCancel = { scope.launch { sheetState.hide() } },
                 onConfirm = {
-                    startPriceTracking(targetPrice, selectedNotificationOptionIndex == 0)
+                    setPriceAlert(targetPrice, selectedNotificationOptionIndex == 0)
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
                     scope.launch { sheetState.hide() }
                 },
                 alertAlreadySet = storedPriceAlertInfo != null,
                 onStop = {
-                    stopPriceTracking()
+                    removePriceAlert()
                     view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
                     scope.launch { sheetState.hide() }
                 }
@@ -198,8 +198,8 @@ private fun GameDetailScreenPreview() {
             onBookmarkClick = {},
             isBookmarkActive = false,
             storedPriceAlertInfo = null,
-            startPriceTracking = { _, _ -> },
-            stopPriceTracking = {}
+            setPriceAlert = { _, _ -> },
+            removePriceAlert = {}
         )
     }
 }

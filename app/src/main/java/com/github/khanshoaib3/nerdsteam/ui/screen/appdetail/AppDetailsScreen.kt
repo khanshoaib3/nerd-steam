@@ -62,7 +62,7 @@ fun AppDetailsScreenRoot(
     val view = LocalView.current
     val context = LocalContext.current
 
-    val startPriceTracking: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
+    val setPriceAlert: (Float, Boolean) -> Unit = { targetPrice, notifyEveryDay ->
         val toast = Toast.makeText(
             context,
             "Alert set for ${appData.commonDetails?.name ?: "the app"}",
@@ -73,7 +73,7 @@ fun AppDetailsScreenRoot(
             toast.show()
         }
     }
-    val stopPriceTracking: () -> Unit = {
+    val removePriceAlert: () -> Unit = {
         val toast = Toast.makeText(
             context,
             "Alert removed",
@@ -121,8 +121,8 @@ fun AppDetailsScreenRoot(
         onBookmarkClick = toggleBookmarkCallback,
         isBookmarkActive = appData.isBookmarked,
         storedPriceAlertInfo = appData.priceAlertInfo,
-        startPriceTracking = startPriceTracking,
-        stopPriceTracking = stopPriceTracking,
+        setPriceAlert = setPriceAlert,
+        removePriceAlert = removePriceAlert,
         isInTwoPaneScene = isInTwoPaneScene,
         onRefreshCallback = onRefreshCallback,
         onUpButtonClick = onUpButtonClick,
@@ -142,8 +142,8 @@ fun AppDetailsScreen(
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceAlertInfo: PriceAlert?,
-    startPriceTracking: (Float, Boolean) -> Unit,
-    stopPriceTracking: () -> Unit,
+    setPriceAlert: (Float, Boolean) -> Unit,
+    removePriceAlert: () -> Unit,
     isInTwoPaneScene: Boolean,
     onRefreshCallback: () -> Unit,
     onUpButtonClick: () -> Unit,
@@ -173,8 +173,8 @@ fun AppDetailsScreen(
                 onBookmarkClick = onBookmarkClick,
                 isBookmarkActive = isBookmarkActive,
                 storedPriceAlertInfo = storedPriceAlertInfo,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
+                setPriceAlert = setPriceAlert,
+                removePriceAlert = removePriceAlert,
                 updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 showHeader = true,
             )
@@ -212,8 +212,8 @@ fun AppDetailsScreen(
                 onBookmarkClick = onBookmarkClick,
                 isBookmarkActive = isBookmarkActive,
                 storedPriceAlertInfo = appData.priceAlertInfo,
-                startPriceTracking = startPriceTracking,
-                stopPriceTracking = stopPriceTracking,
+                setPriceAlert = setPriceAlert,
+                removePriceAlert = removePriceAlert,
                 updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 modifier = Modifier
                     .fillMaxSize()

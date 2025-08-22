@@ -72,6 +72,7 @@ class TwoPaneSceneStrategy<T : Any> : SceneStrategy<T> {
         onBack: (Int) -> Unit
     ): Scene<T>? {
 
+        // TODO Maybe extract this into a util. *This is also in RootNavDisplay*
         val adaptiveInfo = currentWindowAdaptiveInfo()
         val windowSizeClass = adaptiveInfo.windowSizeClass
         val configuration = LocalConfiguration.current
