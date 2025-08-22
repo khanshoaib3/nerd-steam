@@ -8,12 +8,12 @@ The app is built using Kotlin + Jetpack Compose following MVVM architecture with
 > The project is not affiliated to Steam, SteamCharts, IsThereAnyDeal, or any other services that are used. It's merely a wrapper of all of the mentioned websites and is not meant to replace them.
 
 <div align="center">
+    <a href="https://github.com/khanshoaib3/nerd-steam/releases/latest"><img src="../assets/download_apk.png" alt="Download Apk" height="80"></a>
     <a href="https://f-droid.org/packages/com.github.khanshoaib3.nerdsteam">
         <img src="https://f-droid.org/badge/get-it-on.png"
         alt="Get it on F-Droid"
-        height="60">
+        height="80">
     </a>
-    <a href="https://github.com/khanshoaib3/nerd-steam/releases/latest" ><img src="https://img.shields.io/badge/Download-black?style=flat" alt="Download Apk" height="50"></a>
 </div>
 
 ## Features
@@ -44,32 +44,34 @@ The app is built using Kotlin + Jetpack Compose following MVVM architecture with
         </tr>
         <tr>
             <td colspan="4">
-                <figure>
-                    <img src="./media/home_wide.png" alt="Home Screen in a tablet"/>
-                    <figcaption style="text-align:center;">Home Screen in a tablet</figcaption>
-                </figure>
+                <div align="center">
+                    <img src="./media/home_wide.png" alt="Home Screen in a tabler"/>
+                    <span>Home Screen in a tablet</span>
+                </div>
             </td>
         </tr>
         <tr>
             <td colspan="4">
-                <figure>
+                <div align="center">
                     <img src="./media/search_wide.png" alt="Search Screen in a tablet"/>
-                    <figcaption style="text-align:center;">Search Screen in a tablet</figcaption>
-                </figure>
+                    <span>Search Screen in a tablet</span>
+                </div>
             </td>
         </tr>
         <tr>
             <td colspan="4">
-                <figure>
+                <div align="center">
                     <img src="./media/details_price_stats.png" alt="Price Comparision of Batman Arkham City GOTY Edition"/>
-                    <figcaption style="text-align:center;">Price Comparision of Batman: Arkham City GOTY Edition</figcaption>
+                    <span>Price Comparision of Batman: Arkham City GOTY Edition</span>
+                </div>
             </td>
         </tr>
         <tr>
             <td colspan="4">
-                <figure>
+                <div align="center">
                     <img src="./media/deatils_player_stats.png" alt="Player Statistics of Batman Arkham City GOTY Edition"/>
-                    <figcaption style="text-align:center;">Player Statistics of Batman: Arkham City GOTY Edition</figcaption>
+                    <span>Player Statistics of Batman: Arkham City GOTY Edition</span>
+                </div>
             </td>
         </tr>
     </tbody>
