@@ -23,7 +23,7 @@ The app is built using Kotlin + Jetpack Compose following MVVM architecture with
 - See **player statistics** i.e., how many players on average played the game at a specific month.
 - **Compare prices** and deals for a game from other platforms (like GOG, Humble Store).
 - Set **price alerts** and **bookmark** games for quick access.
-- Data is sourced from Steam, SteamCharts, and IsThereAnyDeal.
+- Data is sourced from multiple sources such as Steam, SteamCharts, and IsThereAnyDeal, while also caching data locally for performance.
 
 <details><summary>View/Hide Screenshots</summary><p>
 <table>

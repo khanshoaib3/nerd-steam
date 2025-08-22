@@ -1,0 +1,18 @@
+NerdSteam is a hobby project of mine where users can view trending and top games of Steam,
+compare prices across platforms, view historical pricing, track player statistics, and more.
+The app is built using Kotlin + Jetpack Compose following MVVM architecture with a clean and responsive UI.
+
+Features:
+- View currently trending games, top games (based on the player count) and also top records (all time most played game by player count).
+- View the game details in a structured and responsive UI.
+- See player statistics i.e., how many players on average played the game at a specific month.
+- Compare prices and deals for a game from other platforms (like GOG, Humble Store).
+- Set price alerts and bookmark games for quick access.
+- Data is sourced from multiple sources such as Steam, SteamCharts, and IsThereAnyDeal, while also caching data locally for performance.
+
+
+Desclaimer:
+The project is not affiliated to Steam, SteamCharts, IsThereAnyDeal, or any other services that are used.
+It's merely a wrapper of all of the mentioned websites and is not meant to replace them.
+
+Source Code: https://github.com/khanshoaib3/nerd-steam/
