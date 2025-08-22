@@ -103,7 +103,7 @@ fun OverviewTable(
             }
             OverviewItem(
                 name = "Release Date",
-                value = if (commonAppDetails.isReleased) commonAppDetails.releaseDate else "Coming Soon"
+                value = commonAppDetails.releaseDate
             )
             if (!commonAppDetails.tags.isNullOrEmpty()) {
                 OverviewItem(
