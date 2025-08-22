@@ -64,7 +64,6 @@ android {
             )
             isShrinkResources = true
             isDebuggable = false
-            versionNameSuffix = "-release"
         }
         debug {
             isDebuggable = true
