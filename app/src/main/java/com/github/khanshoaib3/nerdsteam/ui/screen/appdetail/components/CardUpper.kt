@@ -96,6 +96,7 @@ fun CardUpper(
             PriceAndRating(
                 modifier = Modifier.fillMaxWidth(),
                 isFree = commonAppDetails.isFree,
+                isReleased = commonAppDetails.isReleased,
                 currentPrice = commonAppDetails.currentPrice,
                 originalPrice = commonAppDetails.originalPrice,
                 currency = commonAppDetails.currency,

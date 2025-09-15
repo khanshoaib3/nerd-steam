@@ -31,18 +31,20 @@ import java.util.Locale
 fun PriceAndRating(
     modifier: Modifier = Modifier,
     isFree: Boolean,
+    isReleased: Boolean,
     currentPrice: Float,
     originalPrice: Float,
     currency: String,
     review: Reviews?,
 ) {
-    if (!isFree && originalPrice != 0f && review == null) return
+    if ((isFree || !isReleased || originalPrice == 0f) && (review == null)) return
+
     val context = LocalContext.current
     FlowRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier.fillMaxWidth()
     ) {
-        if (!isFree && originalPrice != 0f) {
+        if (!isFree && isReleased && originalPrice != 0f) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
             ) {
@@ -61,7 +63,6 @@ fun PriceAndRating(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-
             }
         }
         if (review != null) {
@@ -77,7 +78,8 @@ fun PriceAndRating(
                         }
                 ) {
                     Text(
-                        text = NumberFormat.getNumberInstance(Locale.getDefault()).format(review.score),
+                        text = NumberFormat.getNumberInstance(Locale.getDefault())
+                            .format(review.score),
                         style = MaterialTheme.typography.headlineMediumEmphasized,
                         fontWeight = FontWeight.Bold
                     )
@@ -98,6 +100,7 @@ private fun PriceAndRatingPreview() {
     NerdSteamTheme {
         PriceAndRating(
             isFree = false,
+            isReleased = true,
             currentPrice = 1499f,
             originalPrice = 2999f,
             currency = "INR",
