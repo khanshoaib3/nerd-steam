@@ -42,7 +42,7 @@ android {
         minSdk = 30
         targetSdk = 36
         // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
-        versionCode = 1000001
+        versionCode = 1000002
         versionName = "1.0.2"
         // Ref: https://stackoverflow.com/a/44969974/12026423
         setProperty("archivesBaseName", "nerd-steam-v$versionName")
