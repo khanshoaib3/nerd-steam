@@ -42,8 +42,8 @@ android {
         minSdk = 30
         targetSdk = 36
         // Following versionCode convention from f-droid repo: https://gitlab.com/fdroid/fdroidclient/-/blob/master/metadata/en-US/changelogs
-        versionCode = 1000002
-        versionName = "1.0.2"
+        versionCode = 1000003
+        versionName = "1.0.3"
         // Ref: https://stackoverflow.com/a/44969974/12026423
         setProperty("archivesBaseName", "nerd-steam-v$versionName")
 
@@ -98,6 +98,14 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+    }
+}
+
+// Workaround to fix baseline.profile not being reproducible bug
+// https://gitlab.com/fdroid/fdroiddata/-/merge_requests/26227#note_2766495135
+tasks.whenTaskAdded {
+    if (name.contains("ArtProfile")) {
+        enabled = false
     }
 }
 

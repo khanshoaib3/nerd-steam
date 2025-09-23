@@ -1,0 +1,2 @@
+- Disabled DependencyInfoBlock (see info here).
+- Fixed bug in price and ratings row.
