@@ -1,0 +1,2 @@
+- Removed cache before building release to potentially fix unreproducible build.
+- Additionally, built the apks with command line instead just in case.

@@ -20,7 +20,7 @@ The app is built using Kotlin + Jetpack Compose following MVVM architecture with
 - Set **price alerts** and **bookmark** games for quick access.
 - Data is sourced from multiple sources such as Steam, SteamCharts, and IsThereAnyDeal, while also caching data locally for performance.
 
-<details><summary>View/Hide Screenshots</summary><p>
+<details open=""><summary>View/Hide Screenshots</summary><p>
 <table>
     <tbody>
         <tr>
