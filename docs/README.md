@@ -9,6 +9,11 @@ The app is built using Kotlin + Jetpack Compose following MVVM architecture with
 
 <div align="center">
     <a href="https://github.com/khanshoaib3/nerd-steam/releases/latest"><img src="../assets/download_apk.png" alt="Download Apk" height="80"></a>
+    <a href="https://f-droid.org/packages/com.github.khanshoaib3.nerdsteam">
+        <img src="https://f-droid.org/badge/get-it-on.png"
+        alt="Get it on F-Droid"
+        height="80">
+    </a>
 </div>
 
 ## Features
