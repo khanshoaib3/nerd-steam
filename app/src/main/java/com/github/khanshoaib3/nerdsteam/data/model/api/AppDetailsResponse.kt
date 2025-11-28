@@ -49,23 +49,11 @@ data class Movie(
     @SerialName("id") val id: Int,
     @SerialName("name") val name: String,
     @SerialName("thumbnail") val thumbnail: String,
-    @SerialName("webm") val webm: Webm,
-    @SerialName("mp4") val mp4: Mp4,
+    @SerialName("dash_av1") val dashAV1: String,
+    @SerialName("dash_h264") val dashH264: String,
+    @SerialName("hls_h264") val hlsH264: String,
     @SerialName("highlight") val highlight: Boolean
 )
-
-@Serializable
-data class Webm(
-    @SerialName("480") val low: String,
-    @SerialName("max") val max: String
-)
-
-@Serializable
-data class Mp4(
-    @SerialName("480") val low: String,
-    @SerialName("max") val max: String
-)
-
 
 @Serializable
 data class Platforms(

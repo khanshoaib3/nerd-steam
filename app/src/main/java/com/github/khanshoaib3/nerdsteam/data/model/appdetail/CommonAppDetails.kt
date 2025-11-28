@@ -118,7 +118,7 @@ data class CommonAppDetails(
                 requirements = requirements,
                 media = if (steamResponse?.screenshots != null) Media(
                     screenshots = steamResponse.screenshots.map { it.pathFull },
-                    movies = steamResponse.movies?.map { it.webm.low }
+                    movies = steamResponse.movies?.map { it.dashH264 }
                 ) else null,
                 dlcIds = steamResponse?.dlc
             )
