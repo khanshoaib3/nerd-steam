@@ -1,7 +1,6 @@
 package com.github.khanshoaib3.nerdsteam.ui.navigation
 
 import android.view.HapticFeedbackConstants
-import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -137,13 +136,12 @@ fun TopLevelNavDisplay(
             transitionSpec = {
                 if (TwoPaneScene.IsActive && topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between app details in two pane screen view (performs the default fade transitions)
-                    ContentTransform(
-                        fadeIn(animationSpec = tween(700)),
-                        fadeOut(animationSpec = tween(700)),
-                    )
+                    fadeIn(animationSpec = tween(700)) togetherWith
+                            fadeOut(animationSpec = tween(700))
                 } else if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between top level screens only do minimal transitions
-                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (it * 0.2).toInt() } togetherWith fadeOut()
+                    fadeIn(animationSpec = tween()) togetherWith
+                            fadeOut(animationSpec = tween())
                 } else {
                     // Slide in from right when navigating forward
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { it } togetherWith
@@ -153,7 +151,8 @@ fun TopLevelNavDisplay(
             popTransitionSpec = {
                 if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between top level screens only do minimal transitions
-                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } togetherWith fadeOut()
+                    fadeIn(animationSpec = tween()) togetherWith
+                            fadeOut(animationSpec = tween())
                 } else {
                     // Slide in from left when navigating back
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith
@@ -163,7 +162,8 @@ fun TopLevelNavDisplay(
             predictivePopTransitionSpec = {
                 if (topLevelBackStack.lastTopLevelKey != topLevelBackStack.topLevelKey) {
                     // When changing between top level screens only do minimal transitions
-                    slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) { (-it * 0.2).toInt() } + fadeIn() togetherWith fadeOut()
+                    fadeIn(animationSpec = tween()) togetherWith
+                            fadeOut(animationSpec = tween())
                 } else {
                     // Slide in from left when navigating back
                     slideInHorizontally(spring(stiffness = Spring.StiffnessLow)) togetherWith
