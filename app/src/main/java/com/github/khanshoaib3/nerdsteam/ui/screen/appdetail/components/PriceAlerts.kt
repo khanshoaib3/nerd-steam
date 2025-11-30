@@ -85,13 +85,14 @@ fun PriceAlertSheet(
     notificationOptions: List<String>,
     onSelectedNotificationOptionIndexChange: (Int) -> Unit,
     onCancel: () -> Unit,
+    onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     alertAlreadySet: Boolean,
     onStop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ModalBottomSheet(
-        onDismissRequest = onCancel,
+        onDismissRequest = onDismiss,
         sheetState = sheetState,
     ) {
         PriceAlertSheetContent(

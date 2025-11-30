@@ -15,32 +15,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.HapticFeedbackConstantsCompat
 import com.github.khanshoaib3.nerdsteam.R
 import com.github.khanshoaib3.nerdsteam.data.model.api.AppDetailsResponse
 import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.nerdsteam.ui.components.CenterAlignedSelectableText
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.AppData
 import com.github.khanshoaib3.nerdsteam.ui.theme.NerdSteamTheme
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,26 +38,9 @@ fun CardUpper(
     onBookmarkClick: () -> Unit,
     isBookmarkActive: Boolean,
     storedPriceAlertInfo: PriceAlert?,
-    setPriceAlert: (Float, Boolean) -> Unit,
-    removePriceAlert: () -> Unit,
+    showPriceAlertSheetCallback: () -> Unit,
     showHeader: Boolean = true,
 ) = appData.commonDetails?.let { commonAppDetails ->
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    val view = LocalView.current
-
-    val notificationOptions = listOf("Everyday", "Once")
-    var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
-
-    val maxPrice = commonAppDetails.originalPrice
-    val currentPrice = commonAppDetails.currentPrice
-    var targetPrice by remember(appData.steamAppId) { mutableFloatStateOf(currentPrice) }
-    LaunchedEffect(storedPriceAlertInfo) {
-        if (storedPriceAlertInfo == null) return@LaunchedEffect
-        targetPrice = storedPriceAlertInfo.targetPrice
-        selectedNotificationOptionIndex = if (storedPriceAlertInfo.notifyEveryDay) 0 else 1
-    }
-
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier
     ) {
@@ -117,36 +88,13 @@ fun CardUpper(
 
             if (!commonAppDetails.isFree && commonAppDetails.isReleased && commonAppDetails.originalPrice != 0f) {
                 PriceAlertRow(
-                    onClick = { scope.launch { sheetState.show() } },
+                    onClick = showPriceAlertSheetCallback,
                     alertAlreadySet = storedPriceAlertInfo != null,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
 
-        if (sheetState.isVisible) {
-            PriceAlertSheet(
-                sheetState = sheetState,
-                targetPrice = targetPrice,
-                maxPrice = maxPrice,
-                onPriceChange = { targetPrice = (it * 100).roundToInt() / 100f },
-                selectedNotificationOptionIndex = selectedNotificationOptionIndex,
-                notificationOptions = notificationOptions,
-                onSelectedNotificationOptionIndexChange = { selectedNotificationOptionIndex = it },
-                onCancel = { scope.launch { sheetState.hide() } },
-                onConfirm = {
-                    setPriceAlert(targetPrice, selectedNotificationOptionIndex == 0)
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
-                    scope.launch { sheetState.hide() }
-                },
-                alertAlreadySet = storedPriceAlertInfo != null,
-                onStop = {
-                    removePriceAlert()
-                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
-                    scope.launch { sheetState.hide() }
-                }
-            )
-        }
     }
 }
 
@@ -199,8 +147,7 @@ private fun GameDetailScreenPreview() {
             onBookmarkClick = {},
             isBookmarkActive = false,
             storedPriceAlertInfo = null,
-            setPriceAlert = { _, _ -> },
-            removePriceAlert = {}
+            showPriceAlertSheetCallback = {}
         )
     }
 }

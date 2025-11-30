@@ -26,10 +26,18 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -42,9 +50,11 @@ import com.github.khanshoaib3.nerdsteam.data.model.appdetail.PriceAlert
 import com.github.khanshoaib3.nerdsteam.ui.components.ErrorColumn
 import com.github.khanshoaib3.nerdsteam.ui.components.TwoPaneScene
 import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components.AppDetailsCard
+import com.github.khanshoaib3.nerdsteam.ui.screen.appdetail.components.PriceAlertSheet
 import com.github.khanshoaib3.nerdsteam.utils.Progress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -152,6 +162,30 @@ fun AppDetailsScreen(
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
     topAppBarScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
 ) {
+    val sheetState = rememberModalBottomSheetState()
+    val view = LocalView.current
+    val scope = rememberCoroutineScope()
+
+    val notificationOptions = listOf("Everyday", "Once")
+    var selectedNotificationOptionIndex by remember { mutableIntStateOf(0) }
+
+    val maxPrice = appData.commonDetails!!.originalPrice
+    val currentPrice = appData.commonDetails.currentPrice
+    var targetPrice by remember(appData.steamAppId) { mutableFloatStateOf(currentPrice) }
+    LaunchedEffect(storedPriceAlertInfo) {
+        if (storedPriceAlertInfo == null) return@LaunchedEffect
+        targetPrice = storedPriceAlertInfo.targetPrice
+        selectedNotificationOptionIndex = if (storedPriceAlertInfo.notifyEveryDay) 0 else 1
+    }
+    var showPriceAlertSheet by rememberSaveable { mutableStateOf(false) }
+    val hideSheetCallback: () -> Unit = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                showPriceAlertSheet = false
+            }
+        }
+    }
+
     PullToRefreshBox(
         isRefreshing = appViewState.refreshStatus == Progress.LOADING,
         onRefresh = onRefreshCallback,
@@ -173,8 +207,7 @@ fun AppDetailsScreen(
                 onBookmarkClick = onBookmarkClick,
                 isBookmarkActive = isBookmarkActive,
                 storedPriceAlertInfo = storedPriceAlertInfo,
-                setPriceAlert = setPriceAlert,
-                removePriceAlert = removePriceAlert,
+                showPriceAlertSheetCallback = removePriceAlert,
                 updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 showHeader = true,
             )
@@ -185,7 +218,7 @@ fun AppDetailsScreen(
             modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
-                    title = { Text(appData.commonDetails?.name ?: "No Name") },
+                    title = { Text(appData.commonDetails.name) },
                     navigationIcon = {
                         IconButton(onClick = onUpButtonClick) {
                             Icon(
@@ -212,14 +245,39 @@ fun AppDetailsScreen(
                 onBookmarkClick = onBookmarkClick,
                 isBookmarkActive = isBookmarkActive,
                 storedPriceAlertInfo = appData.priceAlertInfo,
-                setPriceAlert = setPriceAlert,
-                removePriceAlert = removePriceAlert,
+                showPriceAlertSheetCallback = {showPriceAlertSheet = true},
                 updateSelectedTabIndexCallback = updateSelectedTabIndexCallback,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = innerPadding.calculateTopPadding()),
                 showHeader = false,
                 isWideScreen = isWideScreen,
+            )
+        }
+
+        if (showPriceAlertSheet) {
+            @Suppress("AssignedValueIsNeverRead")
+            PriceAlertSheet(
+                sheetState = sheetState,
+                targetPrice = targetPrice,
+                maxPrice = maxPrice,
+                onPriceChange = { targetPrice = (it * 100).roundToInt() / 100f },
+                selectedNotificationOptionIndex = selectedNotificationOptionIndex,
+                notificationOptions = notificationOptions,
+                onSelectedNotificationOptionIndexChange = { selectedNotificationOptionIndex = it },
+                onConfirm = {
+                    setPriceAlert(targetPrice, selectedNotificationOptionIndex == 0)
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
+                    hideSheetCallback()
+                },
+                alertAlreadySet = storedPriceAlertInfo != null,
+                onStop = {
+                    removePriceAlert()
+                    view.performHapticFeedback(HapticFeedbackConstantsCompat.CONFIRM)
+                    hideSheetCallback()
+                },
+                onCancel = { hideSheetCallback() },
+                onDismiss = { showPriceAlertSheet = false }
             )
         }
     }
