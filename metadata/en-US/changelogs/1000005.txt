@@ -1,0 +1,3 @@
+- Fixed game details not loading.
+- Fixed price alert sheet not animating.
+- Replaced transition animation when switching between top-level routes to fade in/out.
